@@ -18,7 +18,9 @@ import {
 
 export const userStatusEnum = pgEnum("user_status", [
 	"invited",
+	"pending",
 	"active",
+	"rejected",
 	"suspended",
 	"deactivated",
 ]);
@@ -293,6 +295,7 @@ export const userProfiles = pgTable(
 		orcid: varchar("orcid", { length: 32 }),
 		phone: varchar("phone", { length: 64 }),
 		publicEmail: varchar("public_email", { length: 320 }),
+		recoveryEmail: varchar("recovery_email", { length: 320 }),
 		avatarFileId: uuid("avatar_file_id"),
 		createdAt: timestamp("created_at", { withTimezone: true })
 			.defaultNow()

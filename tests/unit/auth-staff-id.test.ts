@@ -52,8 +52,9 @@ describe("staff ID sign-in scaffolding", () => {
 	it("builds the username signup payload expected by Better Auth", () => {
 		expect(
 			buildStaffSignUpPayload({
-				department: "Computer Science and Engineering",
-				faculty: "Technology",
+				departmentId: "00000000-0000-4000-8000-000000000201",
+				email: "amina@oauife.edu.ng",
+				facultyId: "00000000-0000-4000-8000-000000000101",
 				firstName: "Amina",
 				kind: "lecturer",
 				lastName: "Adeyemi",
@@ -71,8 +72,9 @@ describe("staff ID sign-in scaffolding", () => {
 
 	it("validates the lecturer signup fields and AC/ staff ID prefix", () => {
 		const result = validateStaffSignUpInput({
-			department: "Computer Science and Engineering",
-			faculty: "Technology",
+			departmentId: "00000000-0000-4000-8000-000000000201",
+			email: "amina@oauife.edu.ng",
+			facultyId: "00000000-0000-4000-8000-000000000101",
 			firstName: "Amina",
 			kind: "lecturer",
 			lastName: "Adeyemi",
@@ -89,6 +91,7 @@ describe("staff ID sign-in scaffolding", () => {
 	it("validates the IPTTO signup fields and AT/ staff ID prefix", () => {
 		const result = validateStaffSignUpInput({
 			kind: "iptto",
+			email: "innovation@oauife.edu.ng",
 			name: "Innovation Desk",
 			password: "Pass12!A",
 			staffId: "AC/1234",
@@ -103,6 +106,7 @@ describe("staff ID sign-in scaffolding", () => {
 	it("requires signup passwords to be exactly 8 characters", () => {
 		const result = validateStaffSignUpInput({
 			kind: "iptto",
+			email: "innovation@oauife.edu.ng",
 			name: "Innovation Desk",
 			password: "short",
 			staffId: "AT/1302",
@@ -117,6 +121,7 @@ describe("staff ID sign-in scaffolding", () => {
 	it("requires signup passwords to include uppercase lowercase number and a special symbol", () => {
 		const result = validateStaffSignUpInput({
 			kind: "iptto",
+			email: "innovation@oauife.edu.ng",
 			name: "Innovation Desk",
 			password: "Pass1234",
 			staffId: "AT/1302",

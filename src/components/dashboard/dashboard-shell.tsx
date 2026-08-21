@@ -447,8 +447,10 @@ function SidebarButton({
 }
 
 export function DashboardPage({
+	children,
 	workspace,
 }: {
+	children?: ReactNode;
 	workspace: DashboardWorkspace;
 }) {
 	const isResponsiveWorkspace = isNonAdminWorkspace(workspace.role);
@@ -597,6 +599,7 @@ export function DashboardPage({
 					isResponsiveWorkspace={isResponsiveWorkspace}
 					workspace={effectiveWorkspace}
 				/>
+				{children}
 				<div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
 					<div className="min-w-0 space-y-6">
 						<DataPanel

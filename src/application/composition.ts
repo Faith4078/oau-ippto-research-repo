@@ -10,6 +10,11 @@ import {
 	type JobQueueRepository,
 } from "./jobs.ts";
 import {
+	createOrganizationDirectoryService,
+	type OrganizationDirectoryRepository,
+	type OrganizationDirectoryService,
+} from "./organization-directory.ts";
+import {
 	createRateLimiterService,
 	type RateLimiterService,
 	type RateLimitStore,
@@ -28,6 +33,9 @@ import {
 } from "./research-workflow.ts";
 
 export type ApplicationDependencies = {
+	accountAdministrationRepository: AccountAdministrationRepository;
+	accountNotificationSender: AccountNotificationSender;
+	organizationDirectoryRepository: OrganizationDirectoryRepository;
 	researchRepository: ResearchWorkflowRepository;
 	auditRepository: ResearchWorkflowAuditRepository;
 	storageSigner: ObjectStorageSigner;
@@ -39,6 +47,8 @@ export type ApplicationDependencies = {
 };
 
 export type ApplicationServices = {
+	accountAdministration: AccountAdministrationService;
+	organizationDirectory: OrganizationDirectoryService;
 	backgroundJobs: BackgroundJobsService;
 	innovationManagement: InnovationManagementService;
 	rateLimiter: RateLimiterService;
@@ -50,6 +60,13 @@ export function createApplicationServices(
 	dependencies: ApplicationDependencies,
 ): ApplicationServices {
 	return {
+		accountAdministration: createAccountAdministrationService({
+			repository: dependencies.accountAdministrationRepository,
+			notifications: dependencies.accountNotificationSender,
+		}),
+		organizationDirectory: createOrganizationDirectoryService(
+			dependencies.organizationDirectoryRepository,
+		),
 		backgroundJobs: createBackgroundJobsService(dependencies),
 		innovationManagement: createInnovationManagementService({
 			repository: dependencies.innovationRepository,
@@ -65,3 +82,10 @@ export function createApplicationServices(
 		researchWorkflow: createResearchWorkflowService(dependencies),
 	};
 }
+
+import {
+	type AccountAdministrationRepository,
+	type AccountAdministrationService,
+	type AccountNotificationSender,
+	createAccountAdministrationService,
+} from "./account-administration.ts";

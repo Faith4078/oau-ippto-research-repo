@@ -4,6 +4,17 @@
 
 Store production secrets only in Vercel environment variables or Cloudflare Worker secrets. `.env.example` documents the required keys and must never contain real credentials.
 
+## Transactional Email
+
+Configure `EMAIL_API_URL`, `EMAIL_API_TOKEN`, and `EMAIL_FROM`. The endpoint must accept an authenticated JSON request containing `from`, `to`, `subject`, `text`, and `html`. Password reset links are returned to the browser only when `PASSWORD_RESET_DEBUG=true` in a non-production environment; production ignores that flag. Delivery errors are logged without the recipient, reset token, or reset URL.
+
+Operational checks:
+
+- Send a password reset to an active staging account and confirm the link expires after one hour.
+- Approve and reject staging accounts and confirm each status email arrives.
+- Confirm provider logs and application error monitoring do not retain reset URLs.
+- Rotate the provider token before launch and whenever exposure is suspected.
+
 ## File Storage
 
 Cloudflare R2 is the source of file bytes. PostgreSQL stores metadata only. Large files must be uploaded and downloaded directly through short-lived signed URLs.

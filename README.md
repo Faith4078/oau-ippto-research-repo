@@ -133,7 +133,9 @@ Passwords must be exactly 8 characters and include:
 - At least one number.
 - At least one special symbol.
 
-Current public signup creates lecturer and IPTTO accounts. Admin approval is listed in `remaining-todo.md` as a production hardening item.
+Public lecturer and IPTTO signup creates a `pending` account and does not return an authenticated session. A super administrator reviews requests in the dashboard approval queue; approval, rejection, suspension, deactivation, and reactivation are enforced as explicit account-state transitions and written to the audit log.
+
+Lecturer signup loads faculty and department choices from the database and the server verifies that the selected department belongs to the selected faculty. Both signup flows require a real email address for password recovery and account-status notifications.
 
 ## File Uploads
 
@@ -189,6 +191,7 @@ Before production launch:
 
 - Configure all required Vercel environment variables.
 - Configure Better Auth URL, trusted origins, and secret.
+- Configure `EMAIL_API_URL`, `EMAIL_API_TOKEN`, and `EMAIL_FROM` for transactional email.
 - Configure PostgreSQL with SSL, backups, and controlled migrations.
 - Configure Cloudflare R2 bucket, credentials, endpoint, public base URL, and CORS.
 - Run migrations through a controlled release process.
@@ -199,7 +202,7 @@ See `docs/deployment.md`, `docs/operations.md`, `docs/storage.md`, `docs/rate-li
 
 ## Remaining Production Work
 
-See `remaining-todo.md` for the current production readiness checklist. The highest priority items are email delivery for password reset, admin approval onboarding, production seed workflow, deployed job processing, R2 staging verification, monitoring, and full staging smoke tests.
+See `docs/remaining-todo.md` for the current production readiness checklist. Repository support for password-reset email, pending account approval, and controlled signup organization data is implemented. The remaining checklist is primarily deployment integration and institutional operations: provider credentials, production seed workflow, deployed job processing, R2 staging verification, monitoring, and full staging smoke tests.
 
 ## Design Guidance
 

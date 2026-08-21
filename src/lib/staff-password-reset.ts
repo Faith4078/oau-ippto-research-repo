@@ -6,6 +6,11 @@ import { z } from "zod";
 
 import { getDatabaseUrl } from "#/db/env.ts";
 import * as schema from "#/infrastructure/db/schema.ts";
+import {
+	createTransactionalEmailSender,
+	renderPasswordResetEmail,
+	shouldExposePasswordResetDebugLink,
+} from "#/infrastructure/email/transactional-email.ts";
 
 import {
 	isAdministrativeStaffId,
@@ -71,17 +76,59 @@ export async function handleStaffPasswordResetRequest(request: Request) {
 		);
 	}
 
+	let emailSender: ReturnType<typeof createTransactionalEmailSender>;
+	try {
+		emailSender = createTransactionalEmailSender();
+	} catch {
+		return Response.json(
+			{
+				error: {
+					code: "EMAIL_UNAVAILABLE",
+					message: "Password reset email is temporarily unavailable.",
+				},
+			},
+			{ status: 503 },
+		);
+	}
+
 	const reset = await createResetTokenForStaffId(
 		databaseUrl,
 		parsed.data.staffId,
 		request.url,
 	);
 
+	if (reset) {
+		try {
+			await emailSender.send(
+				renderPasswordResetEmail({
+					resetUrl: reset.resetUrl,
+					to: reset.email,
+				}),
+			);
+		} catch (error) {
+			console.error("Password reset email delivery failed.", {
+				error: error instanceof Error ? error.message : "Unknown email error",
+			});
+			return Response.json(
+				{
+					error: {
+						code: "EMAIL_DELIVERY_FAILED",
+						message: "Password reset email could not be delivered.",
+					},
+				},
+				{ status: 503 },
+			);
+		}
+	}
+
+	const exposeDebugLink = shouldExposePasswordResetDebugLink();
+
 	return Response.json({
 		data: {
 			accepted: true,
-			expiresAt: reset?.expiresAt.toISOString() ?? null,
-			resetUrl: reset?.resetUrl ?? null,
+			expiresAt:
+				exposeDebugLink && reset ? reset.expiresAt.toISOString() : null,
+			resetUrl: exposeDebugLink ? (reset?.resetUrl ?? null) : null,
 		},
 	});
 }
@@ -144,17 +191,26 @@ async function createResetTokenForStaffId(
 ) {
 	const database = drizzle(databaseUrl, { schema });
 	const normalizedStaffId = normalizeStaffId(staffId);
-	const [account] = await database
+	const [applicationUser] = await database
 		.select({
-			authUserId: schema.authUser.id,
+			email: schema.users.email,
 			status: schema.users.status,
 		})
 		.from(schema.users)
-		.innerJoin(schema.authUser, eq(schema.authUser.email, schema.users.email))
 		.where(eq(schema.users.staffId, normalizedStaffId))
 		.limit(1);
 
-	if (!account || account.status !== "active") {
+	if (!applicationUser || applicationUser.status !== "active") {
+		return null;
+	}
+
+	const [authAccount] = await database
+		.select({ id: schema.authUser.id })
+		.from(schema.authUser)
+		.where(eq(schema.authUser.username, normalizedStaffId))
+		.limit(1);
+
+	if (!authAccount) {
 		return null;
 	}
 
@@ -167,14 +223,19 @@ async function createResetTokenForStaffId(
 		id: randomUUID(),
 		identifier: `reset-password:${token}`,
 		updatedAt: new Date(),
-		value: account.authUserId,
+		value: authAccount.id,
 	});
 
-	const resetUrl = new URL("/reset-password", requestUrl);
+	const publicBaseUrl = process.env.PUBLIC_BASE_URL?.trim();
+	const resetUrl = new URL(
+		"/reset-password",
+		publicBaseUrl || new URL(requestUrl).origin,
+	);
 	resetUrl.searchParams.set("token", token);
 
 	return {
+		email: applicationUser.email,
 		expiresAt,
-		resetUrl: resetUrl.pathname + resetUrl.search,
+		resetUrl: resetUrl.toString(),
 	};
 }

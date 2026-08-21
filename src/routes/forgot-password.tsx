@@ -95,10 +95,10 @@ function ForgotPasswordPage() {
 				setResetUrl(payload.data.resetUrl);
 			}
 
-			toast.success("Password reset started", {
-				description:
-					payload?.data?.resetUrl ??
-					"If this Staff ID exists, a reset link has been created.",
+			toast.success("Check your email", {
+				description: payload?.data?.resetUrl
+					? "A debug reset link is available below."
+					: "If this Staff ID has an active account, reset instructions have been sent.",
 			});
 		} catch {
 			const message =
@@ -124,8 +124,8 @@ function ForgotPasswordPage() {
 						Reset your staff password.
 					</h1>
 					<p className="mt-5 text-base leading-7 text-[#6b7280]">
-						Use your institutional Staff ID to create a password reset link for
-						your lecturer or IPTTO account.
+						Use your institutional Staff ID to receive password reset
+						instructions for your lecturer or IPTTO account.
 					</p>
 				</div>
 
@@ -134,7 +134,9 @@ function ForgotPasswordPage() {
 						<CardTitle className="text-2xl leading-tight tracking-normal">
 							Forgot Password
 						</CardTitle>
-						<CardDescription>Enter your staff account details.</CardDescription>
+						<CardDescription>
+							Enter your Staff ID and we will email reset instructions.
+						</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<form className="grid gap-6" onSubmit={handleSubmit}>
@@ -181,7 +183,9 @@ function ForgotPasswordPage() {
 								type="submit"
 							>
 								<Send className="h-5 w-5" />
-								{isSubmitting ? "Creating link" : "Create reset link"}
+								{isSubmitting
+									? "Sending instructions"
+									: "Send reset instructions"}
 							</Button>
 						</form>
 					</CardContent>

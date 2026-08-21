@@ -28,6 +28,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as ApiCommercializationRouteImport } from './routes/api/commercialization'
 import { Route as ApiInnovationsRouteImport } from './routes/api/innovations'
+import { Route as ApiOrganizationOptionsRouteImport } from './routes/api/organization-options'
 import { Route as ApiPatentsRouteImport } from './routes/api/patents'
 import { Route as ApiPublicResearchRouteImport } from './routes/api/public-research'
 import { Route as ApiPublicStatisticsRouteImport } from './routes/api/public-statistics'
@@ -47,6 +48,7 @@ import { Route as ResearchRecordIdRouteImport } from './routes/research.$recordI
 import { Route as ResearchersProfileIdRouteImport } from './routes/researchers.$profileId'
 import { Route as SignUpIpttoRouteImport } from './routes/sign-up.iptto'
 import { Route as SignUpLecturerRouteImport } from './routes/sign-up.lecturer'
+import { Route as ApiAdminAccountsRouteImport } from './routes/api/admin/accounts'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiAuthSignUpRouteImport } from './routes/api/auth/sign-up'
 import { Route as ApiDashboardIpttoSummaryRouteImport } from './routes/api/dashboard/iptto-summary'
@@ -161,6 +163,11 @@ const ApiInnovationsRoute = ApiInnovationsRouteImport.update({
   path: '/api/innovations',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiOrganizationOptionsRoute = ApiOrganizationOptionsRouteImport.update({
+  id: '/api/organization-options',
+  path: '/api/organization-options',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPatentsRoute = ApiPatentsRouteImport.update({
   id: '/api/patents',
   path: '/api/patents',
@@ -255,6 +262,11 @@ const SignUpIpttoRoute = SignUpIpttoRouteImport.update({
 const SignUpLecturerRoute = SignUpLecturerRouteImport.update({
   id: '/sign-up/lecturer',
   path: '/sign-up/lecturer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminAccountsRoute = ApiAdminAccountsRouteImport.update({
+  id: '/api/admin/accounts',
+  path: '/api/admin/accounts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -377,6 +389,7 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof SignInRoute
   '/api/commercialization': typeof ApiCommercializationRoute
   '/api/innovations': typeof ApiInnovationsRouteWithChildren
+  '/api/organization-options': typeof ApiOrganizationOptionsRoute
   '/api/patents': typeof ApiPatentsRouteWithChildren
   '/api/public-research': typeof ApiPublicResearchRoute
   '/api/public-statistics': typeof ApiPublicStatisticsRoute
@@ -396,6 +409,7 @@ export interface FileRoutesByFullPath {
   '/sign-up/iptto': typeof SignUpIpttoRoute
   '/sign-up/lecturer': typeof SignUpLecturerRoute
   '/research/': typeof ResearchIndexRoute
+  '/api/admin/accounts': typeof ApiAdminAccountsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/sign-up': typeof ApiAuthSignUpRoute
   '/api/dashboard/iptto-summary': typeof ApiDashboardIpttoSummaryRoute
@@ -434,6 +448,7 @@ export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
   '/api/commercialization': typeof ApiCommercializationRoute
   '/api/innovations': typeof ApiInnovationsRouteWithChildren
+  '/api/organization-options': typeof ApiOrganizationOptionsRoute
   '/api/patents': typeof ApiPatentsRouteWithChildren
   '/api/public-research': typeof ApiPublicResearchRoute
   '/api/public-statistics': typeof ApiPublicStatisticsRoute
@@ -453,6 +468,7 @@ export interface FileRoutesByTo {
   '/sign-up/iptto': typeof SignUpIpttoRoute
   '/sign-up/lecturer': typeof SignUpLecturerRoute
   '/research': typeof ResearchIndexRoute
+  '/api/admin/accounts': typeof ApiAdminAccountsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/sign-up': typeof ApiAuthSignUpRoute
   '/api/dashboard/iptto-summary': typeof ApiDashboardIpttoSummaryRoute
@@ -493,6 +509,7 @@ export interface FileRoutesById {
   '/sign-in': typeof SignInRoute
   '/api/commercialization': typeof ApiCommercializationRoute
   '/api/innovations': typeof ApiInnovationsRouteWithChildren
+  '/api/organization-options': typeof ApiOrganizationOptionsRoute
   '/api/patents': typeof ApiPatentsRouteWithChildren
   '/api/public-research': typeof ApiPublicResearchRoute
   '/api/public-statistics': typeof ApiPublicStatisticsRoute
@@ -512,6 +529,7 @@ export interface FileRoutesById {
   '/sign-up/iptto': typeof SignUpIpttoRoute
   '/sign-up/lecturer': typeof SignUpLecturerRoute
   '/research/': typeof ResearchIndexRoute
+  '/api/admin/accounts': typeof ApiAdminAccountsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/sign-up': typeof ApiAuthSignUpRoute
   '/api/dashboard/iptto-summary': typeof ApiDashboardIpttoSummaryRoute
@@ -553,6 +571,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/api/commercialization'
     | '/api/innovations'
+    | '/api/organization-options'
     | '/api/patents'
     | '/api/public-research'
     | '/api/public-statistics'
@@ -572,6 +591,7 @@ export interface FileRouteTypes {
     | '/sign-up/iptto'
     | '/sign-up/lecturer'
     | '/research/'
+    | '/api/admin/accounts'
     | '/api/auth/$'
     | '/api/auth/sign-up'
     | '/api/dashboard/iptto-summary'
@@ -610,6 +630,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/api/commercialization'
     | '/api/innovations'
+    | '/api/organization-options'
     | '/api/patents'
     | '/api/public-research'
     | '/api/public-statistics'
@@ -629,6 +650,7 @@ export interface FileRouteTypes {
     | '/sign-up/iptto'
     | '/sign-up/lecturer'
     | '/research'
+    | '/api/admin/accounts'
     | '/api/auth/$'
     | '/api/auth/sign-up'
     | '/api/dashboard/iptto-summary'
@@ -668,6 +690,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/api/commercialization'
     | '/api/innovations'
+    | '/api/organization-options'
     | '/api/patents'
     | '/api/public-research'
     | '/api/public-statistics'
@@ -687,6 +710,7 @@ export interface FileRouteTypes {
     | '/sign-up/iptto'
     | '/sign-up/lecturer'
     | '/research/'
+    | '/api/admin/accounts'
     | '/api/auth/$'
     | '/api/auth/sign-up'
     | '/api/dashboard/iptto-summary'
@@ -727,6 +751,7 @@ export interface RootRouteChildren {
   SignInRoute: typeof SignInRoute
   ApiCommercializationRoute: typeof ApiCommercializationRoute
   ApiInnovationsRoute: typeof ApiInnovationsRouteWithChildren
+  ApiOrganizationOptionsRoute: typeof ApiOrganizationOptionsRoute
   ApiPatentsRoute: typeof ApiPatentsRouteWithChildren
   ApiPublicResearchRoute: typeof ApiPublicResearchRoute
   ApiPublicStatisticsRoute: typeof ApiPublicStatisticsRoute
@@ -734,6 +759,7 @@ export interface RootRouteChildren {
   ApiSearchRoute: typeof ApiSearchRoute
   SignUpIpttoRoute: typeof SignUpIpttoRoute
   SignUpLecturerRoute: typeof SignUpLecturerRoute
+  ApiAdminAccountsRoute: typeof ApiAdminAccountsRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiAuthSignUpRoute: typeof ApiAuthSignUpRoute
   ApiDashboardIpttoSummaryRoute: typeof ApiDashboardIpttoSummaryRoute
@@ -883,6 +909,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiInnovationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/organization-options': {
+      id: '/api/organization-options'
+      path: '/api/organization-options'
+      fullPath: '/api/organization-options'
+      preLoaderRoute: typeof ApiOrganizationOptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/patents': {
       id: '/api/patents'
       path: '/api/patents'
@@ -1014,6 +1047,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-up/lecturer'
       fullPath: '/sign-up/lecturer'
       preLoaderRoute: typeof SignUpLecturerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/accounts': {
+      id: '/api/admin/accounts'
+      path: '/api/admin/accounts'
+      fullPath: '/api/admin/accounts'
+      preLoaderRoute: typeof ApiAdminAccountsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -1314,6 +1354,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignInRoute: SignInRoute,
   ApiCommercializationRoute: ApiCommercializationRoute,
   ApiInnovationsRoute: ApiInnovationsRouteWithChildren,
+  ApiOrganizationOptionsRoute: ApiOrganizationOptionsRoute,
   ApiPatentsRoute: ApiPatentsRouteWithChildren,
   ApiPublicResearchRoute: ApiPublicResearchRoute,
   ApiPublicStatisticsRoute: ApiPublicStatisticsRoute,
@@ -1321,6 +1362,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiSearchRoute: ApiSearchRoute,
   SignUpIpttoRoute: SignUpIpttoRoute,
   SignUpLecturerRoute: SignUpLecturerRoute,
+  ApiAdminAccountsRoute: ApiAdminAccountsRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiAuthSignUpRoute: ApiAuthSignUpRoute,
   ApiDashboardIpttoSummaryRoute: ApiDashboardIpttoSummaryRoute,

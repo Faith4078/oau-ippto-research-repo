@@ -1,4 +1,4 @@
-import { eq, or } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { z } from "zod";
 
@@ -28,8 +28,9 @@ const lecturerSignUpSchema = z
 		firstName: z.string().trim().min(1, "First name is required."),
 		lastName: z.string().trim().min(1, "Last name is required."),
 		staffId: z.string().trim().min(1, "Staff ID is required."),
-		faculty: z.string().trim().min(1, "Faculty is required."),
-		department: z.string().trim().min(1, "Department is required."),
+		email: z.email("Enter a valid institutional email address."),
+		facultyId: z.uuid("Select a valid faculty."),
+		departmentId: z.uuid("Select a valid department."),
 		password: passwordSchema,
 	})
 	.refine((input) => isLecturerStaffId(input.staffId), {
@@ -43,6 +44,7 @@ const ipttoSignUpSchema = z
 		kind: z.literal("iptto"),
 		name: z.string().trim().min(1, "Name is required."),
 		staffId: z.string().trim().min(1, "Staff ID is required."),
+		email: z.email("Enter a valid institutional email address."),
 		password: passwordSchema,
 	})
 	.refine((input) => isAdministrativeStaffId(input.staffId), {
@@ -107,7 +109,7 @@ export async function handleStaffSignUpRequest(request: Request) {
 
 	const duplicate = await findExistingApplicationUser(
 		validation.value.staffId,
-		buildStaffSignUpPayload(validation.value).email,
+		validation.value.email,
 	);
 
 	if (duplicate) {
@@ -122,6 +124,33 @@ export async function handleStaffSignUpRequest(request: Request) {
 		);
 	}
 
+	let organizationScope = { facultyId: null, departmentId: null } as {
+		facultyId: EntityId | null;
+		departmentId: EntityId | null;
+	};
+	if (validation.value.kind === "lecturer") {
+		try {
+			organizationScope = await readLecturerOrganizationScope(
+				validation.value.facultyId,
+				validation.value.departmentId,
+			);
+		} catch (error) {
+			if (error instanceof InvalidOrganizationSelectionError) {
+				return Response.json(
+					{
+						error: {
+							code: "INVALID_ORGANIZATION_SELECTION",
+							message: error.message,
+							fieldErrors: { departmentId: [error.message] },
+						},
+					},
+					{ status: 422 },
+				);
+			}
+			throw error;
+		}
+	}
+
 	const authResponse = await createBetterAuthStaffAccount(
 		request,
 		validation.value,
@@ -131,8 +160,10 @@ export async function handleStaffSignUpRequest(request: Request) {
 		return authResponse;
 	}
 
-	const persistedUser = await createApplicationUser(validation.value);
-	const headers = new Headers(authResponse.headers);
+	const persistedUser = await createApplicationUser(
+		validation.value,
+		organizationScope,
+	);
 
 	return Response.json(
 		{
@@ -140,10 +171,10 @@ export async function handleStaffSignUpRequest(request: Request) {
 				userId: persistedUser?.id ?? null,
 				role: roleForSignUp(validation.value.kind),
 				applicationUserCreated: Boolean(persistedUser),
+				status: "pending",
 			},
 		},
 		{
-			headers,
 			status: 201,
 		},
 	);
@@ -189,7 +220,13 @@ async function findExistingApplicationUser(staffId: string, email: string) {
 	return rows.length > 0;
 }
 
-async function createApplicationUser(input: StaffSignUpInput) {
+async function createApplicationUser(
+	input: StaffSignUpInput,
+	organizationScope: {
+		facultyId: EntityId | null;
+		departmentId: EntityId | null;
+	},
+) {
 	const databaseUrl = getDatabaseUrl();
 
 	if (!databaseUrl) {
@@ -200,20 +237,15 @@ async function createApplicationUser(input: StaffSignUpInput) {
 	const roleKey = roleForSignUp(input.kind);
 	const staffId = normalizeStaffId(input.staffId);
 	const authPayload = buildStaffSignUpPayload(input);
-	const organizationScope =
-		input.kind === "lecturer"
-			? await readLecturerOrganizationScope(input.faculty, input.department)
-			: { facultyId: null, departmentId: null };
-
 	return database.transaction(async (transaction) => {
 		const [user] = await transaction
 			.insert(schema.users)
 			.values({
-				email: authPayload.email,
+				email: input.email.trim().toLowerCase(),
 				emailVerified: false,
 				name: authPayload.name,
 				staffId,
-				status: "active",
+				status: "pending",
 			})
 			.returning({ id: schema.users.id });
 
@@ -225,6 +257,7 @@ async function createApplicationUser(input: StaffSignUpInput) {
 			departmentId: organizationScope.departmentId,
 			facultyId: organizationScope.facultyId,
 			publicEmail: null,
+			recoveryEmail: input.email.trim().toLowerCase(),
 			userId: user.id,
 		});
 
@@ -252,8 +285,8 @@ async function createApplicationUser(input: StaffSignUpInput) {
 }
 
 async function readLecturerOrganizationScope(
-	facultyName: string,
-	departmentName: string,
+	facultyId: string,
+	departmentId: string,
 ) {
 	const databaseUrl = getDatabaseUrl();
 
@@ -262,22 +295,33 @@ async function readLecturerOrganizationScope(
 	}
 
 	const database = drizzle(databaseUrl, { schema });
-	const [faculty] = await database
-		.select({ id: schema.faculties.id })
-		.from(schema.faculties)
-		.where(eq(schema.faculties.name, facultyName.trim()))
-		.limit(1);
 	const [department] = await database
-		.select({ id: schema.departments.id })
+		.select({
+			id: schema.departments.id,
+			facultyId: schema.departments.facultyId,
+		})
 		.from(schema.departments)
-		.where(eq(schema.departments.name, departmentName.trim()))
+		.where(
+			and(
+				eq(schema.departments.id, departmentId),
+				eq(schema.departments.facultyId, facultyId),
+			),
+		)
 		.limit(1);
 
+	if (!department) {
+		throw new InvalidOrganizationSelectionError(
+			"Select a department that belongs to the selected faculty.",
+		);
+	}
+
 	return {
-		departmentId: (department?.id ?? null) as EntityId | null,
-		facultyId: (faculty?.id ?? null) as EntityId | null,
+		departmentId: department.id as EntityId,
+		facultyId: department.facultyId as EntityId,
 	};
 }
+
+class InvalidOrganizationSelectionError extends Error {}
 
 function roleForSignUp(kind: StaffSignUpInput["kind"]): RoleKey {
 	return kind === "lecturer" ? "lecturer" : "iptto_officer";

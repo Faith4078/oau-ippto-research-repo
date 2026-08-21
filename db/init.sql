@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
-CREATE TYPE user_status AS ENUM ('invited', 'active', 'suspended', 'deactivated');
+CREATE TYPE user_status AS ENUM ('invited', 'pending', 'active', 'rejected', 'suspended', 'deactivated');
 CREATE TYPE publication_type AS ENUM (
     'journal_article',
     'conference_paper',
@@ -163,6 +163,7 @@ CREATE TABLE user_profiles (
     orcid VARCHAR(32),
     phone VARCHAR(64),
     public_email VARCHAR(320),
+    recovery_email VARCHAR(320),
     avatar_file_id UUID,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()

@@ -47,6 +47,7 @@ export const Route = createFileRoute("/sign-up/iptto")({
 function IpttoSignUpPage() {
 	const nameInputId = useId();
 	const staffIdInputId = useId();
+	const emailInputId = useId();
 	const passwordInputId = useId();
 	const [error, setError] = useState<string>();
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -76,6 +77,7 @@ function IpttoSignUpPage() {
 			const response = await fetch(staffSignUpEndpoint, {
 				body: JSON.stringify({
 					kind: "iptto",
+					email: String(formData.get("email") ?? ""),
 					name: String(formData.get("name") ?? ""),
 					password: String(formData.get("password") ?? ""),
 					staffId: String(formData.get("staffId") ?? ""),
@@ -97,10 +99,11 @@ function IpttoSignUpPage() {
 				return;
 			}
 
-			toast.success("IPTTO account created", {
-				description: "Opening your dashboard.",
+			toast.success("IPTTO request submitted", {
+				description: "Your request is pending administrator approval.",
 			});
-			window.setTimeout(() => window.location.assign("/dashboard"), 500);
+			event.currentTarget.reset();
+			setPassword("");
 		} catch {
 			const message =
 				"IPTTO signup could not be completed. Try again in a moment.";
@@ -145,6 +148,20 @@ function IpttoSignUpPage() {
 										name="name"
 										required
 										type="text"
+									/>
+								</Field>
+
+								<Field>
+									<FieldLabel htmlFor={emailInputId}>
+										Institutional email
+									</FieldLabel>
+									<Input
+										autoComplete="email"
+										className="h-12 rounded border-[#d8d8d8] bg-white text-base md:text-base"
+										id={emailInputId}
+										name="email"
+										required
+										type="email"
 									/>
 								</Field>
 

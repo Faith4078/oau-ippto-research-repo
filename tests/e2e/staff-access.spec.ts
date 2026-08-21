@@ -40,7 +40,7 @@ test("forgot password page captures exact AC or AT staff ID format", async ({
 		page.getByText(/IPTTO\/admin Staff IDs must be in the format AT\//i),
 	).toBeVisible();
 	await expect(
-		page.getByRole("button", { name: /Create reset link/i }),
+		page.getByRole("button", { name: /Send reset instructions/i }),
 	).toBeVisible();
 });
 

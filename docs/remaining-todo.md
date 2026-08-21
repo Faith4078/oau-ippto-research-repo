@@ -4,22 +4,24 @@ This file lists the remaining work needed to make the OAU IPTTO Research Reposit
 
 ## 1. Password reset email delivery
 
-- Add a real email provider for forgot password links.
-- Stop showing reset links directly in the forgot password UI outside local or staging debug mode.
-- Add email templates for password reset, account approval, rejection, and account status changes.
-- Add tests that confirm reset links are sent and expire correctly.
+- [x] Add a provider-neutral authenticated HTTP email adapter for forgot password links.
+- [x] Stop showing reset links outside explicitly enabled non-production debug mode.
+- [x] Add email templates for password reset, account approval, rejection, suspension, deactivation, and reactivation.
+- [x] Add unit coverage for email delivery, templates, and production debug-link suppression.
+- [ ] Configure the institution's email provider credentials and verify delivery and one-hour expiry in staging.
 
 ## 2. Admin approval for signup
 
-- Change lecturer and IPTTO signup from immediate access to pending approval when the institution is ready.
-- Add an approval queue for super administrators or nominated administrators.
-- Record approval, rejection, suspension, and reactivation in audit logs.
-- Add clear staff account states such as pending, active, rejected, suspended, and deactivated.
+- [x] Change lecturer and IPTTO signup from immediate access to pending approval without returning a session cookie.
+- [x] Add an authorized approval queue to the super administrator dashboard.
+- [x] Record approval, rejection, suspension, deactivation, and reactivation in audit logs.
+- [x] Add pending, active, rejected, suspended, and deactivated account states with validated transitions.
+- [ ] Decide who may provision department, faculty, and super administrator accounts.
 
 ## 3. Controlled organization data
 
-- Replace free text faculty and department fields with controlled selections from the database.
-- Validate that a lecturer department belongs to the selected faculty.
+- [x] Replace lecturer signup free text faculty and department fields with database-backed selections.
+- [x] Validate server-side that the department belongs to the selected faculty.
 - Add administrator tools to create, update, merge, and archive faculties and departments.
 - Define what happens when a staff member transfers department or faculty.
 

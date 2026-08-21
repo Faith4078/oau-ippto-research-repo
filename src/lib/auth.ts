@@ -32,8 +32,9 @@ export type LecturerSignUpInput = {
 	firstName: string;
 	lastName: string;
 	staffId: string;
-	faculty: string;
-	department: string;
+	email: string;
+	facultyId: string;
+	departmentId: string;
 	password: string;
 };
 
@@ -41,6 +42,7 @@ export type IpttoSignUpInput = {
 	kind: "iptto";
 	name: string;
 	staffId: string;
+	email: string;
 	password: string;
 };
 

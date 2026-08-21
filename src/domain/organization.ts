@@ -1,6 +1,12 @@
 import type { EntityId, Timestamped } from "./common.ts";
 
-export type UserStatus = "invited" | "active" | "suspended" | "deactivated";
+export type UserStatus =
+	| "invited"
+	| "pending"
+	| "active"
+	| "rejected"
+	| "suspended"
+	| "deactivated";
 
 export type RoleKey =
 	| "visitor"

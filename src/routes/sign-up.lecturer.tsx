@@ -2,7 +2,7 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { CheckCircle2, ClipboardPenLine, XCircle } from "lucide-react";
-import { useId, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "#/components/ui/button.tsx";
@@ -49,12 +49,36 @@ function LecturerSignUpPage() {
 	const firstNameInputId = useId();
 	const lastNameInputId = useId();
 	const staffIdInputId = useId();
+	const emailInputId = useId();
 	const facultyInputId = useId();
 	const departmentInputId = useId();
 	const passwordInputId = useId();
 	const [error, setError] = useState<string>();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [password, setPassword] = useState("");
+	const [faculty, setFaculty] = useState("");
+	const [organizationOptions, setOrganizationOptions] = useState<{
+		faculties: Array<{ id: string; name: string }>;
+		departments: Array<{ id: string; facultyId: string; name: string }>;
+	}>({ faculties: [], departments: [] });
+	const departments = useMemo(() => {
+		return organizationOptions.departments.filter(
+			(item) => item.facultyId === faculty,
+		);
+	}, [faculty, organizationOptions]);
+
+	useEffect(() => {
+		void fetch("/api/organization-options")
+			.then((response) => response.json())
+			.then((payload) =>
+				setOrganizationOptions(
+					payload.data ?? { faculties: [], departments: [] },
+				),
+			)
+			.catch(() =>
+				setError("Faculty and department options could not be loaded."),
+			);
+	}, []);
 	const passwordRequirements = getPasswordRequirements(password);
 	const passwordIsValid = isValidPassword(password);
 
@@ -79,8 +103,9 @@ function LecturerSignUpPage() {
 		try {
 			const response = await fetch(staffSignUpEndpoint, {
 				body: JSON.stringify({
-					department: String(formData.get("department") ?? ""),
-					faculty: String(formData.get("faculty") ?? ""),
+					departmentId: String(formData.get("departmentId") ?? ""),
+					email: String(formData.get("email") ?? ""),
+					facultyId: String(formData.get("facultyId") ?? ""),
 					firstName: String(formData.get("firstName") ?? ""),
 					kind: "lecturer",
 					lastName: String(formData.get("lastName") ?? ""),
@@ -104,10 +129,12 @@ function LecturerSignUpPage() {
 				return;
 			}
 
-			toast.success("Lecturer account created", {
-				description: "Opening your dashboard.",
+			toast.success("Lecturer request submitted", {
+				description: "Your request is pending administrator approval.",
 			});
-			window.setTimeout(() => window.location.assign("/dashboard"), 500);
+			event.currentTarget.reset();
+			setFaculty("");
+			setPassword("");
 		} catch {
 			const message =
 				"Lecturer signup could not be completed. Try again in a moment.";
@@ -191,27 +218,56 @@ function LecturerSignUpPage() {
 								</Field>
 
 								<Field>
-									<FieldLabel htmlFor={facultyInputId}>Faculty</FieldLabel>
+									<FieldLabel htmlFor={emailInputId}>
+										Institutional email
+									</FieldLabel>
 									<Input
+										autoComplete="email"
+										className="h-12 rounded border-[#d8d8d8] bg-white text-base md:text-base"
+										id={emailInputId}
+										name="email"
+										required
+										type="email"
+									/>
+								</Field>
+
+								<Field>
+									<FieldLabel htmlFor={facultyInputId}>Faculty</FieldLabel>
+									<select
 										className="h-12 rounded border-[#d8d8d8] bg-white text-base md:text-base"
 										id={facultyInputId}
-										name="faculty"
+										name="facultyId"
+										onChange={(event) => setFaculty(event.target.value)}
 										required
-										type="text"
-									/>
+										value={faculty}
+									>
+										<option value="">Select faculty</option>
+										{organizationOptions.faculties.map((item) => (
+											<option key={item.id} value={item.id}>
+												{item.name}
+											</option>
+										))}
+									</select>
 								</Field>
 
 								<Field>
 									<FieldLabel htmlFor={departmentInputId}>
 										Department
 									</FieldLabel>
-									<Input
+									<select
 										className="h-12 rounded border-[#d8d8d8] bg-white text-base md:text-base"
+										disabled={!faculty}
 										id={departmentInputId}
-										name="department"
+										name="departmentId"
 										required
-										type="text"
-									/>
+									>
+										<option value="">Select department</option>
+										{departments.map((item) => (
+											<option key={item.id} value={item.id}>
+												{item.name}
+											</option>
+										))}
+									</select>
 								</Field>
 
 								<Field>

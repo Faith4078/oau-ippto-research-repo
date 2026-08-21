@@ -118,6 +118,14 @@ function statusForError(code: string): number {
 		return 422;
 	}
 
+	if (code === "ACCOUNT_STATUS_CONFLICT") {
+		return 409;
+	}
+
+	if (code === "ACCOUNT_NOTIFICATION_FAILED") {
+		return 503;
+	}
+
 	if (code.endsWith("_NOT_FOUND")) {
 		return 404;
 	}

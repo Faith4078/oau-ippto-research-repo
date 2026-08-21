@@ -84,15 +84,19 @@ The `/sign-in` route provides:
 
 Signup is role-constrained and uses the same Better Auth username strategy:
 
-- `/sign-up/lecturer` collects first name, last name, Staff ID, faculty, department, and password.
+- `/sign-up/lecturer` collects first name, last name, Staff ID, institutional email, controlled faculty and department selections, and password.
 - Lecturer Staff IDs must use `AC/` followed by exactly 4 digits, for example `AC/1234`.
-- `/sign-up/iptto` collects name, Staff ID, and password.
+- `/sign-up/iptto` collects name, Staff ID, institutional email, and password.
 - IPTTO/admin Staff IDs must use `AT/` followed by exactly 4 digits, for example `AT/1302`.
 - Passwords must be exactly 8 characters and include uppercase, lowercase, a number, and a special symbol.
 - Both signup forms are embedded in shadcn Card surfaces.
 - The public signup endpoint is `/api/auth/sign-up`.
-- The endpoint maps the Staff ID to Better Auth `username` and uses a deterministic internal auth email because the product signup forms do not collect email.
+- The endpoint maps the Staff ID to Better Auth `username` and uses a deterministic internal email only inside Better Auth. The application user stores the supplied email for recovery and account notifications.
 - Public signup creates only `lecturer` or `iptto_officer` application roles. Department, faculty, and super administrator accounts are not created through public signup.
+- New public accounts have `pending` status, receive no signup session cookie, and cannot pass server-side authorization until approved.
+- `/api/admin/accounts` requires `users:manage`. It lists pending requests and applies validated approval, rejection, suspension, deactivation, or reactivation transitions.
+- Every account-status change records the actor, previous status, new status, reason, IP address, and user agent in `audit_logs`.
+- The super administrator dashboard contains the approval queue. Adverse decisions require a reason.
 
 ## Session and Route Protection
 
@@ -140,13 +144,11 @@ The initial permission matrix is intentionally conservative:
 
 Record ownership and department/faculty scoping still need to be enforced inside application services and repositories once those flows are implemented. The central permission matrix answers whether a role may attempt an action; resource-level policy must still decide whether that user may act on the specific record.
 
-## Remaining Signup Policy Questions
+## Account Policy Still Requiring Institutional Decisions
 
-- Should lecturer faculty and department be selected from controlled lists instead of text fields?
 - Who approves department administrator, faculty administrator, and super administrator accounts?
-- Is institutional email required later for password recovery?
 - What happens when a staff member transfers departments?
-- Who can deactivate or suspend accounts?
+- Which institutional email domains are permitted?
 
 ## Sources
 
