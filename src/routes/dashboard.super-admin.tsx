@@ -5,7 +5,7 @@ import { CheckCircle2, RefreshCw, XCircle } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { DashboardPage } from "#/components/dashboard/dashboard-shell.tsx";
+import { DashboardShell } from "#/components/dashboard/dashboard-shell.tsx";
 import { Button } from "#/components/ui/button.tsx";
 import {
 	Card,
@@ -40,9 +40,25 @@ export const Route = createFileRoute("/dashboard/super-admin")({
 
 function SuperAdminDashboard() {
 	return (
-		<DashboardPage workspace={workspaces["super-admin"]}>
-			<AccountApprovalQueue />
-		</DashboardPage>
+		<DashboardShell workspace={workspaces["super-admin"]}>
+			<div className="space-y-6">
+				<header>
+					<p className="text-sm font-semibold text-[#146ef5]">
+						Super Administrator
+					</p>
+					<h1 className="mt-2 text-4xl font-semibold tracking-normal">
+						Platform access and operations
+					</h1>
+					<p className="mt-3 max-w-3xl text-[#6b7280]">
+						Approve real account requests and inspect automatic work that needs
+						attention.
+					</p>
+				</header>
+				<AccountApprovalQueue />
+				<UserAccessPanel />
+				<FailedJobsPanel />
+			</div>
+		</DashboardShell>
 	);
 }
 
@@ -123,7 +139,10 @@ function AccountApprovalQueue() {
 	}
 
 	return (
-		<Card className="rounded-lg border-[#d8d8d8] shadow-none">
+		<Card
+			className="rounded-lg border-[#d8d8d8] shadow-none"
+			id="account-requests"
+		>
 			<CardHeader className="flex-row items-start justify-between gap-4">
 				<div>
 					<CardTitle>Account requests</CardTitle>
@@ -176,6 +195,282 @@ function AccountApprovalQueue() {
 									</Button>
 								</div>
 							</div>
+						))}
+					</div>
+				)}
+			</CardContent>
+		</Card>
+	);
+}
+
+type AccessUser = {
+	id: string;
+	name: string;
+	roles: string[];
+	staffId: string;
+};
+
+type OrganizationOptions = {
+	departments: Array<{ facultyId: string; id: string; name: string }>;
+	faculties: Array<{ id: string; name: string }>;
+};
+
+function UserAccessPanel() {
+	const [users, setUsers] = useState<AccessUser[]>([]);
+	const [organization, setOrganization] = useState<OrganizationOptions>({
+		departments: [],
+		faculties: [],
+	});
+	const [saving, setSaving] = useState(false);
+	const [role, setRole] = useState("lecturer");
+	const [facultyId, setFacultyId] = useState("");
+	const [departmentId, setDepartmentId] = useState("");
+	const [userId, setUserId] = useState("");
+
+	const load = useCallback(async () => {
+		try {
+			const [usersResponse, organizationResponse] = await Promise.all([
+				fetch("/api/admin/users", { cache: "no-store" }),
+				fetch("/api/organization-options"),
+			]);
+			const usersPayload = await usersResponse.json();
+			const organizationPayload = await organizationResponse.json();
+			if (!usersResponse.ok) {
+				throw new Error(
+					usersPayload.error?.message ?? "Staff accounts could not be loaded.",
+				);
+			}
+			setUsers(
+				(usersPayload.data ?? []).filter(
+					(user: AccessUser) => !user.roles.includes("super_administrator"),
+				),
+			);
+			setOrganization(
+				organizationPayload.data ?? { departments: [], faculties: [] },
+			);
+		} catch (error) {
+			toast.error("User access unavailable", {
+				description: error instanceof Error ? error.message : "Try again.",
+			});
+		}
+	}, []);
+
+	useEffect(() => {
+		void load();
+	}, [load]);
+
+	async function save(event: React.FormEvent<HTMLFormElement>) {
+		event.preventDefault();
+		setSaving(true);
+		try {
+			const response = await fetch("/api/admin/users", {
+				body: JSON.stringify({
+					departmentId:
+						role === "department_administrator" ? departmentId || null : null,
+					facultyId: [
+						"faculty_administrator",
+						"department_administrator",
+					].includes(role)
+						? facultyId || null
+						: null,
+					role,
+					userId,
+				}),
+				headers: { "content-type": "application/json" },
+				method: "POST",
+			});
+			const payload = await response.json();
+			if (!response.ok) {
+				throw new Error(payload.error?.message ?? "Access could not be saved.");
+			}
+			toast.success("User access updated");
+			await load();
+		} catch (error) {
+			toast.error("Access not updated", {
+				description: error instanceof Error ? error.message : "Try again.",
+			});
+		} finally {
+			setSaving(false);
+		}
+	}
+
+	const departments = organization.departments.filter(
+		(item) => !facultyId || item.facultyId === facultyId,
+	);
+	return (
+		<Card id="user-access">
+			<CardHeader>
+				<CardTitle>Assign staff access</CardTitle>
+				<CardDescription>
+					Choose what one staff member is responsible for. Every change is
+					recorded.
+				</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<form className="grid gap-4 md:grid-cols-2" onSubmit={save}>
+					<label className="grid gap-2 text-sm font-semibold">
+						Staff member
+						<select
+							className="h-11 rounded border px-3"
+							onChange={(event) => setUserId(event.target.value)}
+							required
+							value={userId}
+						>
+							<option value="">Choose staff member</option>
+							{users.map((user) => (
+								<option key={user.id} value={user.id}>
+									{user.name} ({user.staffId})
+								</option>
+							))}
+						</select>
+					</label>
+					<label className="grid gap-2 text-sm font-semibold">
+						Access role
+						<select
+							className="h-11 rounded border px-3"
+							onChange={(event) => {
+								setRole(event.target.value);
+								setFacultyId("");
+								setDepartmentId("");
+							}}
+							value={role}
+						>
+							<option value="lecturer">Lecturer</option>
+							<option value="department_administrator">
+								Department Administrator
+							</option>
+							<option value="faculty_administrator">
+								Faculty Administrator
+							</option>
+							<option value="iptto_officer">IPTTO Officer</option>
+						</select>
+					</label>
+					{["faculty_administrator", "department_administrator"].includes(
+						role,
+					) && (
+						<label className="grid gap-2 text-sm font-semibold">
+							Faculty
+							<select
+								className="h-11 rounded border px-3"
+								onChange={(event) => {
+									setFacultyId(event.target.value);
+									setDepartmentId("");
+								}}
+								required
+								value={facultyId}
+							>
+								<option value="">Choose faculty</option>
+								{organization.faculties.map((faculty) => (
+									<option key={faculty.id} value={faculty.id}>
+										{faculty.name}
+									</option>
+								))}
+							</select>
+						</label>
+					)}
+					{role === "department_administrator" && (
+						<label className="grid gap-2 text-sm font-semibold">
+							Department
+							<select
+								className="h-11 rounded border px-3"
+								onChange={(event) => setDepartmentId(event.target.value)}
+								required
+								value={departmentId}
+							>
+								<option value="">Choose department</option>
+								{departments.map((department) => (
+									<option key={department.id} value={department.id}>
+										{department.name}
+									</option>
+								))}
+							</select>
+						</label>
+					)}
+					<Button
+						className="md:col-span-2 md:w-fit"
+						disabled={saving || !userId}
+						type="submit"
+					>
+						{saving ? "Saving…" : "Save user access"}
+					</Button>
+				</form>
+			</CardContent>
+		</Card>
+	);
+}
+
+type FailedJob = {
+	attempts: number;
+	errorMessage: string | null;
+	id: string;
+	maxAttempts: number;
+	type: string;
+	updatedAt: string;
+};
+
+function FailedJobsPanel() {
+	const [jobs, setJobs] = useState<FailedJob[]>([]);
+	const [loading, setLoading] = useState(true);
+	const load = useCallback(async () => {
+		setLoading(true);
+		try {
+			const response = await fetch("/api/jobs/failed?page=1&pageSize=25", {
+				cache: "no-store",
+			});
+			const payload = await response.json();
+			if (!response.ok)
+				throw new Error(
+					payload.error?.message ?? "Platform tasks could not be loaded.",
+				);
+			setJobs(payload.data ?? []);
+		} catch (error) {
+			toast.error("Platform tasks unavailable", {
+				description: error instanceof Error ? error.message : "Try again.",
+			});
+		} finally {
+			setLoading(false);
+		}
+	}, []);
+	useEffect(() => {
+		void load();
+	}, [load]);
+	return (
+		<Card id="platform-attention">
+			<CardHeader className="flex-row items-start justify-between">
+				<div>
+					<CardTitle>Automatic work needing attention</CardTitle>
+					<CardDescription>
+						Failed search, summary, and background tasks appear here with the
+						recorded reason.
+					</CardDescription>
+				</div>
+				<Button onClick={() => void load()} size="sm" variant="outline">
+					<RefreshCw className="h-4 w-4" />
+					Refresh
+				</Button>
+			</CardHeader>
+			<CardContent>
+				{loading ? (
+					<p className="text-sm text-[#6b7280]">Checking platform tasks…</p>
+				) : jobs.length === 0 ? (
+					<p className="rounded border border-dashed p-6 text-center font-medium">
+						No failed automatic tasks.
+					</p>
+				) : (
+					<div className="space-y-3">
+						{jobs.map((job) => (
+							<article
+								className="rounded border border-red-200 bg-red-50 p-4"
+								key={job.id}
+							>
+								<p className="font-semibold">{job.type.replaceAll("_", " ")}</p>
+								<p className="mt-1 text-sm text-red-800">
+									{job.errorMessage ?? "No error detail was recorded."}
+								</p>
+								<p className="mt-2 text-xs text-[#6b7280]">
+									Attempt {job.attempts} of {job.maxAttempts}
+								</p>
+							</article>
 						))}
 					</div>
 				)}

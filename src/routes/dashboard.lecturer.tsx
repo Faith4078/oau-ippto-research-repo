@@ -1,8 +1,7 @@
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 
-import { DashboardPage } from "#/components/dashboard/dashboard-shell.tsx";
+import { LecturerWorkspace } from "#/components/dashboard/lecturer-workspace.tsx";
 import { requireDashboardRouteAuth } from "#/lib/auth-functions.ts";
-import { workspaces } from "#/presentation/dashboard/data.ts";
 
 export const Route = createFileRoute("/dashboard/lecturer")({
 	beforeLoad: ({ location }) =>
@@ -33,5 +32,5 @@ function LecturerDashboard() {
 		return <Outlet />;
 	}
 
-	return <DashboardPage workspace={workspaces.lecturer} />;
+	return <LecturerWorkspace />;
 }

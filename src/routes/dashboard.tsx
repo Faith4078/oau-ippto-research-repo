@@ -1,12 +1,22 @@
-import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
-import { DashboardPage } from "#/components/dashboard/dashboard-shell.tsx";
+import { dashboardDestinationForRoles } from "#/application/dashboard-workspaces.ts";
 import { requireDashboardRouteAuth } from "#/lib/auth-functions.ts";
-import { workspaces } from "#/presentation/dashboard/data.ts";
 
 export const Route = createFileRoute("/dashboard")({
-	beforeLoad: ({ location }) =>
-		requireDashboardRouteAuth({ locationHref: location.href }),
+	beforeLoad: async ({ location }) => {
+		const authorization = await requireDashboardRouteAuth({
+			locationHref: location.href,
+		});
+
+		if (location.pathname.replace(/\/+$/, "") === "/dashboard") {
+			throw redirect({
+				to: dashboardDestinationForRoles(authorization.user.roles),
+			});
+		}
+
+		return authorization;
+	},
 	head: () => ({
 		meta: [
 			{
@@ -19,16 +29,5 @@ export const Route = createFileRoute("/dashboard")({
 			},
 		],
 	}),
-	component: DashboardIndex,
+	component: () => <Outlet />,
 });
-
-function DashboardIndex() {
-	const location = useLocation();
-	const pathname = location.pathname.replace(/\/+$/, "");
-
-	if (pathname !== "/dashboard") {
-		return <Outlet />;
-	}
-
-	return <DashboardPage workspace={workspaces.lecturer} />;
-}

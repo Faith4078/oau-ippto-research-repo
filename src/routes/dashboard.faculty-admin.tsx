@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { DashboardPage } from "#/components/dashboard/dashboard-shell.tsx";
+import { ResearchReviewWorkspace } from "#/components/dashboard/research-review-workspace.tsx";
 import { requireDashboardRouteAuth } from "#/lib/auth-functions.ts";
-import { workspaces } from "#/presentation/dashboard/data.ts";
 
 export const Route = createFileRoute("/dashboard/faculty-admin")({
 	beforeLoad: ({ location }) =>
@@ -26,5 +25,5 @@ export const Route = createFileRoute("/dashboard/faculty-admin")({
 });
 
 function FacultyAdminDashboard() {
-	return <DashboardPage workspace={workspaces["faculty-admin"]} />;
+	return <ResearchReviewWorkspace stage="faculty" />;
 }

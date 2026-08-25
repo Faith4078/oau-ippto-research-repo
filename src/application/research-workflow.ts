@@ -191,7 +191,7 @@ export function createResearchWorkflowService(dependencies: {
 				to: input.value.toStatus,
 				decision: input.value.decision,
 				comment: input.value.comment,
-				requiresIpttoReview: input.value.requiresIpttoReview,
+				requiresIpttoReview: record.metadata.requiresIpttoReview === true,
 			});
 
 			if (!transition.ok) {

@@ -38,6 +38,12 @@ const departmentReviewer: AuthenticatedActor = {
 	roles: [{ role: "department_administrator", facultyId, departmentId }],
 };
 
+const facultyReviewer: AuthenticatedActor = {
+	status: "active",
+	userId: reviewerId,
+	roles: [{ role: "faculty_administrator", facultyId }],
+};
+
 const outsiderLecturer: AuthenticatedActor = {
 	status: "active",
 	userId: outsiderId,
@@ -158,6 +164,34 @@ describe("research workflow integration with service doubles", () => {
 				toStatus: "faculty_review",
 			}),
 		);
+	});
+
+	it("does not let a browser bypass a required IPTTO review", async () => {
+		const repository = new InMemoryResearchWorkflowRepository([
+			researchRecord({
+				metadata: { requiresIpttoReview: true },
+				status: "faculty_review",
+			}),
+		]);
+		const service = createResearchWorkflowService({
+			auditRepository: new InMemoryWorkflowAuditRepository(),
+			researchRepository: repository,
+			storageSigner: new InMemoryStorageSigner(),
+		});
+
+		const result = await service.transitionApproval(facultyReviewer, {
+			decision: "approve",
+			fromStatus: "faculty_review",
+			researchRecordId,
+			toStatus: "approved",
+			requiresIpttoReview: false,
+		});
+
+		expect(result).toMatchObject({
+			ok: false,
+			error: { code: "INVALID_APPROVAL_TRANSITION" },
+		});
+		expect(repository.records[0]?.status).toBe("faculty_review");
 	});
 
 	it("blocks private signed downloads for actors outside the research scope", async () => {

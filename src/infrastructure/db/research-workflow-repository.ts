@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-
+import { createInitialResearchSubmissionState } from "#/application/research-submission-state.ts";
 import type {
 	ResearchSubmissionDraft,
 	ResearchWorkflowRepository,
@@ -25,14 +25,16 @@ export class DrizzleResearchWorkflowRepository
 	async createSubmissionDraft(
 		input: ResearchSubmissionInput & { ownerId: EntityId },
 	): Promise<ResearchSubmissionDraft> {
-		const now = new Date();
+		const initialState = createInitialResearchSubmissionState(
+			input.requiresIpttoReview,
+		);
 		const [record] = await this.database
 			.insert(schema.researchRecords)
 			.values({
 				title: input.title,
 				slug: createSlug(input.title),
 				abstract: input.abstract,
-				status: "published",
+				status: initialState.status,
 				accessLevel: input.accessLevel,
 				facultyId: input.facultyId,
 				departmentId: input.departmentId,
@@ -40,12 +42,8 @@ export class DrizzleResearchWorkflowRepository
 				researchArea: input.researchArea ?? null,
 				startedOn: input.startedOn ?? null,
 				completedOn: input.completedOn ?? null,
-				publishedAt: now,
-				metadata: {
-					autoPublished: true,
-					requiresIpttoReview: input.requiresIpttoReview,
-					submittedAt: now.toISOString(),
-				},
+				publishedAt: initialState.publishedAt,
+				metadata: initialState.metadata,
 			})
 			.returning({
 				id: schema.researchRecords.id,

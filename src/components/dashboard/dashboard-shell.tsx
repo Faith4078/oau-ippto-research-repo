@@ -4,7 +4,6 @@ import { Link } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import {
 	BadgeCheck,
-	Bell,
 	BookOpenCheck,
 	CalendarDays,
 	CheckCircle2,
@@ -13,13 +12,11 @@ import {
 	FileClock,
 	Filter,
 	Gavel,
-	Home,
 	Lightbulb,
 	LockKeyhole,
 	LogOut,
 	MoreHorizontal,
 	Plus,
-	Search,
 	Settings,
 	ShieldCheck,
 	SlidersHorizontal,
@@ -93,71 +90,78 @@ const toneClasses: Record<StatusTone, string> = {
 	neutral: "border-[#d8d8d8] bg-white text-[#6b7280]",
 };
 
-const supportingNav = [
-	{ label: "Overview", icon: Home },
-	{ label: "Research", icon: SlidersHorizontal },
-	{ label: "Reports", icon: CalendarDays },
-	{ label: "Settings", icon: Settings },
-];
-
 const workspaceNavByRole: Record<
 	DashboardRole,
 	{
-		primary: Array<{ label: string; icon: LucideIcon }>;
-		secondary: Array<{ label: string; icon: LucideIcon }>;
+		primary: Array<{ label: string; icon: LucideIcon; href: string }>;
+		secondary: Array<{ label: string; icon: LucideIcon; href: string }>;
 	}
 > = {
 	lecturer: {
 		primary: [
-			{ label: "My Research", icon: FileClock },
-			{ label: "Unfinished", icon: SlidersHorizontal },
-			{ label: "Profile", icon: UserCircle2 },
+			{ label: "My Research", icon: FileClock, href: "#my-research" },
+			{
+				label: "Add Research",
+				icon: SlidersHorizontal,
+				href: "/dashboard/lecturer/submit",
+			},
 		],
-		secondary: supportingNav.filter((item) => item.label !== "Settings"),
+		secondary: [],
 	},
 	"department-admin": {
 		primary: [
-			{ label: "Needs Review", icon: FileClock },
-			{ label: "Feedback", icon: CheckCircle2 },
-			{ label: "Researchers", icon: UserCircle2 },
+			{ label: "Needs Review", icon: FileClock, href: "#review-queue" },
+			{ label: "Review Guide", icon: CheckCircle2, href: "#review-guide" },
+			{
+				label: "Department Report",
+				icon: CalendarDays,
+				href: "#dashboard-report",
+			},
 		],
-		secondary: [
-			{ label: "Statistics", icon: CalendarDays },
-			{ label: "Approvals", icon: ShieldCheck },
-		],
+		secondary: [],
 	},
 	"faculty-admin": {
 		primary: [
-			{ label: "Needs Review", icon: FileClock },
-			{ label: "Reports", icon: CalendarDays },
-			{ label: "Departments", icon: SlidersHorizontal },
+			{ label: "Needs Review", icon: FileClock, href: "#review-queue" },
+			{
+				label: "Department Summary",
+				icon: SlidersHorizontal,
+				href: "#department-summary",
+			},
+			{
+				label: "Faculty Report",
+				icon: CalendarDays,
+				href: "#dashboard-report",
+			},
 		],
-		secondary: [
-			{ label: "Faculty Research", icon: Home },
-			{ label: "Decisions", icon: ShieldCheck },
-		],
+		secondary: [],
 	},
 	"iptto-officer": {
 		primary: [
-			{ label: "Innovations", icon: SlidersHorizontal },
-			{ label: "Patents", icon: ShieldCheck },
-			{ label: "Commercialization", icon: CalendarDays },
+			{
+				label: "Innovation Pipeline",
+				icon: SlidersHorizontal,
+				href: "#innovation-pipeline",
+			},
+			{
+				label: "Research Review",
+				icon: CheckCircle2,
+				href: "#research-review",
+			},
 		],
-		secondary: [
-			{ label: "Reviews", icon: CheckCircle2 },
-			{ label: "Files", icon: FileClock },
-		],
+		secondary: [],
 	},
 	"super-admin": {
 		primary: [
-			{ label: "Users", icon: UserCircle2 },
-			{ label: "Roles", icon: ShieldCheck },
-			{ label: "Organization", icon: Home },
+			{
+				label: "Account Requests",
+				icon: UserCircle2,
+				href: "#account-requests",
+			},
+			{ label: "User Access", icon: ShieldCheck, href: "#user-access" },
+			{ label: "Needs Attention", icon: Settings, href: "#platform-attention" },
 		],
-		secondary: [
-			{ label: "Activity History", icon: FileClock },
-			{ label: "Needs Attention", icon: Settings },
-		],
+		secondary: [],
 	},
 };
 
@@ -215,10 +219,7 @@ export function DashboardShell({
 						<p className="mb-2 text-xs font-medium text-[#6b7280]">
 							Signed in as
 						</p>
-						<button
-							className="flex w-full items-center justify-between gap-3 rounded-lg border border-[#d8d8d8] bg-white p-3 text-left"
-							type="button"
-						>
+						<div className="flex w-full items-center justify-between gap-3 rounded-lg border border-[#d8d8d8] bg-white p-3 text-left">
 							<span className="flex min-w-0 items-center gap-3">
 								<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-[#080808] text-white">
 									<UserCircle2 className="h-5 w-5" />
@@ -232,8 +233,7 @@ export function DashboardShell({
 									</span>
 								</span>
 							</span>
-							<ChevronDown className="h-4 w-4 shrink-0 text-[#6b7280]" />
-						</button>
+						</div>
 					</div>
 
 					<nav className="flex-1 space-y-6 p-4">
@@ -241,6 +241,7 @@ export function DashboardShell({
 							{workspaceNav.primary.map((item, index) => (
 								<SidebarButton
 									active={index === 0}
+									href={item.href}
 									icon={item.icon}
 									key={item.label}
 									label={item.label}
@@ -251,6 +252,7 @@ export function DashboardShell({
 							{workspaceNav.secondary.map((item, index) => (
 								<SidebarButton
 									active={index === 0 && workspaceNav.primary.length === 0}
+									href={item.href}
 									icon={item.icon}
 									key={item.label}
 									label={item.label}
@@ -263,10 +265,7 @@ export function DashboardShell({
 				</aside>
 
 				<section className="min-w-0 flex-1">
-					<TopBar
-						isResponsiveWorkspace={isResponsiveWorkspace}
-						role={workspace.role}
-					/>
+					<TopBar role={workspace.role} />
 					{isResponsiveWorkspace && (
 						<MobileWorkspaceNav role={workspace.role} />
 					)}
@@ -291,56 +290,14 @@ function shouldShowConfirmationPreview(role: DashboardRole) {
 	return role === "department-admin" || role === "faculty-admin";
 }
 
-function TopBar({
-	isResponsiveWorkspace,
-	role,
-}: {
-	isResponsiveWorkspace: boolean;
-	role: DashboardRole;
-}) {
-	const placeholder =
-		role === "lecturer"
-			? "Search your research by title, document, or review progress"
-			: role === "iptto-officer"
-				? "Search innovations, patents, commercial opportunities, or documents"
-				: role === "super-admin"
-					? "Search people, access, departments, or platform activity"
-					: "Search research, lecturers, feedback, reports, or decisions";
-
+function TopBar({ role }: { role: DashboardRole }) {
 	return (
 		<header className="sticky top-0 z-30 border-[#d8d8d8] border-b bg-white/95 backdrop-blur">
 			<div className="flex h-20 items-center gap-3 px-4 sm:px-6 lg:px-8">
-				<div
-					className={cn(
-						"min-w-0 flex-1 items-center gap-2 rounded border border-[#d8d8d8] bg-white px-3 py-2",
-						isResponsiveWorkspace ? "hidden md:flex" : "flex",
-					)}
-				>
-					<Search className="h-4 w-4 shrink-0 text-[#146ef5]" />
-					<input
-						className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-[#6b7280]"
-						placeholder={placeholder}
-						type="search"
-					/>
-				</div>
+				<p className="min-w-0 flex-1 truncate text-sm font-semibold">
+					{roleLabels[role]}
+				</p>
 				<div className="ml-auto flex items-center gap-2">
-					<button
-						aria-label="Notifications"
-						className="flex h-10 w-10 items-center justify-center rounded border border-[#d8d8d8] bg-white text-[#080808]"
-						type="button"
-					>
-						<Bell className="h-4 w-4" />
-					</button>
-					<button
-						aria-label="Settings"
-						className={cn(
-							"h-10 w-10 items-center justify-center rounded border border-[#d8d8d8] bg-white text-[#080808]",
-							isResponsiveWorkspace ? "hidden sm:flex" : "flex",
-						)}
-						type="button"
-					>
-						<Settings className="h-4 w-4" />
-					</button>
 					<button
 						aria-label="Sign out"
 						className="flex h-10 w-10 items-center justify-center rounded border border-[#d8d8d8] bg-white text-[#080808]"
@@ -356,14 +313,15 @@ function TopBar({
 }
 
 function MobileWorkspaceNav({ role }: { role: DashboardRole }) {
+	const items = getWorkspaceNav(role).primary;
 	return (
 		<nav
 			aria-label="Dashboard sections"
 			className="border-[#d8d8d8] border-b bg-[#f7f7f7] px-3 py-3 lg:hidden"
 		>
 			<div className="flex gap-2 overflow-x-auto pb-1">
-				{supportingNav.map((item, index) => (
-					<button
+				{items.map((item, index) => (
+					<a
 						className={cn(
 							"inline-flex h-10 shrink-0 items-center gap-2 rounded border px-3 text-sm font-medium",
 							index === 0
@@ -371,11 +329,11 @@ function MobileWorkspaceNav({ role }: { role: DashboardRole }) {
 								: "border-[#d8d8d8] bg-white text-[#6b7280]",
 						)}
 						key={item.label}
-						type="button"
+						href={item.href}
 					>
 						<item.icon className="h-4 w-4" />
 						{item.label}
-					</button>
+					</a>
 				))}
 				<a
 					className="inline-flex h-10 shrink-0 items-center gap-2 rounded border border-[#d8d8d8] bg-white px-3 text-sm font-medium text-[#080808]"
@@ -425,24 +383,26 @@ function SidebarFooter({ workspace }: { workspace: DashboardWorkspace }) {
 
 function SidebarButton({
 	active,
+	href,
 	icon: Icon,
 	label,
 }: {
 	active?: boolean;
+	href: string;
 	icon: LucideIcon;
 	label: string;
 }) {
 	return (
-		<button
+		<a
 			className={cn(
 				"flex w-full items-center gap-3 rounded px-3 py-2.5 text-sm font-medium text-[#6b7280]",
 				active && "bg-white text-[#080808]",
 			)}
-			type="button"
+			href={href}
 		>
 			<Icon className="h-4 w-4" />
 			{label}
-		</button>
+		</a>
 	);
 }
 

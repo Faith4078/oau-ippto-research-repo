@@ -49,10 +49,13 @@ import { Route as ResearchersProfileIdRouteImport } from './routes/researchers.$
 import { Route as SignUpIpttoRouteImport } from './routes/sign-up.iptto'
 import { Route as SignUpLecturerRouteImport } from './routes/sign-up.lecturer'
 import { Route as ApiAdminAccountsRouteImport } from './routes/api/admin/accounts'
+import { Route as ApiAdminUsersRouteImport } from './routes/api/admin/users'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiAuthSignUpRouteImport } from './routes/api/auth/sign-up'
 import { Route as ApiDashboardIpttoSummaryRouteImport } from './routes/api/dashboard/iptto-summary'
 import { Route as ApiDashboardMeRouteImport } from './routes/api/dashboard/me'
+import { Route as ApiDashboardReportRouteImport } from './routes/api/dashboard/report'
+import { Route as ApiDashboardResearchReviewRouteImport } from './routes/api/dashboard/research-review'
 import { Route as ApiFilesConfirmUploadRouteImport } from './routes/api/files/confirm-upload'
 import { Route as ApiFilesSignedDownloadUrlRouteImport } from './routes/api/files/signed-download-url'
 import { Route as ApiFilesSignedUploadUrlRouteImport } from './routes/api/files/signed-upload-url'
@@ -269,6 +272,11 @@ const ApiAdminAccountsRoute = ApiAdminAccountsRouteImport.update({
   path: '/api/admin/accounts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminUsersRoute = ApiAdminUsersRouteImport.update({
+  id: '/api/admin/users',
+  path: '/api/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -290,6 +298,17 @@ const ApiDashboardMeRoute = ApiDashboardMeRouteImport.update({
   path: '/api/dashboard/me',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDashboardReportRoute = ApiDashboardReportRouteImport.update({
+  id: '/api/dashboard/report',
+  path: '/api/dashboard/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDashboardResearchReviewRoute =
+  ApiDashboardResearchReviewRouteImport.update({
+    id: '/api/dashboard/research-review',
+    path: '/api/dashboard/research-review',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiFilesConfirmUploadRoute = ApiFilesConfirmUploadRouteImport.update({
   id: '/api/files/confirm-upload',
   path: '/api/files/confirm-upload',
@@ -410,10 +429,13 @@ export interface FileRoutesByFullPath {
   '/sign-up/lecturer': typeof SignUpLecturerRoute
   '/research/': typeof ResearchIndexRoute
   '/api/admin/accounts': typeof ApiAdminAccountsRoute
+  '/api/admin/users': typeof ApiAdminUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/sign-up': typeof ApiAuthSignUpRoute
   '/api/dashboard/iptto-summary': typeof ApiDashboardIpttoSummaryRoute
   '/api/dashboard/me': typeof ApiDashboardMeRoute
+  '/api/dashboard/report': typeof ApiDashboardReportRoute
+  '/api/dashboard/research-review': typeof ApiDashboardResearchReviewRoute
   '/api/files/confirm-upload': typeof ApiFilesConfirmUploadRoute
   '/api/files/signed-download-url': typeof ApiFilesSignedDownloadUrlRoute
   '/api/files/signed-upload-url': typeof ApiFilesSignedUploadUrlRoute
@@ -469,10 +491,13 @@ export interface FileRoutesByTo {
   '/sign-up/lecturer': typeof SignUpLecturerRoute
   '/research': typeof ResearchIndexRoute
   '/api/admin/accounts': typeof ApiAdminAccountsRoute
+  '/api/admin/users': typeof ApiAdminUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/sign-up': typeof ApiAuthSignUpRoute
   '/api/dashboard/iptto-summary': typeof ApiDashboardIpttoSummaryRoute
   '/api/dashboard/me': typeof ApiDashboardMeRoute
+  '/api/dashboard/report': typeof ApiDashboardReportRoute
+  '/api/dashboard/research-review': typeof ApiDashboardResearchReviewRoute
   '/api/files/confirm-upload': typeof ApiFilesConfirmUploadRoute
   '/api/files/signed-download-url': typeof ApiFilesSignedDownloadUrlRoute
   '/api/files/signed-upload-url': typeof ApiFilesSignedUploadUrlRoute
@@ -530,10 +555,13 @@ export interface FileRoutesById {
   '/sign-up/lecturer': typeof SignUpLecturerRoute
   '/research/': typeof ResearchIndexRoute
   '/api/admin/accounts': typeof ApiAdminAccountsRoute
+  '/api/admin/users': typeof ApiAdminUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/sign-up': typeof ApiAuthSignUpRoute
   '/api/dashboard/iptto-summary': typeof ApiDashboardIpttoSummaryRoute
   '/api/dashboard/me': typeof ApiDashboardMeRoute
+  '/api/dashboard/report': typeof ApiDashboardReportRoute
+  '/api/dashboard/research-review': typeof ApiDashboardResearchReviewRoute
   '/api/files/confirm-upload': typeof ApiFilesConfirmUploadRoute
   '/api/files/signed-download-url': typeof ApiFilesSignedDownloadUrlRoute
   '/api/files/signed-upload-url': typeof ApiFilesSignedUploadUrlRoute
@@ -592,10 +620,13 @@ export interface FileRouteTypes {
     | '/sign-up/lecturer'
     | '/research/'
     | '/api/admin/accounts'
+    | '/api/admin/users'
     | '/api/auth/$'
     | '/api/auth/sign-up'
     | '/api/dashboard/iptto-summary'
     | '/api/dashboard/me'
+    | '/api/dashboard/report'
+    | '/api/dashboard/research-review'
     | '/api/files/confirm-upload'
     | '/api/files/signed-download-url'
     | '/api/files/signed-upload-url'
@@ -651,10 +682,13 @@ export interface FileRouteTypes {
     | '/sign-up/lecturer'
     | '/research'
     | '/api/admin/accounts'
+    | '/api/admin/users'
     | '/api/auth/$'
     | '/api/auth/sign-up'
     | '/api/dashboard/iptto-summary'
     | '/api/dashboard/me'
+    | '/api/dashboard/report'
+    | '/api/dashboard/research-review'
     | '/api/files/confirm-upload'
     | '/api/files/signed-download-url'
     | '/api/files/signed-upload-url'
@@ -711,10 +745,13 @@ export interface FileRouteTypes {
     | '/sign-up/lecturer'
     | '/research/'
     | '/api/admin/accounts'
+    | '/api/admin/users'
     | '/api/auth/$'
     | '/api/auth/sign-up'
     | '/api/dashboard/iptto-summary'
     | '/api/dashboard/me'
+    | '/api/dashboard/report'
+    | '/api/dashboard/research-review'
     | '/api/files/confirm-upload'
     | '/api/files/signed-download-url'
     | '/api/files/signed-upload-url'
@@ -760,10 +797,13 @@ export interface RootRouteChildren {
   SignUpIpttoRoute: typeof SignUpIpttoRoute
   SignUpLecturerRoute: typeof SignUpLecturerRoute
   ApiAdminAccountsRoute: typeof ApiAdminAccountsRoute
+  ApiAdminUsersRoute: typeof ApiAdminUsersRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiAuthSignUpRoute: typeof ApiAuthSignUpRoute
   ApiDashboardIpttoSummaryRoute: typeof ApiDashboardIpttoSummaryRoute
   ApiDashboardMeRoute: typeof ApiDashboardMeRoute
+  ApiDashboardReportRoute: typeof ApiDashboardReportRoute
+  ApiDashboardResearchReviewRoute: typeof ApiDashboardResearchReviewRoute
   ApiFilesConfirmUploadRoute: typeof ApiFilesConfirmUploadRoute
   ApiFilesSignedDownloadUrlRoute: typeof ApiFilesSignedDownloadUrlRoute
   ApiFilesSignedUploadUrlRoute: typeof ApiFilesSignedUploadUrlRoute
@@ -1056,6 +1096,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminAccountsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/users': {
+      id: '/api/admin/users'
+      path: '/api/admin/users'
+      fullPath: '/api/admin/users'
+      preLoaderRoute: typeof ApiAdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -1082,6 +1129,20 @@ declare module '@tanstack/react-router' {
       path: '/api/dashboard/me'
       fullPath: '/api/dashboard/me'
       preLoaderRoute: typeof ApiDashboardMeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/report': {
+      id: '/api/dashboard/report'
+      path: '/api/dashboard/report'
+      fullPath: '/api/dashboard/report'
+      preLoaderRoute: typeof ApiDashboardReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/research-review': {
+      id: '/api/dashboard/research-review'
+      path: '/api/dashboard/research-review'
+      fullPath: '/api/dashboard/research-review'
+      preLoaderRoute: typeof ApiDashboardResearchReviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/files/confirm-upload': {
@@ -1363,10 +1424,13 @@ const rootRouteChildren: RootRouteChildren = {
   SignUpIpttoRoute: SignUpIpttoRoute,
   SignUpLecturerRoute: SignUpLecturerRoute,
   ApiAdminAccountsRoute: ApiAdminAccountsRoute,
+  ApiAdminUsersRoute: ApiAdminUsersRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiAuthSignUpRoute: ApiAuthSignUpRoute,
   ApiDashboardIpttoSummaryRoute: ApiDashboardIpttoSummaryRoute,
   ApiDashboardMeRoute: ApiDashboardMeRoute,
+  ApiDashboardReportRoute: ApiDashboardReportRoute,
+  ApiDashboardResearchReviewRoute: ApiDashboardResearchReviewRoute,
   ApiFilesConfirmUploadRoute: ApiFilesConfirmUploadRoute,
   ApiFilesSignedDownloadUrlRoute: ApiFilesSignedDownloadUrlRoute,
   ApiFilesSignedUploadUrlRoute: ApiFilesSignedUploadUrlRoute,
