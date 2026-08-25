@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 
-import "dotenv/config";
 import { hashPassword } from "better-auth/crypto";
+import { config } from "dotenv";
 import { and, eq, isNotNull, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
@@ -13,6 +13,8 @@ import {
 	type SuperAdminBootstrapInput,
 } from "#/application/super-admin-bootstrap.ts";
 import * as schema from "#/infrastructure/db/schema.ts";
+
+config({ path: [".env.local", ".env"], quiet: true });
 
 const input = parseSuperAdminBootstrapEnvironment(process.env);
 const pool = new Pool({ connectionString: input.databaseUrl });
