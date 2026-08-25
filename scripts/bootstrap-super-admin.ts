@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 
+import "dotenv/config";
 import { hashPassword } from "better-auth/crypto";
 import { and, eq, isNotNull, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
