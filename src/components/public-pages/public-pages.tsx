@@ -127,7 +127,7 @@ const staffAccessLinks = [
 ];
 
 const publicLinks = [
-	{ label: "Research Catalogue", href: "/research" },
+	{ label: "Find Research", href: "/research" },
 	{ label: "Researchers", href: "/researchers" },
 	{ label: "Publications", href: "/publications" },
 	{ label: "Departments", href: "/departments" },
@@ -142,23 +142,23 @@ const publicLinks = [
 ];
 
 const sharedStats = [
-	{ value: "12k", label: "Research outputs" },
+	{ value: "12k", label: "Research works" },
 	{ value: "380", label: "Researchers" },
 	{ value: "96", label: "Departments" },
 ];
 
 export const pageSeo = {
 	research: {
-		title: "Research Catalogue | OAU IPTTO Research Repository",
+		title: "Find Research | OAU IPTTO",
 		description:
 			"Search and filter public research outputs from Obafemi Awolowo University by keyword, department, faculty, year, type, and research area.",
 		path: "/research",
 		schemaType: "CollectionPage",
 	},
 	researchDetail: {
-		title: "Research Record | OAU IPTTO Research Repository",
+		title: "Research Details | OAU IPTTO",
 		description:
-			"View public research record details including abstract, authors, access information, citation metadata, keywords, and related outputs.",
+			"Read the summary, see the authors, download available documents, and find related research.",
 		path: "/research/demo-record",
 		schemaType: "ScholarlyArticle",
 	},
@@ -214,42 +214,42 @@ export const pageSeo = {
 	researchAreas: {
 		title: "Research Areas | OAU IPTTO Research Repository",
 		description:
-			"Explore public research areas and use them as starting points for filtered discovery across the repository.",
+			"Choose a research area to find relevant work across OAU departments and faculties.",
 		path: "/research-areas",
 		schemaType: "CollectionPage",
 	},
 	innovations: {
 		title: "Innovation Showcase | OAU IPTTO Research Repository",
 		description:
-			"Discover public innovation records, technology summaries, research links, IPTTO status, and industry applications.",
+			"Explore OAU innovations, the research behind them, their current stage, and possible uses.",
 		path: "/innovations",
 		schemaType: "CollectionPage",
 	},
 	innovationDetail: {
 		title: "Innovation Detail | OAU IPTTO Research Repository",
 		description:
-			"View a public innovation profile with technology summary, linked research, IPTTO status, and industry applications.",
+			"See what an innovation does, the research behind it, its current stage, and possible uses.",
 		path: "/innovations/demo-innovation",
 		schemaType: "CreativeWork",
 	},
 	patents: {
 		title: "Patents | OAU IPTTO Research Repository",
 		description:
-			"Browse public patent records with inventors, patent status, technology summaries, research areas, and industry applications.",
+			"Find OAU patents by inventor, research area, filing stage, or possible use.",
 		path: "/patents",
 		schemaType: "CollectionPage",
 	},
 	patentDetail: {
 		title: "Patent Detail | OAU IPTTO Research Repository",
 		description:
-			"View a public patent profile with inventors, status, technology summary, research area, and industry applications.",
+			"See who created an invention, what it does, its filing stage, and how it may be used.",
 		path: "/patents/demo-patent",
 		schemaType: "CreativeWork",
 	},
 	reports: {
 		title: "Reports and Statistics | OAU IPTTO Research Repository",
 		description:
-			"Review public repository statistics, research output trends, innovation activity, and non-private institutional reporting.",
+			"See public figures and trends for OAU research, innovations, patents, and partnerships.",
 		path: "/reports",
 		schemaType: "CollectionPage",
 	},
@@ -263,14 +263,14 @@ export const pageSeo = {
 	faq: {
 		title: "FAQ | OAU IPTTO Research Repository",
 		description:
-			"Find answers about searching the repository, researcher profiles, submissions, public access, innovations, and patents.",
+			"Get quick answers about finding research, managing your profile, adding work, innovations, and patents.",
 		path: "/faq",
 		schemaType: "FAQPage",
 	},
 	contact: {
 		title: "Contact | OAU IPTTO Research Repository",
 		description:
-			"Contact the OAU Intellectual Property and Technology Transfer Office for repository support, partnerships, and public enquiries.",
+			"Contact OAU IPTTO for help finding research, correcting information, or discussing a partnership.",
 		path: "/contact",
 		schemaType: "ContactPage",
 	},
@@ -326,17 +326,17 @@ export function publicHead(seo: PageSeo) {
 export const collectionPages = {
 	research: collection(
 		pageSeo.research,
-		"Research Catalogue",
-		"Search Public Research Outputs",
-		"Browse verified research records with filters for faculty, department, researcher, year, type, keyword, and research area.",
+		"OAU Research",
+		"Find OAU Research",
+		"Search by topic, title, researcher, faculty, department, year, or type.",
 		FileSearch,
 		"Search by title, author, keyword, or abstract",
 		"Faculty or department",
 		"Newest first",
 		[
-			{ value: "12k", label: "Indexed records" },
+			{ value: "12k", label: "Research works" },
 			{ value: "54", label: "Research areas" },
-			{ value: "7", label: "Output types" },
+			{ value: "7", label: "Publication types" },
 		],
 		[
 			card(
@@ -358,7 +358,7 @@ export const collectionPages = {
 				"Agriculture | Faculty of Agriculture | 2024",
 				"Field-tested research connecting agronomy, local productivity, and sustainable food systems.",
 				"/research/climate-smart-crops",
-				["Agriculture", "Climate", "Repository file"],
+				["Agriculture", "Climate", "Document available"],
 			),
 		],
 		"Filters",
@@ -371,9 +371,9 @@ export const collectionPages = {
 			"Publication type",
 			"Access level",
 		],
-		"No research records match these filters",
+		"No research matches your search",
 		"Try a broader keyword, clear one selected filter, or review related research areas.",
-		"3 public records",
+		"3 results",
 	),
 	researchers: collection(
 		pageSeo.researchers,
@@ -417,7 +417,7 @@ export const collectionPages = {
 			"Biography",
 			"Research interests",
 			"Publications",
-			"Metrics",
+			"At a glance",
 			"Department",
 			"Faculty",
 			"Public contact details",
@@ -429,8 +429,8 @@ export const collectionPages = {
 	publications: collection(
 		pageSeo.publications,
 		"Publications",
-		"Browse Scholarly Publications",
-		"Review public publication records across journal articles, conference papers, books, chapters, reports, theses, dissertations, and working papers.",
+		"Browse Publications",
+		"Find journal articles, conference papers, books, reports, theses, dissertations, and working papers.",
 		BookOpen,
 		"Search publications by title, author, journal, or keyword",
 		"Publication type",
@@ -438,26 +438,26 @@ export const collectionPages = {
 		[
 			{ value: "8.4k", label: "Journal articles" },
 			{ value: "2.1k", label: "Conference papers" },
-			{ value: "1.5k", label: "Other outputs" },
+			{ value: "1.5k", label: "Other publications" },
 		],
 		[
 			card(
 				"Journal article on sustainable microgrid optimisation",
 				"Journal Article | 2026 | Open access",
-				"Peer-reviewed publication with citation metadata, authors, keywords, and repository file access.",
+				"See the authors, publication details, search words, and available document.",
 				"/research/sustainable-microgrid-optimisation",
 				["Journal article", "Engineering", "Energy"],
 			),
 			card(
 				"Conference paper on AI-assisted clinical triage",
 				"Conference Paper | 2025 | Abstract available",
-				"Conference output linking health research, machine learning methods, and public policy relevance.",
+				"Conference paper connecting health research, machine learning, and public policy.",
 				"/research/ai-clinical-triage",
 				["Conference paper", "AI", "Medicine"],
 			),
 			card(
 				"Technical report on regional food systems resilience",
-				"Technical Report | 2024 | Repository file",
+				"Technical Report | 2024 | Document available",
 				"Public report prepared for stakeholders in agriculture, development planning, and local industry.",
 				"/research/food-systems-resilience",
 				["Technical report", "Agriculture", "Policy"],
@@ -475,17 +475,17 @@ export const collectionPages = {
 		],
 		"No publications match these criteria",
 		"Change the publication type, year, author, or keyword to broaden the list.",
-		"3 publication records",
+		"3 publications",
 	),
 	departments: collection(
 		pageSeo.departments,
 		"Departments",
 		"Explore Research by Department",
-		"Browse departmental research activity, people, outputs, innovations, patents, and public statistics.",
+		"Choose a department to see its researchers, publications, innovations, patents, and key figures.",
 		Building2,
-		"Search departments, faculties, outputs, or areas",
+		"Search departments, faculties, publications, or subjects",
 		"Faculty",
-		"Highest output",
+		"Most publications",
 		sharedStats,
 		[
 			card(
@@ -493,25 +493,25 @@ export const collectionPages = {
 				"Faculty of Technology",
 				"Research in energy systems, telecommunications, embedded systems, controls, and applied electronics.",
 				"/departments/electrical-electronic-engineering",
-				["124 researchers", "892 outputs", "11 patents"],
+				["124 researchers", "892 research works", "11 patents"],
 			),
 			card(
 				"Community Health",
 				"College of Health Sciences",
 				"Public health research, health systems, epidemiology, community intervention, and policy translation.",
 				"/departments/community-health",
-				["61 researchers", "744 outputs", "6 innovations"],
+				["61 researchers", "744 research works", "6 innovations"],
 			),
 			card(
 				"Crop Production and Protection",
 				"Faculty of Agriculture",
 				"Crop systems, pest management, climate adaptation, seed systems, and food security research.",
 				"/departments/crop-production-protection",
-				["58 researchers", "618 outputs", "9 innovations"],
+				["58 researchers", "618 research works", "9 innovations"],
 			),
 		],
 		"Department profile includes",
-		["Researchers", "Research outputs", "Innovations", "Patents", "Statistics"],
+		["Researchers", "Research", "Innovations", "Patents", "Key figures"],
 		"No departments found",
 		"Try searching by faculty name, department name, or research strength.",
 		"3 departments",
@@ -520,7 +520,7 @@ export const collectionPages = {
 		pageSeo.faculties,
 		"Faculties",
 		"Discover Faculty Research Strengths",
-		"Explore faculties by departments, researchers, outputs, public metrics, and innovation activity.",
+		"Choose a faculty to see its departments, researchers, publications, and innovations.",
 		GraduationCap,
 		"Search faculties, departments, or research areas",
 		"Research strength",
@@ -528,7 +528,7 @@ export const collectionPages = {
 		[
 			{ value: "13", label: "Faculties" },
 			{ value: "96", label: "Departments" },
-			{ value: "12k", label: "Public outputs" },
+			{ value: "12k", label: "Research works" },
 		],
 		[
 			card(
@@ -536,28 +536,28 @@ export const collectionPages = {
 				"Engineering, systems, infrastructure, and applied design",
 				"Home to departments advancing energy, computing, materials, civil systems, and industrial technology.",
 				"/faculties/technology",
-				["12 departments", "3.2k outputs", "26 patents"],
+				["12 departments", "3.2k research works", "26 patents"],
 			),
 			card(
 				"College of Health Sciences",
 				"Clinical research, public health, and biomedical discovery",
 				"Supports research across health systems, medicine, public health, and biomedical sciences.",
 				"/faculties/health-sciences",
-				["8 departments", "2.7k outputs", "18 innovations"],
+				["8 departments", "2.7k research works", "18 innovations"],
 			),
 			card(
 				"Faculty of Agriculture",
 				"Food systems, production, resilience, and rural innovation",
 				"Connects field research, agribusiness, food security, and sustainable agricultural technology.",
 				"/faculties/agriculture",
-				["7 departments", "1.9k outputs", "14 innovations"],
+				["7 departments", "1.9k research works", "14 innovations"],
 			),
 		],
 		"Faculty profile includes",
 		[
 			"Departments",
 			"Researchers",
-			"Research outputs",
+			"Research",
 			"Statistics",
 			"Innovation activity",
 		],
@@ -569,7 +569,7 @@ export const collectionPages = {
 		pageSeo.researchAreas,
 		"Research Areas",
 		"Start Discovery by Discipline",
-		"Use research areas as entry points into filtered repository results across departments and faculties.",
+		"Choose a subject to find related research across OAU departments and faculties.",
 		FlaskConical,
 		"Search research areas or keywords",
 		"Faculty cluster",
@@ -577,7 +577,7 @@ export const collectionPages = {
 		[
 			{ value: "54", label: "Areas" },
 			{ value: "190", label: "Keywords" },
-			{ value: "12k", label: "Linked outputs" },
+			{ value: "12k", label: "Related research" },
 		],
 		[
 			card(
@@ -619,11 +619,11 @@ export const collectionPages = {
 	innovations: collection(
 		pageSeo.innovations,
 		"Innovation Showcase",
-		"Explore Research-Driven Technologies",
-		"Browse public innovation records with technology summaries, linked research, IPTTO status, and industry applications.",
+		"Explore OAU Innovations",
+		"See what each innovation does, who created it, its current stage, and where it could be used.",
 		Lightbulb,
 		"Search innovations, technologies, inventors, or markets",
-		"IPTTO status",
+		"Current stage",
 		"Most recent",
 		[
 			{ value: "96", label: "Innovations" },
@@ -641,7 +641,7 @@ export const collectionPages = {
 			card(
 				"Rapid community health reporting toolkit",
 				"Field pilot | Public health",
-				"Digital reporting workflow for faster community-level health surveillance and response coordination.",
+				"Digital reporting tool for faster community health monitoring and response.",
 				"/innovations/health-reporting-toolkit",
 				["Pilot", "Health", "Software"],
 			),
@@ -657,25 +657,25 @@ export const collectionPages = {
 		[
 			"Technology summary",
 			"Linked research",
-			"IPTTO status",
+			"Current stage",
 			"Industry applications",
 			"Commercialisation stage",
 		],
 		"No innovations match these filters",
-		"Try another IPTTO status, application area, inventor, or technology keyword.",
-		"3 innovation records",
+		"Try another stage, area of use, inventor, or search word.",
+		"3 innovations",
 	),
 	patents: collection(
 		pageSeo.patents,
 		"Patents",
-		"Browse Public Patent Records",
-		"Explore patent records with inventors, status, technology summaries, research areas, and application pathways.",
+		"Browse OAU Patents",
+		"Find inventions by inventor, filing stage, research area, or possible use.",
 		Scale,
 		"Search patents, inventors, technology areas, or status",
 		"Patent status",
 		"Newest filing",
 		[
-			{ value: "42", label: "Patent records" },
+			{ value: "42", label: "Patents" },
 			{ value: "17", label: "Filed" },
 			{ value: "9", label: "Granted" },
 		],
@@ -710,51 +710,51 @@ export const collectionPages = {
 			"Research area",
 			"Industry applications",
 		],
-		"No patent records match these filters",
+		"No patents match your search",
 		"Try a different inventor, technology area, patent status, or filing year.",
-		"3 patent records",
+		"3 patents",
 	),
 	reports: collection(
 		pageSeo.reports,
-		"Public Repository Insights",
+		"OAU Research at a Glance",
 		"Reports and Statistics",
-		"Review non-private statistics on research outputs, publication trends, innovation activity, patent activity, and collaboration signals.",
+		"See public figures and trends for OAU research, innovations, patents, and partnerships.",
 		ChartNoAxesCombined,
 		"Search reports, statistics, years, or faculties",
 		"Report type",
 		"Latest report",
 		[
-			{ value: "12k", label: "Public outputs" },
-			{ value: "18%", label: "Annual output growth" },
+			{ value: "12k", label: "Public research" },
+			{ value: "18%", label: "Growth this year" },
 			{ value: "28", label: "Industry collaborations" },
 		],
 		[
 			card(
-				"Public research output summary",
+				"OAU research summary",
 				"Institutional report | 2026",
-				"Snapshot of public publication volume, discipline coverage, access status, and repository growth.",
+				"A clear summary of OAU publications, research areas, public access, and growth.",
 				undefined,
-				["Statistics", "Outputs", "Public data"],
+				["Key figures", "Research", "Public information"],
 			),
 			card(
 				"Innovation and technology transfer activity",
 				"IPTTO report | 2026",
-				"Public-facing summary of innovation records, patent activity, partnerships, and pilot pathways.",
+				"A public summary of OAU innovations, patents, partnerships, and trials.",
 				undefined,
 				["Innovation", "Patents", "Partnerships"],
 			),
 			card(
 				"Faculty research visibility overview",
 				"Analytics report | 2025",
-				"Aggregated public metrics across faculties, departments, research areas, and output types.",
+				"Public figures across faculties, departments, research areas, and publication types.",
 				undefined,
 				["Faculties", "Departments", "Trends"],
 			),
 		],
 		"Public safeguards",
 		[
-			"Private records excluded",
-			"Aggregated metrics only",
+			"Private work is not included",
+			"Summary figures only",
 			"No restricted files",
 			"No personal private data",
 		],
@@ -765,8 +765,8 @@ export const collectionPages = {
 	news: collection(
 		pageSeo.news,
 		"News and Events",
-		"Repository Updates and Research Events",
-		"Follow public announcements, calls, workshops, innovation updates, and repository activity from OAU IPTTO.",
+		"Research News and Events",
+		"See OAU research announcements, opportunities, workshops, events, and innovation updates.",
 		Newspaper,
 		"Search news, events, workshops, or calls",
 		"Content type",
@@ -778,11 +778,11 @@ export const collectionPages = {
 		],
 		[
 			card(
-				"Repository orientation workshop for academic staff",
+				"How to add your research: workshop for academic staff",
 				"Event | 18 August 2026",
-				"Hands-on session covering research profile readiness, publication records, and submission workflows.",
+				"A practical session on completing your profile, adding publications, and sending research for review.",
 				undefined,
-				["Workshop", "Researchers", "Repository"],
+				["Workshop", "Researchers", "Adding research"],
 			),
 			card(
 				"IPTTO opens call for innovation disclosure updates",
@@ -794,7 +794,7 @@ export const collectionPages = {
 			card(
 				"New public statistics dashboard published",
 				"News | 22 July 2026",
-				"The public reports page now presents aggregated research output and innovation visibility metrics.",
+				"The reports page now shows clear public figures for research and innovations.",
 				undefined,
 				["Reports", "Statistics", "Public"],
 			),
@@ -810,19 +810,19 @@ export const collectionPages = {
 export const detailPages = {
 	research: detail(
 		pageSeo.researchDetail,
-		"Research Detail",
+		"Research",
 		"Smart Energy Systems for Resilient Communities",
-		"Public research detail pages present abstract, authors, department, faculty, keywords, access, citation metadata, and linked outputs.",
+		"Read the summary, meet the authors, see publication details, and find related work.",
 		FileSearch,
-		"Record slug",
+		"Research Details",
 		"/research",
-		"Back to research catalogue",
+		"Back to all research",
 		[
 			{ label: "Authors", value: "Prof. Amina Adebayo, Dr. S. Bello" },
 			{ label: "Department", value: "Electrical and Electronic Engineering" },
 			{ label: "Faculty", value: "Faculty of Technology" },
 			{ label: "Publication date", value: "12 May 2026" },
-			{ label: "File access", value: "Open metadata, repository file pending" },
+			{ label: "Document", value: "Details available; document coming soon" },
 		],
 		[
 			{
@@ -830,8 +830,8 @@ export const detailPages = {
 				body: "This study examines smart energy systems for resilient communities, focusing on distributed control, renewable generation, rural power access, and infrastructure planning.",
 			},
 			{
-				title: "Citation metadata",
-				body: "Recommended citation fields include authors, publication venue, date, persistent identifier when available, repository URL, and access status.",
+				title: "How to cite this research",
+				body: "Use the authors, title, where and when it was published, DOI when available, and the link to this page.",
 			},
 			{
 				title: "Keywords",
@@ -842,7 +842,7 @@ export const detailPages = {
 		[
 			{ label: "Download citation", href: "/research", icon: Download },
 			{
-				label: "Find related outputs",
+				label: "Find related research",
 				href: "/research?area=renewable-energy",
 				icon: Search,
 			},
@@ -852,7 +852,7 @@ export const detailPages = {
 		pageSeo.researcherProfile,
 		"Researcher Profile",
 		"Prof. Amina Adebayo",
-		"Public researcher profiles present biography, research interests, publications, metrics, department, faculty, and contact details approved for discovery.",
+		"Learn about this researcher's interests, publications, department, and approved contact details.",
 		Users,
 		"Researcher slug",
 		"/researchers",
@@ -860,7 +860,7 @@ export const detailPages = {
 		[
 			{ label: "Department", value: "Electrical and Electronic Engineering" },
 			{ label: "Faculty", value: "Faculty of Technology" },
-			{ label: "Outputs", value: "84 public records" },
+			{ label: "Published research", value: "84 items" },
 			{
 				label: "Research interests",
 				value: "Energy systems, smart grids, controls",
@@ -873,12 +873,12 @@ export const detailPages = {
 				body: "Prof. Adebayo leads applied research in resilient energy systems, grid intelligence, and community power access.",
 			},
 			{
-				title: "Research metrics",
-				body: "Public metrics summarise repository outputs, publication types, recent activity, and collaboration signals.",
+				title: "Research at a glance",
+				body: "See publication types, recent research, and collaborations at a glance.",
 			},
 			{
 				title: "Selected publications",
-				body: "Profile publication lists link visitors to approved public records, co-authors, departments, and research areas.",
+				body: "Explore this researcher's approved publications, co-authors, department, and research areas.",
 			},
 		],
 		collectionPages.publications.items,
@@ -895,7 +895,7 @@ export const detailPages = {
 		pageSeo.departmentDetail,
 		"Department Profile",
 		"Electrical and Electronic Engineering",
-		"Department pages aggregate researchers, research outputs, innovations, patents, and public statistics for visitors.",
+		"Explore this department's researchers, publications, innovations, patents, and key figures.",
 		Building2,
 		"Department slug",
 		"/departments",
@@ -903,29 +903,29 @@ export const detailPages = {
 		[
 			{ label: "Faculty", value: "Faculty of Technology" },
 			{ label: "Researchers", value: "124" },
-			{ label: "Public outputs", value: "892" },
+			{ label: "Published research", value: "892" },
 			{ label: "Innovations", value: "18" },
 			{ label: "Patents", value: "11" },
 		],
 		[
 			{
 				title: "Research activity",
-				body: "Department pages aggregate public records, active researchers, innovation activity, and research strengths.",
+				body: "See the department's published research, active researchers, innovations, and areas of strength.",
 			},
 			{
-				title: "People and outputs",
+				title: "People and publications",
 				body: "Visitors can move from a department to researcher profiles, publications, innovations, and patents.",
 			},
 			{
 				title: "Statistics",
-				body: "Only public, aggregated statistics appear on department pages.",
+				body: "These figures include public information only.",
 			},
 		],
 		collectionPages.research.items,
 		[
 			{ label: "View researchers", href: "/researchers", icon: Users },
 			{
-				label: "Search outputs",
+				label: "Search department research",
 				href: "/research?department=electrical-electronic-engineering",
 				icon: Search,
 			},
@@ -935,7 +935,7 @@ export const detailPages = {
 		pageSeo.facultyDetail,
 		"Faculty Profile",
 		"Faculty of Technology",
-		"Faculty pages present departments, researchers, outputs, innovation activity, patents, and public research statistics.",
+		"Explore this faculty's departments, researchers, publications, innovations, patents, and key figures.",
 		GraduationCap,
 		"Faculty slug",
 		"/faculties",
@@ -943,14 +943,14 @@ export const detailPages = {
 		[
 			{ label: "Departments", value: "12" },
 			{ label: "Researchers", value: "246" },
-			{ label: "Public outputs", value: "3.2k" },
+			{ label: "Published research", value: "3.2k" },
 			{ label: "Innovations", value: "31" },
 			{ label: "Patents", value: "26" },
 		],
 		[
 			{
 				title: "Faculty overview",
-				body: "Faculty pages show departments, expertise clusters, public outputs, innovations, patents, and recent activity.",
+				body: "Explore the faculty's departments, areas of expertise, publications, innovations, patents, and recent work.",
 			},
 			{
 				title: "Departments",
@@ -958,14 +958,14 @@ export const detailPages = {
 			},
 			{
 				title: "Public statistics",
-				body: "Aggregated statistics support discovery without exposing private records.",
+				body: "These figures help you understand the faculty without showing private work.",
 			},
 		],
 		collectionPages.departments.items,
 		[
 			{ label: "View departments", href: "/departments", icon: Building2 },
 			{
-				label: "Browse outputs",
+				label: "Browse faculty research",
 				href: "/research?faculty=technology",
 				icon: Search,
 			},
@@ -975,16 +975,16 @@ export const detailPages = {
 		pageSeo.innovationDetail,
 		"Innovation Detail",
 		"Low-cost Solar Drying System",
-		"Innovation pages present technology summaries, public readiness status, linked research, IPTTO pathways, and industry applications.",
+		"See what this innovation does, the research behind it, its current stage, and where it could be used.",
 		Lightbulb,
 		"Innovation slug",
 		"/innovations",
 		"Back to innovations",
 		[
-			{ label: "IPTTO status", value: "Prototype validation" },
+			{ label: "Current stage", value: "Prototype testing" },
 			{ label: "Research area", value: "Agriculture and Energy" },
 			{ label: "Industry use", value: "Smallholder processing" },
-			{ label: "Linked outputs", value: "4 research records" },
+			{ label: "Related research", value: "4 publications" },
 			{ label: "Public contact", value: "IPTTO office" },
 		],
 		[
@@ -994,7 +994,7 @@ export const detailPages = {
 			},
 			{
 				title: "Research links",
-				body: "Approved research records, publications, researchers, and departments are linked from the innovation profile.",
+				body: "Explore the approved research, people, and departments behind this innovation.",
 			},
 			{
 				title: "Industry applications",
@@ -1015,7 +1015,7 @@ export const detailPages = {
 		pageSeo.patentDetail,
 		"Patent Detail",
 		"Adaptive Microgrid Controller",
-		"Patent pages present inventors, public status, technology summary, research area, industry applications, and related outputs.",
+		"See who created this invention, what it does, its filing stage, and where it could be used.",
 		Scale,
 		"Patent slug",
 		"/patents",
@@ -1025,16 +1025,16 @@ export const detailPages = {
 			{ label: "Inventors", value: "Prof. Amina Adebayo and team" },
 			{ label: "Research area", value: "Energy systems" },
 			{ label: "Industry use", value: "Distributed power systems" },
-			{ label: "Public record", value: "Summary available" },
+			{ label: "Public information", value: "Summary available" },
 		],
 		[
 			{
 				title: "Technology summary",
-				body: "The public patent profile presents a safe summary, inventor list, status, and repository links.",
+				body: "Read a public summary, meet the inventors, check the filing stage, and find related research.",
 			},
 			{
 				title: "Research area",
-				body: "Patent profiles connect intellectual property to research areas and supporting public outputs.",
+				body: "See the research area and public work that support this invention.",
 			},
 			{
 				title: "Industry applications",
@@ -1073,7 +1073,7 @@ export function CollectionPage({
 						<Pagination
 							label={
 								liveItems.length > 0
-									? `${liveItems.length} live public records`
+									? `${liveItems.length} results`
 									: config.resultLabel
 							}
 						/>
@@ -1167,7 +1167,7 @@ export function DetailPlaceholderPage({
 			<section className="section-wrap pt-0">
 				<div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
 					<div>
-						<span className="eyebrow">Related records</span>
+						<span className="eyebrow">You May Also Like</span>
 						<h2 className="mt-4 text-3xl font-semibold tracking-normal">
 							Continue discovery
 						</h2>
@@ -1186,29 +1186,29 @@ export function DetailPlaceholderPage({
 export function FaqPageContent() {
 	const faqs = [
 		{
-			question: "Who can search the repository?",
+			question: "Who can search this site?",
 			answer:
-				"Students, researchers, industry partners, policymakers, and members of the public can search public records without signing in.",
+				"Anyone can search public research, researchers, innovations, and patents without signing in.",
 		},
 		{
 			question: "What content appears publicly?",
 			answer:
-				"Only approved public metadata, summaries, statistics, and files marked for public access appear on these pages.",
+				"Only information and documents approved for public viewing appear on this site.",
 		},
 		{
-			question: "How do I cite a repository record?",
+			question: "How do I cite research I find here?",
 			answer:
-				"Use the citation metadata on the research detail page, including authors, title, publication date, repository URL, and persistent identifier when available.",
+				"Open the research page and use the authors, title, publication date, DOI when available, and the page link.",
 		},
 		{
 			question: "Can researchers update their profiles?",
 			answer:
-				"Profile editing is handled through authenticated staff workflows after account and role approval.",
+				"Sign in with your approved staff account, open your profile, and make your changes there.",
 		},
 		{
 			question: "How are innovations and patents handled?",
 			answer:
-				"Public pages show discovery-friendly summaries while restricted intellectual property details remain protected by IPTTO workflows.",
+				"Only approved summaries are shown publicly. IPTTO keeps sensitive invention details private.",
 		},
 		{
 			question: "Who should industry partners contact?",
@@ -1228,8 +1228,8 @@ export function FaqPageContent() {
 					Frequently Asked Questions
 				</h1>
 				<p className="mt-5 max-w-3xl text-base leading-8 text-[#6b7280] sm:text-lg">
-					Answers for visitors exploring research, profiles, publications,
-					innovations, patents, public access, and repository support.
+					Quick answers about finding research, viewing documents, profiles,
+					innovations, patents, and getting help.
 				</p>
 			</section>
 			<section className="section-wrap pt-0">
@@ -1255,7 +1255,7 @@ export function ContactPageContent() {
 	const contactCards = [
 		{
 			icon: Mail,
-			title: "Repository support",
+			title: "Research site help",
 			text: "repository@oauife.edu.ng",
 		},
 		{
@@ -1283,15 +1283,14 @@ export function ContactPageContent() {
 							Contact OAU IPTTO
 						</h1>
 						<p className="mt-5 max-w-3xl text-base leading-8 text-[#6b7280] sm:text-lg">
-							Get repository support, ask about public research records, or
-							start a conversation about technology transfer and industry
-							collaboration.
+							Get help using the site, ask about public research, or start a
+							conversation about technology transfer and industry collaboration.
 						</p>
 						<div className="mt-8 grid gap-3">
 							{[
-								"Repository support",
+								"Help using the site",
 								"Technology transfer enquiries",
-								"Public record corrections",
+								"Correct research information",
 							].map((item) => (
 								<div
 									className="flex items-center gap-3 text-sm font-medium"
@@ -1307,8 +1306,8 @@ export function ContactPageContent() {
 						<CardHeader className="px-5 pt-5">
 							<CardTitle>Send an enquiry</CardTitle>
 							<CardDescription>
-								Use this form for repository help, public records, and IPTTO
-								partnership requests.
+								Use this form for help with the site, research information, or
+								an IPTTO partnership.
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="px-5 pb-5">
@@ -1327,10 +1326,10 @@ export function ContactPageContent() {
 									className="min-h-12 rounded border border-[#d8d8d8] bg-white px-4 outline-none focus:border-[#146ef5]"
 									id="topic"
 								>
-									<option>Repository support</option>
+									<option>Help using the site</option>
 									<option>Innovation partnership</option>
 									<option>Patent or licensing enquiry</option>
-									<option>Public record correction</option>
+									<option>Correct research information</option>
 								</select>
 								<label className="text-sm font-semibold" htmlFor="message">
 									Message
@@ -1646,9 +1645,9 @@ function PublicFooter() {
 						</div>
 					</div>
 					<p className="mt-5 max-w-xl text-sm leading-6 text-[#6b7280]">
-						Public pages provide discovery access to approved research outputs,
-						researchers, publications, innovations, patents, reports, and
-						institutional research structures.
+						Public pages help anyone find approved research, researchers,
+						publications, innovations, patents, reports, and institutional
+						research structures.
 					</p>
 				</div>
 				<div>
@@ -1804,7 +1803,7 @@ function RecordFacts({
 }) {
 	return (
 		<aside className="rounded-lg border border-[#d8d8d8] bg-[#f0f0f0] p-4">
-			<h2 className="text-lg font-semibold">Record facts</h2>
+			<h2 className="text-lg font-semibold">Key details</h2>
 			<div className="mt-4 divide-y divide-[#d8d8d8]">
 				{facts.map((fact) => (
 					<div

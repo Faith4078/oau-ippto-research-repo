@@ -18,7 +18,7 @@ export const Route = createFileRoute("/dashboard/lecturer")({
 			{
 				name: "description",
 				content:
-					"Lecturer workspace preview for research submissions, drafts, review status, upload history, and profile summary.",
+					"Add research, follow its review progress, and keep your public profile up to date.",
 			},
 		],
 	}),

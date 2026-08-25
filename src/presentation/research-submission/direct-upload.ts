@@ -162,7 +162,7 @@ export async function submitResearchWithDirectUpload(
 		const message =
 			error instanceof Error
 				? error.message
-				: "The file upload could not be completed.";
+				: "The document could not be attached.";
 
 		throw new ResearchSubmissionUploadError(message, submission);
 	}
@@ -217,7 +217,7 @@ async function uploadFileToR2(
 	});
 
 	if (!response.ok) {
-		throw new Error("The file could not be uploaded to Cloudflare R2.");
+		throw new Error("The document could not be attached. Please try again.");
 	}
 }
 

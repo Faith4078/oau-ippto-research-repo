@@ -18,7 +18,7 @@ export const Route = createFileRoute("/dashboard/faculty-admin")({
 			{
 				name: "description",
 				content:
-					"Faculty administrator dashboard preview for review queues, faculty reports, cross-department output, and approvals.",
+					"Review faculty research, compare departments, and create clear reports.",
 			},
 		],
 	}),

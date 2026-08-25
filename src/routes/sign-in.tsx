@@ -83,7 +83,9 @@ function SignInPage() {
 
 			window.location.assign("/dashboard");
 		} catch {
-			setError("Sign in could not be completed. Try again in a moment.");
+			setError(
+				"We could not sign you in. Check your connection and try again.",
+			);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -98,11 +100,10 @@ function SignInPage() {
 						Staff access
 					</div>
 					<h1 className="text-4xl font-semibold leading-[1.04] tracking-normal sm:text-5xl">
-						Sign in to the research repository.
+						Welcome back.
 					</h1>
 					<p className="mt-5 text-base leading-7 text-[#6b7280]">
-						Use your institutional Staff ID and password to access repository
-						workflows, submissions, reviews, and administrative tools.
+						Sign in to add research, complete reviews, or manage the platform.
 					</p>
 				</div>
 
@@ -111,7 +112,9 @@ function SignInPage() {
 						<CardTitle className="text-2xl leading-tight tracking-normal">
 							Staff Sign In
 						</CardTitle>
-						<CardDescription>Enter your staff account details.</CardDescription>
+						<CardDescription>
+							Use your OAU Staff ID and password.
+						</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<form
@@ -135,9 +138,8 @@ function SignInPage() {
 										type="text"
 									/>
 									<FieldDescription>
-										Lecturer Staff IDs must be in the format AC/ followed by
-										exactly 4 digits. IPTTO/admin Staff IDs must be in the
-										format AT/ followed by exactly 4 digits.
+										Lecturers: AC/ plus 4 digits. IPTTO and platform staff: AT/
+										plus 4 digits.
 									</FieldDescription>
 								</Field>
 
@@ -156,7 +158,7 @@ function SignInPage() {
 											className="font-medium text-[#146ef5] underline-offset-4 hover:underline"
 											href="/forgot-password"
 										>
-											Forgot password?
+											Forgot your password?
 										</a>
 									</FieldDescription>
 								</Field>

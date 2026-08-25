@@ -121,25 +121,25 @@ function LecturerSignUpPage() {
 			if (!response.ok) {
 				const payload = await response.json().catch(() => null);
 				const message =
-					payload?.error?.message ?? "Lecturer signup could not be completed.";
+					payload?.error?.message ?? "We could not create your account.";
 				setError(message);
-				toast.error("Signup failed", {
+				toast.error("Account not created", {
 					description: message,
 				});
 				return;
 			}
 
-			toast.success("Lecturer request submitted", {
-				description: "Your request is pending administrator approval.",
+			toast.success("Account request sent", {
+				description: "You can sign in after an OAU reviewer approves it.",
 			});
 			event.currentTarget.reset();
 			setFaculty("");
 			setPassword("");
 		} catch {
 			const message =
-				"Lecturer signup could not be completed. Try again in a moment.";
+				"We could not create your account. Check your connection and try again.";
 			setError(message);
-			toast.error("Signup failed", {
+			toast.error("Account not created", {
 				description: message,
 			});
 		} finally {
@@ -156,7 +156,7 @@ function LecturerSignUpPage() {
 						Lecturer access
 					</div>
 					<h1 className="text-4xl font-semibold leading-[1.04] tracking-normal sm:text-5xl">
-						Sign up for lecturer access.
+						Add and manage your research.
 					</h1>
 				</div>
 
@@ -165,7 +165,10 @@ function LecturerSignUpPage() {
 						<CardTitle className="text-2xl leading-tight tracking-normal">
 							Lecturer Sign Up
 						</CardTitle>
-						<CardDescription>Create your lecturer account.</CardDescription>
+						<CardDescription>
+							Enter your OAU details. Your account will be reviewed before you
+							can sign in.
+						</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<form className="grid gap-6" onSubmit={handleSubmit}>
@@ -212,8 +215,7 @@ function LecturerSignUpPage() {
 										type="text"
 									/>
 									<FieldDescription>
-										Staff IDs must be in the format AC/ followed by exactly 4
-										digits
+										Enter AC/ followed by your 4 staff ID digits.
 									</FieldDescription>
 								</Field>
 

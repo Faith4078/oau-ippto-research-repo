@@ -95,9 +95,9 @@ function ResetPasswordPage() {
 					payload?.error?.fieldErrors?.password?.[0] ??
 					payload?.error?.fieldErrors?.token?.[0] ??
 					payload?.error?.message ??
-					"Password reset could not be completed.";
+					"We could not save your new password. The link may have expired.";
 				setError(message);
-				toast.error("Reset failed", {
+				toast.error("Password not changed", {
 					description: message,
 				});
 				return;
@@ -109,9 +109,9 @@ function ResetPasswordPage() {
 			window.setTimeout(() => window.location.assign("/sign-in"), 600);
 		} catch {
 			const message =
-				"Password reset could not be completed. Try again in a moment.";
+				"We could not save your new password. Check your connection and try again.";
 			setError(message);
-			toast.error("Reset failed", {
+			toast.error("Password not changed", {
 				description: message,
 			});
 		} finally {
@@ -146,18 +146,26 @@ function ResetPasswordPage() {
 					<CardContent>
 						<form className="grid gap-6" onSubmit={handleSubmit}>
 							<FieldGroup>
-								<Field>
-									<FieldLabel htmlFor={tokenInputId}>Reset token</FieldLabel>
-									<Input
-										autoComplete="off"
-										className="h-12 rounded border-[#d8d8d8] bg-white text-base md:text-base"
-										defaultValue={tokenFromUrl}
-										id={tokenInputId}
-										name="token"
-										required
-										type="text"
-									/>
-								</Field>
+								{tokenFromUrl ? (
+									<input name="token" type="hidden" value={tokenFromUrl} />
+								) : (
+									<Field>
+										<FieldLabel htmlFor={tokenInputId}>
+											Code from your email
+										</FieldLabel>
+										<Input
+											autoComplete="one-time-code"
+											className="h-12 rounded border-[#d8d8d8] bg-white text-base md:text-base"
+											id={tokenInputId}
+											name="token"
+											required
+											type="text"
+										/>
+										<FieldDescription>
+											Paste the code from your password reset email.
+										</FieldDescription>
+									</Field>
+								)}
 
 								<Field data-invalid={password.length > 0 && !passwordIsValid}>
 									<FieldLabel htmlFor={passwordInputId}>

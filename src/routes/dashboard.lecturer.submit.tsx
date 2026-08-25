@@ -16,8 +16,7 @@ export const Route = createFileRoute("/dashboard/lecturer/submit")({
 			},
 			{
 				name: "description",
-				content:
-					"Lecturer research submission form with direct Cloudflare R2 uploads.",
+				content: "Add and publish research on the OAU research site.",
 			},
 		],
 	}),
@@ -33,14 +32,14 @@ function LecturerResearchSubmissionPage() {
 						className="text-sm font-semibold text-[#146ef5]"
 						href="/dashboard/lecturer"
 					>
-						Back to lecturer dashboard
+						Back to my research
 					</a>
 					<h1 className="mt-4 text-3xl font-semibold tracking-normal">
-						Submit Research
+						Add Research
 					</h1>
 					<p className="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
-						Create the repository record, upload the document directly to R2,
-						and save the file metadata for review.
+						Add clear details, attach the document, and publish the research for
+						people to find.
 					</p>
 				</div>
 				<ResearchSubmissionForm />

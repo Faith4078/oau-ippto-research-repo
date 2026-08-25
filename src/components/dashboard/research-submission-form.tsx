@@ -172,20 +172,21 @@ export function ResearchSubmissionForm() {
 		try {
 			const result = await submitResearchWithDirectUpload({ file, values });
 			toast.success("Research published", {
-				description:
-					"Your public submission is live on the research catalogue.",
+				description: "Your research and document are now available publicly.",
 			});
 			setSubmissionState({
 				status: "success",
 				publicHref: `/research/${result.submission.id}`,
-				message: `Submission ${result.submission.id} was published and ${result.files.length} file was uploaded.`,
+				message:
+					"Your research and document were published successfully. You can view the public page below.",
 			});
 		} catch (error) {
 			if (error instanceof ResearchSubmissionUploadError) {
-				const message = `Submission ${error.submission.id} was published and can be viewed publicly. File upload needs attention: ${error.message}`;
+				const message =
+					"Your research is public, but the document could not be attached. Please try adding the document again.";
 
-				toast.warning("Research published, upload incomplete", {
-					description: error.message,
+				toast.warning("Research published without the document", {
+					description: "Please try adding the document again.",
 				});
 				setSubmissionState({
 					status: "success",
@@ -196,10 +197,8 @@ export function ResearchSubmissionForm() {
 			}
 
 			const message =
-				error instanceof Error
-					? error.message
-					: "The submission could not be completed.";
-			toast.error("Submission failed", {
+				"We could not submit your research. Check your connection and try again.";
+			toast.error("Research not submitted", {
 				description: message,
 			});
 			setSubmissionState({
@@ -214,11 +213,10 @@ export function ResearchSubmissionForm() {
 			<Card className="gap-0 rounded-lg border-[#d8d8d8] bg-white py-0 shadow-none">
 				<CardHeader className="border-[#d8d8d8] border-b px-4 py-4">
 					<CardTitle className="text-base tracking-normal">
-						Research Metadata
+						About your research
 					</CardTitle>
 					<CardDescription>
-						Enter the record details that reviewers and public catalogue pages
-						will use.
+						Tell reviewers and readers what the research is about.
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="p-4">
@@ -295,7 +293,9 @@ export function ResearchSubmissionForm() {
 								/>
 							</Field>
 							<Field>
-								<FieldLabel htmlFor="accessLevel">Access level</FieldLabel>
+								<FieldLabel htmlFor="accessLevel">
+									Who can view this research?
+								</FieldLabel>
 								<select
 									className="h-10 rounded border border-[#d8d8d8] bg-white px-3 text-sm outline-none focus-visible:border-[#146ef5] focus-visible:ring-[3px] focus-visible:ring-[#146ef5]/20"
 									id="accessLevel"
@@ -308,9 +308,9 @@ export function ResearchSubmissionForm() {
 									}
 									value={values.accessLevel}
 								>
-									<option value="public">Public</option>
-									<option value="restricted">Restricted</option>
-									<option value="private">Private</option>
+									<option value="public">Everyone</option>
+									<option value="restricted">Approved OAU staff only</option>
+									<option value="private">Only me and reviewers</option>
 								</select>
 							</Field>
 						</div>
@@ -321,11 +321,10 @@ export function ResearchSubmissionForm() {
 			<Card className="gap-0 rounded-lg border-[#d8d8d8] bg-white py-0 shadow-none">
 				<CardHeader className="border-[#d8d8d8] border-b px-4 py-4">
 					<CardTitle className="text-base tracking-normal">
-						Authors and Keywords
+						Authors and search words
 					</CardTitle>
 					<CardDescription>
-						Put each author on a new line. The first author is marked as
-						corresponding.
+						Add each author on a new line, starting with the main contact.
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="grid gap-4 p-4 md:grid-cols-2">
@@ -342,11 +341,11 @@ export function ResearchSubmissionForm() {
 							value={values.authorsText}
 						/>
 						<FieldDescription>
-							Use institutional names as they should appear in the catalogue.
+							Enter each name exactly as it should appear publicly.
 						</FieldDescription>
 					</Field>
 					<Field>
-						<FieldLabel htmlFor="keywords">Keywords</FieldLabel>
+						<FieldLabel htmlFor="keywords">Search words</FieldLabel>
 						<textarea
 							className="min-h-28 rounded border border-[#d8d8d8] bg-white px-4 py-3 text-sm outline-none focus-visible:border-[#146ef5] focus-visible:ring-[3px] focus-visible:ring-[#146ef5]/20"
 							id="keywords"
@@ -358,7 +357,8 @@ export function ResearchSubmissionForm() {
 							value={values.keywordsText}
 						/>
 						<FieldDescription>
-							Separate keywords with commas or new lines.
+							Add words people may use to find this research. Separate them with
+							commas or new lines.
 						</FieldDescription>
 					</Field>
 				</CardContent>
@@ -367,11 +367,11 @@ export function ResearchSubmissionForm() {
 			<Card className="gap-0 rounded-lg border-[#d8d8d8] bg-white py-0 shadow-none">
 				<CardHeader className="border-[#d8d8d8] border-b px-4 py-4">
 					<CardTitle className="text-base tracking-normal">
-						Publication Metadata
+						Publication details
 					</CardTitle>
 					<CardDescription>
-						Capture the publication type, citation, identifiers, and publication
-						date.
+						If this work has already been published, add the details you have.
+						You can leave any that do not apply blank.
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="p-4">
@@ -401,14 +401,14 @@ export function ResearchSubmissionForm() {
 						</Field>
 						<Field>
 							<FieldLabel htmlFor="publicationTitle">
-								Publication title
+								Title as published
 							</FieldLabel>
 							<Input
 								id="publicationTitle"
 								onChange={(event) =>
 									updateValue("publicationTitle", event.target.value)
 								}
-								placeholder="Defaults to research title"
+								placeholder="Leave blank if it is the same as the research title"
 								value={values.publicationTitle}
 							/>
 						</Field>
@@ -444,14 +444,16 @@ export function ResearchSubmissionForm() {
 						/>
 						<TextInputField
 							id="doi"
-							label="DOI"
+							label="DOI / permanent article ID (optional)"
 							onChange={(value) => updateValue("doi", value)}
+							placeholder="Example: 10.1000/xyz123"
 							value={values.doi}
 						/>
 						<TextInputField
 							id="isbn"
-							label="ISBN"
+							label="ISBN / book number (optional)"
 							onChange={(value) => updateValue("isbn", value)}
+							placeholder="For books and book chapters"
 							value={values.isbn}
 						/>
 						<Field>
@@ -467,13 +469,15 @@ export function ResearchSubmissionForm() {
 						</Field>
 						<TextInputField
 							id="url"
-							label="Publication URL"
+							label="Link to the published work"
 							onChange={(value) => updateValue("url", value)}
 							type="url"
 							value={values.url}
 						/>
 						<Field>
-							<FieldLabel htmlFor="citation">Citation</FieldLabel>
+							<FieldLabel htmlFor="citation">
+								How this work should be cited (optional)
+							</FieldLabel>
 							<textarea
 								className="min-h-24 rounded border border-[#d8d8d8] bg-white px-4 py-3 text-sm outline-none focus-visible:border-[#146ef5] focus-visible:ring-[3px] focus-visible:ring-[#146ef5]/20"
 								id="citation"
@@ -482,6 +486,9 @@ export function ResearchSubmissionForm() {
 								}
 								value={values.citation}
 							/>
+							<FieldDescription>
+								Paste the citation here if the publisher provided one.
+							</FieldDescription>
 						</Field>
 					</div>
 				</CardContent>
@@ -490,11 +497,11 @@ export function ResearchSubmissionForm() {
 			<Card className="gap-0 rounded-lg border-[#d8d8d8] bg-white py-0 shadow-none">
 				<CardHeader className="border-[#d8d8d8] border-b px-4 py-4">
 					<CardTitle className="text-base tracking-normal">
-						File Upload
+						Research document and dates
 					</CardTitle>
 					<CardDescription>
-						The browser uploads the selected file directly to Cloudflare R2
-						after the record is created.
+						Attach the document you want reviewers to read, then add the project
+						dates if you know them.
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="grid gap-4 p-4 md:grid-cols-2">
@@ -511,14 +518,8 @@ export function ResearchSubmissionForm() {
 							PDF, PNG, or JPG. Maximum upload size is 50 MB.
 						</FieldDescription>
 					</Field>
-					<TextInputField
-						id="fileChecksum"
-						label="Checksum"
-						onChange={(value) => updateValue("fileChecksum", value)}
-						value={values.fileChecksum}
-					/>
 					<Field>
-						<FieldLabel htmlFor="startedOn">Started on</FieldLabel>
+						<FieldLabel htmlFor="startedOn">Research start date</FieldLabel>
 						<Input
 							id="startedOn"
 							onChange={(event) => updateValue("startedOn", event.target.value)}
@@ -527,7 +528,9 @@ export function ResearchSubmissionForm() {
 						/>
 					</Field>
 					<Field>
-						<FieldLabel htmlFor="completedOn">Completed on</FieldLabel>
+						<FieldLabel htmlFor="completedOn">
+							Research completion date
+						</FieldLabel>
 						<Input
 							id="completedOn"
 							onChange={(event) =>
@@ -549,11 +552,11 @@ export function ResearchSubmissionForm() {
 						/>
 						<div>
 							<FieldLabel htmlFor="requiresIpttoReview">
-								Requires IPTTO review
+								This work may have commercial or patent potential
 							</FieldLabel>
 							<FieldDescription>
-								Select this when the work includes innovation, patent, or
-								commercialization potential.
+								Select this and the IPTTO team will help assess and protect the
+								idea.
 							</FieldDescription>
 						</div>
 					</Field>
@@ -567,12 +570,12 @@ export function ResearchSubmissionForm() {
 						data-testid="submission-status"
 					>
 						{submissionState.status === "idle" &&
-							"Ready to create the record and upload the file directly to R2."}
+							"Check your details, then publish your research."}
 						{(submissionState.status === "success" ||
 							submissionState.status === "error") &&
 							submissionState.message}
 						{submissionState.status === "submitting" &&
-							"Creating the record and uploading the file directly to R2."}
+							"Publishing your research and attaching the document…"}
 					</div>
 					<Button
 						className="h-11 rounded bg-[#146ef5] px-4 text-white hover:bg-[#0d5fdc]"
@@ -582,8 +585,8 @@ export function ResearchSubmissionForm() {
 					>
 						<UploadCloud className="h-4 w-4" />
 						{submissionState.status === "submitting"
-							? "Submitting"
-							: "Submit Research"}
+							? "Publishing…"
+							: "Publish research"}
 					</Button>
 				</CardContent>
 				{submissionState.status === "success" ? (
@@ -593,7 +596,7 @@ export function ResearchSubmissionForm() {
 							className="h-10 rounded bg-[#146ef5] px-4 text-white hover:bg-[#0d5fdc]"
 							type="button"
 						>
-							<a href={submissionState.publicHref}>View public record</a>
+							<a href={submissionState.publicHref}>View research page</a>
 						</Button>
 						<Button
 							asChild
@@ -601,7 +604,7 @@ export function ResearchSubmissionForm() {
 							type="button"
 							variant="outline"
 						>
-							<a href="/research">Open research catalogue</a>
+							<a href="/research">Browse all research</a>
 						</Button>
 					</CardContent>
 				) : null}
@@ -645,12 +648,14 @@ function TextInputField({
 	id,
 	label,
 	onChange,
+	placeholder,
 	type = "text",
 	value,
 }: {
 	id: string;
 	label: string;
 	onChange: (value: string) => void;
+	placeholder?: string;
 	type?: React.HTMLInputTypeAttribute;
 	value: string;
 }) {
@@ -660,6 +665,7 @@ function TextInputField({
 			<Input
 				id={id}
 				onChange={(event) => onChange(event.target.value)}
+				placeholder={placeholder}
 				type={type}
 				value={value}
 			/>

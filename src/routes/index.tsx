@@ -110,7 +110,7 @@ const featuredResearch = [
 	{
 		area: "Agriculture",
 		title: "Food security through field-tested innovation",
-		text: "Research outputs supporting improved crop systems, agribusiness resilience, and local productivity.",
+		text: "Research that improves crop systems, strengthens agribusiness, and supports local farmers.",
 	},
 ];
 
@@ -170,23 +170,23 @@ const patentItems = [
 const valueCards = [
 	{
 		icon: FileSearch,
-		title: "Comprehensive Discovery",
-		text: "Access publications, innovations, patents, and research outputs from across the university in one place.",
+		title: "Everything in One Place",
+		text: "Find OAU publications, researchers, innovations, and patents without searching multiple sources.",
 	},
 	{
 		icon: BadgeCheck,
-		title: "Verified Academic Content",
-		text: "Published records are managed through institutional workflows to ensure quality, consistency, and reliability.",
+		title: "Reviewed by OAU",
+		text: "Published research has been checked and approved by the university.",
 	},
 	{
 		icon: Handshake,
-		title: "Collaboration Opportunities",
-		text: "Find experts, identify collaborators, and discover opportunities for academic and industry partnerships.",
+		title: "Find People to Work With",
+		text: "Discover experts and opportunities for academic or industry partnerships.",
 	},
 	{
 		icon: LockKeyhole,
-		title: "Long-Term Preservation",
-		text: "Research outputs are securely preserved, ensuring continued accessibility for future generations of researchers.",
+		title: "Research That Stays Available",
+		text: "OAU research is kept safe and accessible for future researchers.",
 	},
 ];
 
@@ -204,10 +204,10 @@ const footerLinks = [
 ];
 
 const trustItems = [
-	{ icon: LockKeyhole, label: "Secure preservation" },
-	{ icon: Globe2, label: "Public discovery" },
-	{ icon: Network, label: "Institutional workflows" },
-	{ icon: ShieldCheck, label: "Verified records" },
+	{ icon: LockKeyhole, label: "Kept safe" },
+	{ icon: Globe2, label: "Open to everyone" },
+	{ icon: Network, label: "Easy to explore" },
+	{ icon: ShieldCheck, label: "Reviewed by OAU" },
 ];
 
 function Home() {
@@ -221,31 +221,24 @@ function Home() {
 						<div className="max-w-4xl pb-4 text-white rise-in">
 							<div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/14 px-3 py-1 text-sm font-medium backdrop-blur-md">
 								<Sparkles className="h-4 w-4" />
-								Official Research Repository
+								OAU Research and Innovation
 							</div>
 							<h1 className="max-w-4xl text-4xl font-semibold leading-[1.04] tracking-normal sm:text-6xl lg:text-[76px]">
-								Discover Research That Shapes the Future
+								Find OAU Research, Researchers, and Innovations
 							</h1>
 							<p className="mt-6 max-w-3xl text-base leading-8 text-white/86 sm:text-lg">
-								The {universityName} Research Repository is the university's
-								official digital platform for preserving, showcasing, and
-								sharing scholarly research, publications, innovations, patents,
-								and academic expertise.
-							</p>
-							<p className="mt-4 max-w-3xl text-base leading-8 text-white/78 sm:text-lg">
-								Whether you are a student, researcher, industry partner,
-								policymaker, or member of the public, the repository connects
-								you with trusted knowledge that drives innovation and creates
-								societal impact.
+								Search trusted research from across {universityName}. Discover
+								publications, experts, patents, and ideas ready for real-world
+								use.
 							</p>
 							<div className="mt-8 flex flex-col gap-3 sm:flex-row">
 								<a className="btn-primary" href="#search">
 									<Search className="h-5 w-5" />
-									Explore Research
+									Search Research
 								</a>
 								<a className="btn-secondary-dark" href="#researchers">
 									<Users className="h-5 w-5" />
-									Meet Our Researchers
+									Find a Researcher
 								</a>
 							</div>
 						</div>
@@ -270,9 +263,7 @@ function Home() {
 			<section className="border-b border-[#d8d8d8] bg-white px-4 py-6 sm:px-6 lg:px-8">
 				<div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
 					<p className="max-w-xl text-sm leading-6 text-[#6b7280]">
-						Immediate access to research, researchers, innovations,
-						publications, departments, faculties, patents, reports, and
-						university expertise.
+						Search OAU research, experts, innovations, and patents in one place.
 					</p>
 					<div className="flex flex-wrap gap-2">
 						{trustItems.map((item) => (
@@ -289,14 +280,12 @@ function Home() {
 				<div className="search-panel rise-in">
 					<div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
 						<div>
-							<span className="eyebrow">Global Search</span>
+							<span className="eyebrow">Find What You Need</span>
 							<h2 className="mt-4 text-4xl font-semibold leading-tight tracking-normal sm:text-5xl">
-								Search the Repository
+								Search OAU Research
 							</h2>
 							<p className="mt-4 text-base leading-7 text-[#6b7280]">
-								Quickly find research papers, publications, researchers,
-								departments, innovations, patents, research areas, and reports
-								using keywords, titles, authors, or subjects.
+								Search by topic, title, researcher, department, or innovation.
 							</p>
 						</div>
 						<div>
@@ -304,7 +293,7 @@ function Home() {
 								<Search className="h-5 w-5 text-[#146ef5]" />
 								<input
 									id="repository-search"
-									placeholder="Search research titles, researchers, keywords, departments, or innovations..."
+									placeholder="Try a topic, title, researcher, or department"
 									type="search"
 								/>
 							</label>
@@ -322,19 +311,11 @@ function Home() {
 
 			<section id="overview" className="section-wrap pt-0">
 				<div className="section-heading">
-					<span className="eyebrow">Repository Overview</span>
-					<h2>Advancing Knowledge Through Research</h2>
+					<span className="eyebrow">OAU Research at a Glance</span>
+					<h2>One Place for Research Across OAU</h2>
 					<p>
-						Research is at the heart of every great university. Our repository
-						brings together the intellectual contributions of our academic
-						community into a single, searchable platform that supports learning,
-						collaboration, innovation, and informed decision-making.
-					</p>
-					<p>
-						From peer-reviewed journal articles and conference papers to
-						patents, innovations, technical reports, and postgraduate research,
-						every contribution reflects our commitment to academic excellence
-						and meaningful societal impact.
+						Explore journal articles, conference papers, postgraduate research,
+						innovations, and patents from across the university.
 					</p>
 				</div>
 
@@ -357,12 +338,11 @@ function Home() {
 					<div>
 						<span className="eyebrow">Featured Research</span>
 						<h2 className="mt-4 max-w-2xl text-4xl font-semibold leading-tight tracking-normal sm:text-5xl">
-							Selected research recognised for quality and contribution.
+							Research Making a Difference
 						</h2>
 						<p className="mt-4 max-w-2xl text-[#6b7280]">
-							Explore research recognised for its academic quality, innovation,
-							and contribution to addressing real-world challenges across
-							diverse disciplines.
+							See work tackling real problems in energy, health, agriculture,
+							and more.
 						</p>
 					</div>
 					<a className="btn-secondary" href="#search">
@@ -406,8 +386,8 @@ function Home() {
 					eyebrow="Meet Our Researchers"
 					href="#search"
 					icon={Users}
-					text="Discover researchers leading innovative projects, advancing knowledge within their disciplines, and collaborating with institutions and industries around the world."
-					title="Research Excellence Starts with Our People"
+					text="Find OAU experts by name, department, or research interest and explore their published work."
+					title="Find the Right Researcher"
 				/>
 			</section>
 
@@ -415,10 +395,7 @@ function Home() {
 				<div className="section-heading">
 					<span className="eyebrow">Research Areas</span>
 					<h2>Explore Research by Discipline</h2>
-					<p>
-						Browse research organised into subject areas to discover expertise,
-						ongoing investigations, and interdisciplinary collaborations.
-					</p>
+					<p>Choose a subject to find related research and experts.</p>
 				</div>
 				<div className="tag-cloud">
 					{researchAreas.map((area) => (
@@ -439,10 +416,8 @@ function Home() {
 							From Research to Real-World Impact
 						</h2>
 						<p className="mt-5 max-w-xl text-base leading-7 text-white/70">
-							Innovation extends beyond publication. Through the Intellectual
-							Property and Technology Transfer Office (IPTTO), research outcomes
-							are transformed into practical solutions, technologies, patents,
-							and industry partnerships that benefit society.
+							See how OAU ideas become useful products, protected inventions,
+							and industry partnerships—with support from IPTTO.
 						</p>
 						<a className="btn-primary mt-8 w-fit" href="#search">
 							<Lightbulb className="h-5 w-5" />
@@ -455,8 +430,7 @@ function Home() {
 								<Lightbulb className="h-6 w-6 text-[#146ef5]" />
 								<strong>{item}</strong>
 								<p>
-									Discover the people, evidence, and pathways connected to this
-									innovation activity.
+									See the people, research, and next steps behind this work.
 								</p>
 							</div>
 						))}
@@ -470,7 +444,7 @@ function Home() {
 					eyebrow="Patents & Intellectual Property"
 					href="#search"
 					icon={Scale}
-					text="Discover publicly available information about patents, intellectual property, and technologies developed through research conducted at the university."
+					text="Explore inventions developed at OAU, who created them, and how they may be used."
 					title="Protecting Innovation"
 				/>
 				<TagPanel items={patentItems} title="Patent profiles provide" />
@@ -487,15 +461,15 @@ function Home() {
 					eyebrow="Departments & Faculties"
 					href="#areas"
 					icon={Building2}
-					text="Research excellence is driven by collaboration across departments and faculties. Explore the people, publications, and projects shaping each academic discipline."
+					text="Choose a faculty or department to see its researchers, publications, and projects."
 					title="Research Across Every Faculty"
 				/>
 			</section>
 
 			<section className="section-wrap pt-0">
 				<div className="section-heading">
-					<span className="eyebrow">Why Use This Repository?</span>
-					<h2>A Trusted Gateway to University Research</h2>
+					<span className="eyebrow">Why Use This Site?</span>
+					<h2>Trusted OAU Research, Easy to Find</h2>
 				</div>
 				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
 					{valueCards.map((card, index) => (
@@ -516,27 +490,29 @@ function Home() {
 
 			<section className="section-wrap grid gap-8 pt-0 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
 				<ContentPanel
-					cta="Learn How to Contribute"
+					cta="Add Your Research"
 					eyebrow="For Researchers"
 					href="#contact"
 					icon={GraduationCap}
-					text="The repository enables researchers to increase the visibility of their work, manage academic profiles, preserve institutional knowledge, and showcase research achievements to collaborators, funding organisations, policymakers, and industry."
-					title="Share Your Research with a Global Audience"
+					text="Add your work once so students, collaborators, funders, policymakers, and industry partners can find it."
+					title="Help More People Find Your Research"
 				/>
 				<div className="tag-panel">
 					<h3>Fast paths for contributors</h3>
 					<div className="mt-5 grid gap-3">
 						<div className="contributor-step">
 							<BadgeCheck className="h-5 w-5 text-[#146ef5]" />
-							<span>Submit research outputs for institutional review.</span>
+							<span>Add your research and send it for review.</span>
 						</div>
 						<div className="contributor-step">
 							<Users className="h-5 w-5 text-[#146ef5]" />
-							<span>Keep researcher profiles complete and discoverable.</span>
+							<span>Keep your public profile complete and up to date.</span>
 						</div>
 						<div className="contributor-step">
 							<Lightbulb className="h-5 w-5 text-[#146ef5]" />
-							<span>Share innovation and patent opportunities with IPTTO.</span>
+							<span>
+								Tell IPTTO about ideas with patent or commercial potential.
+							</span>
 						</div>
 					</div>
 				</div>
@@ -546,21 +522,18 @@ function Home() {
 				<div className="mx-auto max-w-7xl rounded-lg border border-[#d8d8d8] bg-[#f0f0f0] p-6 sm:p-10">
 					<div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
 						<div>
-							<span className="eyebrow">Final Call to Action</span>
+							<span className="eyebrow">Start Exploring</span>
 							<h2 className="mt-4 max-w-3xl text-4xl font-semibold leading-tight tracking-normal">
-								Explore Knowledge. Inspire Innovation. Create Impact.
+								Find Research. Meet Experts. Build Partnerships.
 							</h2>
 							<p className="mt-4 max-w-2xl text-[#6b7280]">
-								The {universityName} Research Repository connects people with
-								trusted research that advances scholarship, strengthens
-								collaboration, supports innovation, and contributes to solving
-								local and global challenges.
+								Search trusted OAU work or connect with the people behind it.
 							</p>
 						</div>
 						<div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
 							<a className="btn-primary" href="#search">
 								<Search className="h-5 w-5" />
-								Explore Repository
+								Search Research
 							</a>
 							<a className="btn-secondary" href="#featured">
 								Browse Research

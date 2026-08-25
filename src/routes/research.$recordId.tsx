@@ -76,10 +76,10 @@ function ResearchDetailPage() {
 					<div className="max-w-3xl">
 						<span className="eyebrow">
 							<BookOpenCheck className="h-4 w-4" />
-							Public research record
+							Research
 						</span>
 						<h1 className="mt-5 text-4xl font-semibold leading-tight tracking-normal sm:text-6xl">
-							Loading research record
+							Loading research…
 						</h1>
 					</div>
 				</section>
@@ -97,7 +97,7 @@ function LiveResearchDetail({ record }: { record: PublicResearchDetail }) {
 		{ label: "Faculty", value: record.faculty },
 		{ label: "Department", value: record.department },
 		{ label: "Year", value: record.year },
-		{ label: "Access", value: record.accessLevel },
+		{ label: "Who can view this?", value: formatAccess(record.accessLevel) },
 	];
 
 	return (
@@ -108,13 +108,13 @@ function LiveResearchDetail({ record }: { record: PublicResearchDetail }) {
 					href="/research"
 				>
 					<ArrowLeft className="h-4 w-4" />
-					Back to research catalogue
+					Back to all research
 				</a>
 				<div className="grid gap-8 lg:grid-cols-[1fr_360px] lg:items-start">
 					<div>
 						<span className="eyebrow">
 							<BookOpenCheck className="h-4 w-4" />
-							Public research record
+							Research
 						</span>
 						<h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-tight tracking-normal sm:text-6xl">
 							{record.title}
@@ -134,7 +134,7 @@ function LiveResearchDetail({ record }: { record: PublicResearchDetail }) {
 						</div>
 					</div>
 					<aside className="rounded-lg border border-[#d8d8d8] bg-[#f0f0f0] p-5">
-						<h2 className="text-lg font-semibold">Record facts</h2>
+						<h2 className="text-lg font-semibold">Key details</h2>
 						<dl className="mt-4 grid gap-4">
 							{facts.map((fact) => (
 								<div key={fact.label}>
@@ -172,11 +172,24 @@ function LiveResearchDetail({ record }: { record: PublicResearchDetail }) {
 					<article className="rounded-lg border border-[#d8d8d8] bg-white p-5">
 						<h2 className="text-xl font-semibold">Citation</h2>
 						<p className="mt-3 text-sm leading-6 text-[#6b7280]">
-							{record.citation ?? "Citation metadata is being prepared."}
+							{record.citation ?? "Citation details are being prepared."}
 						</p>
 					</article>
 				</div>
 			</section>
 		</PublicPageShell>
 	);
+}
+
+function formatAccess(accessLevel: string) {
+	switch (accessLevel.toLowerCase()) {
+		case "public":
+			return "Everyone";
+		case "restricted":
+			return "Approved OAU staff only";
+		case "private":
+			return "You and authorised OAU reviewers";
+		default:
+			return accessLevel;
+	}
 }

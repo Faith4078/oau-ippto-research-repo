@@ -95,7 +95,7 @@ const toneClasses: Record<StatusTone, string> = {
 
 const supportingNav = [
 	{ label: "Overview", icon: Home },
-	{ label: "Records", icon: SlidersHorizontal },
+	{ label: "Research", icon: SlidersHorizontal },
 	{ label: "Reports", icon: CalendarDays },
 	{ label: "Settings", icon: Settings },
 ];
@@ -109,16 +109,16 @@ const workspaceNavByRole: Record<
 > = {
 	lecturer: {
 		primary: [
-			{ label: "Submissions", icon: FileClock },
-			{ label: "Drafts", icon: SlidersHorizontal },
+			{ label: "My Research", icon: FileClock },
+			{ label: "Unfinished", icon: SlidersHorizontal },
 			{ label: "Profile", icon: UserCircle2 },
 		],
 		secondary: supportingNav.filter((item) => item.label !== "Settings"),
 	},
 	"department-admin": {
 		primary: [
-			{ label: "Review Queue", icon: FileClock },
-			{ label: "Comments", icon: CheckCircle2 },
+			{ label: "Needs Review", icon: FileClock },
+			{ label: "Feedback", icon: CheckCircle2 },
 			{ label: "Researchers", icon: UserCircle2 },
 		],
 		secondary: [
@@ -128,13 +128,13 @@ const workspaceNavByRole: Record<
 	},
 	"faculty-admin": {
 		primary: [
-			{ label: "Faculty Queue", icon: FileClock },
+			{ label: "Needs Review", icon: FileClock },
 			{ label: "Reports", icon: CalendarDays },
 			{ label: "Departments", icon: SlidersHorizontal },
 		],
 		secondary: [
-			{ label: "Output", icon: Home },
-			{ label: "Approvals", icon: ShieldCheck },
+			{ label: "Faculty Research", icon: Home },
+			{ label: "Decisions", icon: ShieldCheck },
 		],
 	},
 	"iptto-officer": {
@@ -155,8 +155,8 @@ const workspaceNavByRole: Record<
 			{ label: "Organization", icon: Home },
 		],
 		secondary: [
-			{ label: "Audit Logs", icon: FileClock },
-			{ label: "Failed Jobs", icon: Settings },
+			{ label: "Activity History", icon: FileClock },
+			{ label: "Needs Attention", icon: Settings },
 		],
 	},
 };
@@ -300,12 +300,12 @@ function TopBar({
 }) {
 	const placeholder =
 		role === "lecturer"
-			? "Search records, drafts, uploads, review status, or publications"
+			? "Search your research by title, document, or review progress"
 			: role === "iptto-officer"
-				? "Search innovations, patents, commercialization records, or files"
+				? "Search innovations, patents, commercial opportunities, or documents"
 				: role === "super-admin"
-					? "Search users, roles, departments, audit events, or failed jobs"
-					: "Search records, researchers, comments, reports, or approvals";
+					? "Search people, access, departments, or platform activity"
+					: "Search research, lecturers, feedback, reports, or decisions";
 
 	return (
 		<header className="sticky top-0 z-30 border-[#d8d8d8] border-b bg-white/95 backdrop-blur">
@@ -647,7 +647,7 @@ function getEffectiveWorkspace(input: {
 			rows: input.liveRows,
 			stats: lecturerStatsFromSubmissions(input.lecturerSubmissions),
 			description: input.dashboardUser
-				? `Welcome back, ${input.dashboardUser.name}. Track your submissions, uploads, and publication status from here.`
+				? `Welcome back, ${input.dashboardUser.name}. Follow your research from first draft to publication.`
 				: input.workspace.description,
 		};
 	}
@@ -659,7 +659,7 @@ function getEffectiveWorkspace(input: {
 			rows: input.ipttoSummary.rows,
 			stats: ipttoStatsFromSummary(input.ipttoSummary),
 			description: input.dashboardUser
-				? `Welcome back, ${input.dashboardUser.name}. Review innovation, patent, and commercialization activity from live records.`
+				? `Welcome back, ${input.dashboardUser.name}. Review innovations, patents, and commercial opportunities here.`
 				: input.workspace.description,
 		};
 	}
@@ -681,31 +681,30 @@ function lecturerStatsFromSubmissions(
 
 	return [
 		{
-			label: "Active Submissions",
+			label: "Being Reviewed",
 			value: String(active),
-			trend: `${submissions.length} total records`,
+			trend: `${submissions.length} research items in total`,
 			icon: FileClock,
 			tone: active > 0 ? "info" : "neutral",
 		},
 		{
-			label: "Published Outputs",
+			label: "Published Research",
 			value: String(published),
-			trend:
-				published > 0 ? "Visible in public repository" : "No live output yet",
+			trend: published > 0 ? "Visible to the public" : "Nothing published yet",
 			icon: BadgeCheck,
 			tone: published > 0 ? "success" : "neutral",
 		},
 		{
-			label: "Public Records",
+			label: "Visible to Everyone",
 			value: String(publicOutputs),
-			trend: "Eligible for public research page",
+			trend: "Appears on the public research page",
 			icon: BookOpenCheck,
 			tone: publicOutputs > 0 ? "success" : "neutral",
 		},
 		{
 			label: "Private/Restricted",
 			value: String(submissions.length - publicOutputs),
-			trend: "Visible only by access rules",
+			trend: "Only approved people can view these",
 			icon: LockKeyhole,
 			tone: "warning",
 		},
@@ -719,14 +718,14 @@ function ipttoStatsFromSummary(
 		{
 			label: "Innovations",
 			value: String(summary.stats.innovations),
-			trend: "Live innovation records",
+			trend: "Innovations currently being managed",
 			icon: Lightbulb,
 			tone: "info",
 		},
 		{
 			label: "Patents",
 			value: String(summary.stats.patents),
-			trend: "Live patent records",
+			trend: "Patents currently being managed",
 			icon: Gavel,
 			tone: "warning",
 		},
@@ -738,9 +737,9 @@ function ipttoStatsFromSummary(
 			tone: "success",
 		},
 		{
-			label: "IPTTO Reviews",
+			label: "Reviews Completed",
 			value: String(summary.stats.reviews),
-			trend: "Recorded review decisions",
+			trend: "Decisions saved by the IPTTO team",
 			icon: CheckCircle2,
 			tone: "neutral",
 		},
@@ -848,7 +847,9 @@ function ActionBanner({
 				)}
 			>
 				<div>
-					<p className="text-sm font-medium text-white/78">Workflow snapshot</p>
+					<p className="text-sm font-medium text-white/78">
+						Your work at a glance
+					</p>
 					<h2
 						className={cn(
 							"mt-1 font-semibold tracking-normal",
@@ -982,7 +983,7 @@ function InsightGrid({
 					className={cn(isResponsiveWorkspace && "overflow-x-auto", "p-4")}
 				>
 					<svg
-						aria-label="Review velocity line chart"
+						aria-label="Review progress line chart"
 						className={cn(
 							"h-[220px] w-full",
 							isResponsiveWorkspace && "min-w-[300px]",
@@ -1035,8 +1036,9 @@ function getInsightCopy(role: DashboardRole) {
 	switch (role) {
 		case "lecturer":
 			return {
-				barTitle: "Submission Activity",
-				barDescription: "Drafts, uploads, and submitted records by week.",
+				barTitle: "Research Activity",
+				barDescription:
+					"Research started, documents added, and work sent for review each week.",
 				lineTitle: "Review Progress",
 				lineDescription:
 					"Movement across department, faculty, and IPTTO stages.",
@@ -1053,16 +1055,19 @@ function getInsightCopy(role: DashboardRole) {
 		case "super-admin":
 			return {
 				barTitle: "System Activity",
-				barDescription: "User, role, organization, and job activity by week.",
-				lineTitle: "Operational Health",
-				lineDescription: "Audit volume, failed jobs, and permission changes.",
+				barDescription:
+					"Account, access, faculty, and department activity each week.",
+				lineTitle: "Platform Health",
+				lineDescription:
+					"Important activity, incomplete tasks, and access changes.",
 			};
 		default:
 			return {
-				barTitle: "Review Throughput",
-				barDescription: "Queue movement and review actions by week.",
-				lineTitle: "Approval Velocity",
-				lineDescription: "Approvals, revisions, and publication readiness.",
+				barTitle: "Reviews Completed",
+				barDescription: "Research reviewed and decisions made each week.",
+				lineTitle: "Time to Decision",
+				lineDescription:
+					"How quickly research is approved, returned for changes, or prepared for publication.",
 			};
 	}
 }
@@ -1082,7 +1087,7 @@ function DataPanel({
 						{workspace.tabs[0]}
 					</CardTitle>
 					<CardDescription className="mt-1">
-						Dense operational view for records that need attention.
+						Everything that needs your attention, in one place.
 					</CardDescription>
 				</div>
 				<FilterBar
@@ -1215,7 +1220,7 @@ function DataTable({
 								<input aria-label="Select all rows" type="checkbox" />
 							</th>
 						)}
-						<th className="px-4 py-3">Record</th>
+						<th className="px-4 py-3">Research</th>
 						{showOwner && <th className="px-4 py-3">Owner</th>}
 						<th className="px-4 py-3">Department</th>
 						<th className="px-4 py-3">Date</th>
@@ -1364,33 +1369,35 @@ function getWorkspaceFormCopy(workspace: DashboardWorkspace) {
 	switch (workspace.role) {
 		case "lecturer":
 			return {
-				title: "Submit Research",
-				description: "Create a draft record before uploading files.",
+				title: "Add Research",
+				description:
+					"Start with a title. You can add the remaining details and document next.",
 				primaryLabel: "Research title",
-				primaryPlaceholder: "Enter working title",
-				secondaryLabel: "Submission type",
-				action: "Create Draft",
-				helperText: "Save a draft before attaching files and submitting.",
+				primaryPlaceholder: "Enter the title of your research",
+				secondaryLabel: "Type of research",
+				action: "Start Research",
+				helperText:
+					"You can save your progress and return before sending it for review.",
 			};
 		case "department-admin":
 			return {
-				title: "Review Comment",
-				description: "Prepare a decision note for selected submissions.",
-				primaryLabel: "Comment summary",
-				primaryPlaceholder: "Add review note",
-				secondaryLabel: "Queue filter",
-				action: "Save Comment",
-				helperText: "Attach the note to the selected submission.",
+				title: "Give Feedback",
+				description: "Explain clearly what the lecturer should do next.",
+				primaryLabel: "Your feedback",
+				primaryPlaceholder: "Describe what is good or what needs to change",
+				secondaryLabel: "Research to review",
+				action: "Save Feedback",
+				helperText: "Choose a piece of research before saving your feedback.",
 			};
 		case "faculty-admin":
 			return {
 				title: "Faculty Report",
-				description: "Generate a focused review packet.",
+				description: "Create a report for the people and period you choose.",
 				primaryLabel: "Report name",
-				primaryPlaceholder: "July faculty output",
-				secondaryLabel: "Report scope",
+				primaryPlaceholder: "July faculty research report",
+				secondaryLabel: "What to include",
 				action: "Generate Report",
-				helperText: "Choose the queue or reporting scope first.",
+				helperText: "Choose what the report should cover first.",
 			};
 		case "iptto-officer":
 			return {
@@ -1398,9 +1405,10 @@ function getWorkspaceFormCopy(workspace: DashboardWorkspace) {
 				description: "Capture an innovation or patent lead.",
 				primaryLabel: "Technology title",
 				primaryPlaceholder: "Enter innovation title",
-				secondaryLabel: "Record class",
+				secondaryLabel: "What are you adding?",
 				action: "Register Technology",
-				helperText: "Classify it as innovation, patent, or commercialization.",
+				helperText:
+					"Choose whether this is an innovation, patent, or partnership activity.",
 			};
 		case "super-admin":
 			return {
@@ -1483,7 +1491,9 @@ function ConfirmationDialog() {
 			</CardHeader>
 			<CardContent className="px-4 pb-4">
 				<div className="rounded-lg border border-[#d8d8d8] bg-[#f7f7f7] p-3">
-					<p className="text-sm font-semibold">Approve selected record?</p>
+					<p className="text-sm font-semibold">
+						Approve the selected research?
+					</p>
 					<div className="mt-3 flex gap-2">
 						<Button
 							className="h-9 flex-1 rounded bg-[#146ef5] text-white hover:bg-[#0d5fdc]"

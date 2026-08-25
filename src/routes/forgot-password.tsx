@@ -83,9 +83,9 @@ function ForgotPasswordPage() {
 				const message =
 					payload?.error?.fieldErrors?.staffId?.[0] ??
 					payload?.error?.message ??
-					"Password reset could not be started.";
+					"We could not start the password reset.";
 				setError(message);
-				toast.error("Reset request failed", {
+				toast.error("Instructions not sent", {
 					description: message,
 				});
 				return;
@@ -97,14 +97,14 @@ function ForgotPasswordPage() {
 
 			toast.success("Check your email", {
 				description: payload?.data?.resetUrl
-					? "A debug reset link is available below."
+					? "Use the link below to choose a new password."
 					: "If this Staff ID has an active account, reset instructions have been sent.",
 			});
 		} catch {
 			const message =
-				"Password reset could not be started. Try again in a moment.";
+				"We could not send the instructions. Check your connection and try again.";
 			setError(message);
-			toast.error("Reset request failed", {
+			toast.error("Instructions not sent", {
 				description: message,
 			});
 		} finally {
@@ -118,14 +118,13 @@ function ForgotPasswordPage() {
 				<div className="max-w-xl">
 					<div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#d8d8d8] bg-[#eef4ff] px-3 py-1 text-sm font-medium text-[#146ef5]">
 						<KeyRound className="h-4 w-4" />
-						Staff recovery
+						Password help
 					</div>
 					<h1 className="text-4xl font-semibold leading-[1.04] tracking-normal sm:text-5xl">
-						Reset your staff password.
+						Forgot your password?
 					</h1>
 					<p className="mt-5 text-base leading-7 text-[#6b7280]">
-						Use your institutional Staff ID to receive password reset
-						instructions for your lecturer or IPTTO account.
+						Enter your OAU Staff ID and we will help you choose a new one.
 					</p>
 				</div>
 
@@ -135,7 +134,7 @@ function ForgotPasswordPage() {
 							Forgot Password
 						</CardTitle>
 						<CardDescription>
-							Enter your Staff ID and we will email reset instructions.
+							We will send instructions to the email linked to your account.
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
@@ -154,9 +153,8 @@ function ForgotPasswordPage() {
 										type="text"
 									/>
 									<FieldDescription>
-										Lecturer Staff IDs must be in the format AC/ followed by
-										exactly 4 digits. IPTTO/admin Staff IDs must be in the
-										format AT/ followed by exactly 4 digits.
+										Lecturers: AC/ plus 4 digits. IPTTO and platform staff: AT/
+										plus 4 digits.
 									</FieldDescription>
 								</Field>
 							</FieldGroup>
@@ -166,13 +164,13 @@ function ForgotPasswordPage() {
 							{resetUrl ? (
 								<div className="rounded border border-[#d8d8d8] bg-white p-4 text-sm text-[#4b5563]">
 									<p className="font-medium text-[#080808]">
-										Reset link created
+										Continue to reset your password
 									</p>
 									<a
-										className="mt-2 block break-all text-[#146ef5] underline-offset-4 hover:underline"
+										className="mt-3 inline-flex rounded bg-[#146ef5] px-4 py-2 font-medium text-white no-underline hover:bg-[#0d5fdc]"
 										href={resetUrl}
 									>
-										{resetUrl}
+										Choose a new password
 									</a>
 								</div>
 							) : null}

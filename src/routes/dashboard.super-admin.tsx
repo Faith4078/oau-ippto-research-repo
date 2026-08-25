@@ -31,7 +31,7 @@ export const Route = createFileRoute("/dashboard/super-admin")({
 			{
 				name: "description",
 				content:
-					"Super administrator dashboard preview for users, roles, permissions, faculties, departments, settings, audit logs, and failed jobs.",
+					"Approve accounts, manage access, and keep the OAU research platform running smoothly.",
 			},
 		],
 	}),
@@ -68,11 +68,11 @@ function AccountApprovalQueue() {
 			const payload = await response.json();
 			if (!response.ok)
 				throw new Error(
-					payload.error?.message ?? "Approval queue could not be loaded.",
+					payload.error?.message ?? "Account requests could not be loaded.",
 				);
 			setAccounts(payload.data ?? []);
 		} catch (error) {
-			toast.error("Approval queue unavailable", {
+			toast.error("Account requests unavailable", {
 				description:
 					error instanceof Error ? error.message : "Try again shortly.",
 			});
@@ -91,7 +91,7 @@ function AccountApprovalQueue() {
 	) {
 		const reason =
 			status === "rejected"
-				? window.prompt("Reason for rejection")?.trim()
+				? window.prompt("Why are you declining this request?")?.trim()
 				: null;
 		if (status === "rejected" && !reason) return;
 		setActingOn(account.id);
@@ -113,7 +113,7 @@ function AccountApprovalQueue() {
 				status === "active" ? "Account approved" : "Account rejected",
 			);
 		} catch (error) {
-			toast.error("Account action failed", {
+			toast.error("Account not updated", {
 				description:
 					error instanceof Error ? error.message : "Try again shortly.",
 			});
@@ -126,9 +126,9 @@ function AccountApprovalQueue() {
 		<Card className="rounded-lg border-[#d8d8d8] shadow-none">
 			<CardHeader className="flex-row items-start justify-between gap-4">
 				<div>
-					<CardTitle>Account approval queue</CardTitle>
+					<CardTitle>Account requests</CardTitle>
 					<CardDescription>
-						Verify pending lecturer and IPTTO access requests.
+						Check each person's details, then approve or decline access.
 					</CardDescription>
 				</div>
 				<Button onClick={() => void loadAccounts()} size="sm" variant="outline">
@@ -138,10 +138,10 @@ function AccountApprovalQueue() {
 			</CardHeader>
 			<CardContent>
 				{loading ? (
-					<p className="text-sm text-[#6b7280]">Loading pending accounts…</p>
+					<p className="text-sm text-[#6b7280]">Loading account requests…</p>
 				) : accounts.length === 0 ? (
 					<p className="text-sm text-[#6b7280]">
-						No accounts are awaiting approval.
+						No account requests need your review.
 					</p>
 				) : (
 					<div className="divide-y divide-[#e5e7eb]">
@@ -172,7 +172,7 @@ function AccountApprovalQueue() {
 										variant="outline"
 									>
 										<XCircle className="h-4 w-4" />
-										Reject
+										Decline
 									</Button>
 								</div>
 							</div>

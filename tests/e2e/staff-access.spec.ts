@@ -8,13 +8,13 @@ test("staff sign-in page exposes Staff ID password access", async ({ page }) => 
 	).toBeVisible();
 	await expect(page.getByLabel(/Staff ID/i)).toBeVisible();
 	await expect(
-		page.getByText(/Lecturer Staff IDs must be in the format AC\//i),
+		page.getByText(/Lecturers: AC\/ plus 4 digits/i),
 	).toBeVisible();
 	await expect(
-		page.getByText(/IPTTO\/admin Staff IDs must be in the format AT\//i),
+		page.getByText(/IPTTO and platform staff: AT\/ plus 4 digits/i),
 	).toBeVisible();
 	await expect(page.getByLabel(/Password/i)).toBeVisible();
-	await expect(page.getByRole("link", { name: /Forgot password/i })).toHaveAttribute(
+	await expect(page.getByRole("link", { name: /Forgot your password/i })).toHaveAttribute(
 		"href",
 		"/forgot-password",
 	);
@@ -34,10 +34,10 @@ test("forgot password page captures exact AC or AT staff ID format", async ({
 		"(AC|AT)/[0-9]{4}",
 	);
 	await expect(
-		page.getByText(/Lecturer Staff IDs must be in the format AC\//i),
+		page.getByText(/Lecturers: AC\/ plus 4 digits/i),
 	).toBeVisible();
 	await expect(
-		page.getByText(/IPTTO\/admin Staff IDs must be in the format AT\//i),
+		page.getByText(/IPTTO and platform staff: AT\/ plus 4 digits/i),
 	).toBeVisible();
 	await expect(
 		page.getByRole("button", { name: /Send reset instructions/i }),
@@ -52,7 +52,7 @@ test("reset password page explains the exact password policy", async ({
 	await expect(
 		page.getByRole("heading", { name: /Reset Password/i }),
 	).toBeVisible();
-	await expect(page.getByLabel(/Reset token/i)).toHaveValue("test-token");
+	await expect(page.locator('input[name="token"]')).toHaveValue("test-token");
 	await expect(page.getByLabel(/New password/i)).toHaveAttribute(
 		"maxlength",
 		"8",
@@ -99,7 +99,7 @@ test("lecturer signup page captures required AC staff fields", async ({
 		page.getByText("At least one special symbol", { exact: true }),
 	).toBeVisible();
 	await expect(
-		page.getByText(/Staff IDs must be in the format AC\/ followed by exactly 4 digits/i),
+		page.getByText(/Enter AC\/ followed by your 4 staff ID digits/i),
 	).toBeVisible();
 });
 
@@ -125,7 +125,7 @@ test("IPTTO signup page captures required AT staff fields", async ({ page }) => 
 		page.getByText("At least one special symbol", { exact: true }),
 	).toBeVisible();
 	await expect(
-		page.getByText(/Staff IDs must be in the format AT\/ followed by exactly 4 digits/i),
+		page.getByText(/Enter AT\/ followed by your 4 staff ID digits/i),
 	).toBeVisible();
 });
 

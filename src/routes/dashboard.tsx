@@ -15,7 +15,7 @@ export const Route = createFileRoute("/dashboard")({
 			{
 				name: "description",
 				content:
-					"Authenticated staff dashboard preview for the OAU IPTTO Research Repository.",
+					"Your OAU workspace for research, reviews, innovations, and platform management.",
 			},
 		],
 	}),

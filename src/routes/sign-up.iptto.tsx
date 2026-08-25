@@ -91,24 +91,24 @@ function IpttoSignUpPage() {
 			if (!response.ok) {
 				const payload = await response.json().catch(() => null);
 				const message =
-					payload?.error?.message ?? "IPTTO signup could not be completed.";
+					payload?.error?.message ?? "We could not create your account.";
 				setError(message);
-				toast.error("Signup failed", {
+				toast.error("Account not created", {
 					description: message,
 				});
 				return;
 			}
 
-			toast.success("IPTTO request submitted", {
-				description: "Your request is pending administrator approval.",
+			toast.success("Account request sent", {
+				description: "You can sign in after an OAU reviewer approves it.",
 			});
 			event.currentTarget.reset();
 			setPassword("");
 		} catch {
 			const message =
-				"IPTTO signup could not be completed. Try again in a moment.";
+				"We could not create your account. Check your connection and try again.";
 			setError(message);
-			toast.error("Signup failed", {
+			toast.error("Account not created", {
 				description: message,
 			});
 		} finally {
@@ -125,7 +125,7 @@ function IpttoSignUpPage() {
 						IPTTO access
 					</div>
 					<h1 className="text-4xl font-semibold leading-[1.04] tracking-normal sm:text-5xl">
-						Create your IPTTO account.
+						Manage ideas from research to impact.
 					</h1>
 				</div>
 
@@ -134,7 +134,10 @@ function IpttoSignUpPage() {
 						<CardTitle className="text-2xl leading-tight tracking-normal">
 							IPTTO Sign Up
 						</CardTitle>
-						<CardDescription>Create your IPTTO account.</CardDescription>
+						<CardDescription>
+							Enter your OAU details. Your account will be reviewed before you
+							can sign in.
+						</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<form className="grid gap-6" onSubmit={handleSubmit}>
@@ -179,8 +182,7 @@ function IpttoSignUpPage() {
 										type="text"
 									/>
 									<p className="text-sm text-[#6b7280]">
-										Staff IDs must be in the format AT/ followed by exactly 4
-										digits
+										Enter AT/ followed by your 4 staff ID digits.
 									</p>
 								</Field>
 

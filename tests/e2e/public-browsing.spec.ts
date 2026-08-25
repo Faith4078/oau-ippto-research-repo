@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 const collectionPages = [
 	{
 		path: "/research",
-		heading: /Search Public Research Outputs/i,
+		heading: /Find OAU Research/i,
 		search: /Search by title, author, keyword, or abstract/i,
 		result: /Smart energy systems for resilient communities/i,
 	},
@@ -17,7 +17,7 @@ const collectionPages = [
 		path: "/reports",
 		heading: /Reports and Statistics/i,
 		search: /Search reports, statistics, years, or faculties/i,
-		result: /Public research output summary/i,
+		result: /OAU research summary/i,
 	},
 ];
 
@@ -41,6 +41,6 @@ test("public detail pages expose contextual navigation", async ({ page }) => {
 	await expect(
 		page.getByRole("heading", { name: /Smart Energy Systems/i }),
 	).toBeVisible();
-	await expect(page.getByRole("link", { name: /Back to research/i })).toBeVisible();
-	await expect(page.getByText(/Related records/i)).toBeVisible();
+	await expect(page.getByRole("link", { name: /Back to all research/i })).toBeVisible();
+	await expect(page.getByText(/You May Also Like/i)).toBeVisible();
 });

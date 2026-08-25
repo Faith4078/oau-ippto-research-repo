@@ -18,7 +18,7 @@ export const Route = createFileRoute("/dashboard/department-admin")({
 			{
 				name: "description",
 				content:
-					"Department administrator dashboard preview for submission queues, approval actions, comments, statistics, and researchers.",
+					"Review department research, give feedback, and approve work that is ready.",
 			},
 		],
 	}),
