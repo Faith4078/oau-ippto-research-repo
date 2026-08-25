@@ -4,6 +4,29 @@
 
 Store production secrets only in Vercel environment variables or Cloudflare Worker secrets. `.env.example` documents the required keys and must never contain real credentials.
 
+## First Super Administrator
+
+Super administrator accounts are never created through the public signup pages. Provision the first one from a trusted operator terminal or deployment job after database migrations have completed:
+
+```powershell
+$env:SUPER_ADMIN_STAFF_ID="AT/0001"
+$env:SUPER_ADMIN_EMAIL="named.admin@oauife.edu.ng"
+$env:SUPER_ADMIN_NAME="Named Platform Administrator"
+$env:SUPER_ADMIN_PASSWORD="value-injected-by-your-secret-manager"
+pnpm admin:bootstrap
+```
+
+The command requires a dedicated `AT/` Staff ID and a password of 15–128 characters. In one database transaction, it creates the Better Auth credential and OAU application account, assigns only the `super_administrator` role, and writes an audit event. It is safe to rerun only when that complete, audited provisioning record already exists. It refuses pre-registered, partial, or conflicting Staff ID and email records instead of elevating them.
+
+Production procedure:
+
+- Use a named, dedicated administrator identity; never a shared “admin” account.
+- Inject the password from the deployment secret manager. Do not pass it as a command argument, paste it into source control, or leave it in a persistent `.env` file.
+- Run the command from a trusted environment with temporary database access, then remove the four `SUPER_ADMIN_*` values.
+- Sign in at `/sign-in` with the Staff ID and provisioned password.
+- Enrol the account in MFA before routine production administration once MFA support is enabled. Until then, restrict use to emergency setup and tightly controlled operator access.
+- Provision later administrators through an authenticated, audited administrative process rather than rerunning the bootstrap with shared credentials.
+
 ## Transactional Email
 
 Configure `EMAIL_API_URL`, `EMAIL_API_TOKEN`, and `EMAIL_FROM`. The endpoint must accept an authenticated JSON request containing `from`, `to`, `subject`, `text`, and `html`. Password reset links are returned to the browser only when `PASSWORD_RESET_DEBUG=true` in a non-production environment; production ignores that flag. Delivery errors are logged without the recipient, reset token, or reset URL.
