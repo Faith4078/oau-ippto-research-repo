@@ -50,6 +50,15 @@ export class PostgresUserAccessRepository implements UserAccessRepository {
 		return Boolean(department);
 	}
 
+	async findUserRoles(userId: string): Promise<readonly RoleKey[]> {
+		const rows = await this.database
+			.select({ role: schema.roles.key })
+			.from(schema.userRoles)
+			.innerJoin(schema.roles, eq(schema.roles.id, schema.userRoles.roleId))
+			.where(eq(schema.userRoles.userId, userId));
+		return rows.flatMap((row) => (isRoleKey(row.role) ? [row.role] : []));
+	}
+
 	async listUsers(): Promise<readonly UserAccessSummary[]> {
 		const rows = await this.database
 			.select({

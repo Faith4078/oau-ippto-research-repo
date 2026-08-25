@@ -26,6 +26,7 @@ export type UserAccessRepository = {
 		departmentId: string,
 		facultyId: string,
 	): Promise<boolean>;
+	findUserRoles(userId: string): Promise<readonly RoleKey[]>;
 	listUsers(): Promise<readonly UserAccessSummary[]>;
 	setUserAccess(input: {
 		actorId: string;
@@ -59,6 +60,18 @@ export function createUserAccessService(repository: UserAccessRepository) {
 				return fail(
 					"SELF_ACCESS_CHANGE_FORBIDDEN",
 					"Use another Super Administrator to change your own access.",
+				);
+			}
+			const currentRoles = await repository.findUserRoles(input.userId);
+			if (
+				["department_administrator", "faculty_administrator"].includes(
+					input.role,
+				) &&
+				currentRoles.includes("lecturer")
+			) {
+				return fail(
+					"LECTURER_ADMIN_SEPARATION_REQUIRED",
+					"Lecturer accounts cannot be changed into administrative accounts. Create a separate administrator account.",
 				);
 			}
 			if (input.role === "department_administrator" && !input.departmentId) {

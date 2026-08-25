@@ -222,7 +222,7 @@ function UserAccessPanel() {
 		faculties: [],
 	});
 	const [saving, setSaving] = useState(false);
-	const [role, setRole] = useState("lecturer");
+	const [role, setRole] = useState("department_administrator");
 	const [facultyId, setFacultyId] = useState("");
 	const [departmentId, setDepartmentId] = useState("");
 	const [userId, setUserId] = useState("");
@@ -242,7 +242,12 @@ function UserAccessPanel() {
 			}
 			setUsers(
 				(usersPayload.data ?? []).filter(
-					(user: AccessUser) => !user.roles.includes("super_administrator"),
+					(user: AccessUser) =>
+						!user.roles.some((role) =>
+							["lecturer", "iptto_officer", "super_administrator"].includes(
+								role,
+							),
+						),
 				),
 			);
 			setOrganization(
@@ -300,10 +305,10 @@ function UserAccessPanel() {
 	return (
 		<Card id="user-access">
 			<CardHeader>
-				<CardTitle>Assign staff access</CardTitle>
+				<CardTitle>Set administrator responsibility</CardTitle>
 				<CardDescription>
-					Choose what one staff member is responsible for. Every change is
-					recorded.
+					Assign a dedicated administrator to one department or faculty.
+					Lecturer accounts are kept separate.
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -335,14 +340,12 @@ function UserAccessPanel() {
 							}}
 							value={role}
 						>
-							<option value="lecturer">Lecturer</option>
 							<option value="department_administrator">
 								Department Administrator
 							</option>
 							<option value="faculty_administrator">
 								Faculty Administrator
 							</option>
-							<option value="iptto_officer">IPTTO Officer</option>
 						</select>
 					</label>
 					{["faculty_administrator", "department_administrator"].includes(
