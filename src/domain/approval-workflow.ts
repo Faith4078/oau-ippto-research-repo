@@ -51,7 +51,7 @@ const baseTransitions = [
 	transition("iptto_review", "rejected", "reject", "rejected", true),
 	transition(
 		"iptto_review",
-		"faculty_review",
+		"draft",
 		"request_changes",
 		"changes_requested",
 		true,

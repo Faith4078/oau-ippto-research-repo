@@ -163,7 +163,7 @@ describe("dashboard research decisions", () => {
 		],
 		["faculty", "reject", false, "faculty_review", "rejected"],
 		["iptto", "approve", true, "iptto_review", "approved"],
-		["iptto", "request_changes", true, "iptto_review", "faculty_review"],
+		["iptto", "request_changes", true, "iptto_review", "draft"],
 		["iptto", "reject", true, "iptto_review", "rejected"],
 	] as const)(
 		"maps %s %s to the correct workflow step",

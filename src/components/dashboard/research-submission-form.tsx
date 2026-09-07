@@ -100,7 +100,7 @@ const initialValues: ResearchSubmissionFormValues = {
 type SubmissionState =
 	| { status: "idle" }
 	| { status: "submitting" }
-	| { status: "success"; message: string; publicHref: string }
+	| { status: "success"; message: string }
 	| { status: "error"; message: string };
 
 export function ResearchSubmissionForm() {
@@ -170,27 +170,24 @@ export function ResearchSubmissionForm() {
 		setSubmissionState({ status: "submitting" });
 
 		try {
-			const result = await submitResearchWithDirectUpload({ file, values });
-			toast.success("Research published", {
-				description: "Your research and document are now available publicly.",
+			await submitResearchWithDirectUpload({ file, values });
+			toast.success("Research submitted", {
+				description: "Your research is now awaiting IPTTO review.",
 			});
 			setSubmissionState({
 				status: "success",
-				publicHref: `/research/${result.submission.id}`,
-				message:
-					"Your research and document were published successfully. You can view the public page below.",
+				message: "Your research and document were submitted for IPTTO review.",
 			});
 		} catch (error) {
 			if (error instanceof ResearchSubmissionUploadError) {
 				const message =
-					"Your research is public, but the document could not be attached. Please try adding the document again.";
+					"Your research was submitted for IPTTO review, but the document could not be attached. Please try adding the document again.";
 
-				toast.warning("Research published without the document", {
+				toast.warning("Research submitted without the document", {
 					description: "Please try adding the document again.",
 				});
 				setSubmissionState({
 					status: "success",
-					publicHref: `/research/${error.submission.id}`,
 					message,
 				});
 				return;
@@ -570,12 +567,12 @@ export function ResearchSubmissionForm() {
 						data-testid="submission-status"
 					>
 						{submissionState.status === "idle" &&
-							"Check your details, then publish your research."}
+							"Check your details, then submit your research for IPTTO review."}
 						{(submissionState.status === "success" ||
 							submissionState.status === "error") &&
 							submissionState.message}
 						{submissionState.status === "submitting" &&
-							"Publishing your research and attaching the document…"}
+							"Submitting your research and attaching the document…"}
 					</div>
 					<Button
 						className="h-11 rounded bg-[#146ef5] px-4 text-white hover:bg-[#0d5fdc]"
@@ -585,8 +582,8 @@ export function ResearchSubmissionForm() {
 					>
 						<UploadCloud className="h-4 w-4" />
 						{submissionState.status === "submitting"
-							? "Publishing…"
-							: "Publish research"}
+							? "Submitting…"
+							: "Submit for IPTTO review"}
 					</Button>
 				</CardContent>
 				{submissionState.status === "success" ? (
@@ -596,7 +593,7 @@ export function ResearchSubmissionForm() {
 							className="h-10 rounded bg-[#146ef5] px-4 text-white hover:bg-[#0d5fdc]"
 							type="button"
 						>
-							<a href={submissionState.publicHref}>View research page</a>
+							<a href="/dashboard/lecturer">View my submissions</a>
 						</Button>
 						<Button
 							asChild

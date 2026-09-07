@@ -4,6 +4,6 @@ export function createInitialResearchSubmissionState(
 	return {
 		metadata: { requiresIpttoReview },
 		publishedAt: null,
-		status: "submitted" as const,
+		status: "iptto_review" as const,
 	};
 }

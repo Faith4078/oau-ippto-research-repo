@@ -40,6 +40,18 @@ describe("research approval workflow", () => {
 		expect(result.ok ? null : result.error.code).toBe("APPROVAL_COMMENT_REQUIRED");
 	});
 
+	it("allows IPTTO to return research directly to the lecturer", () => {
+		const result = resolveResearchTransition({
+			from: "iptto_review",
+			to: "draft",
+			decision: "request_changes",
+			comment: "Please address the review comments.",
+		});
+
+		expect(result.ok).toBe(true);
+		expect(result.ok ? result.value.to : null).toBe("draft");
+	});
+
 	it("lists only applicable faculty transitions for IPTTO-bound records", () => {
 		const transitions = getAllowedResearchTransitions("faculty_review", true);
 

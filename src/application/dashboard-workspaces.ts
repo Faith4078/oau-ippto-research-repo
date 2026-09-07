@@ -155,7 +155,7 @@ export function buildResearchReviewDecision(input: {
 	const changeTarget = {
 		department: "draft",
 		faculty: "department_review",
-		iptto: "faculty_review",
+		iptto: "draft",
 	} as const;
 	const approvalTarget = {
 		department: "faculty_review",
