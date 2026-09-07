@@ -5,6 +5,7 @@ import { CheckCircle2, RefreshCw, XCircle } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { AccountRejectionDialog } from "#/components/dashboard/account-rejection-dialog.tsx";
 import { DashboardShell } from "#/components/dashboard/dashboard-shell.tsx";
 import { Button } from "#/components/ui/button.tsx";
 import {
@@ -74,6 +75,9 @@ function AccountApprovalQueue() {
 	const [accounts, setAccounts] = useState<PendingAccount[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [actingOn, setActingOn] = useState<string | null>(null);
+	const [accountToReject, setAccountToReject] = useState<PendingAccount | null>(
+		null,
+	);
 
 	const loadAccounts = useCallback(async () => {
 		setLoading(true);
@@ -104,11 +108,8 @@ function AccountApprovalQueue() {
 	async function review(
 		account: PendingAccount,
 		status: "active" | "rejected",
+		reason: string | null = null,
 	) {
-		const reason =
-			status === "rejected"
-				? window.prompt("Why are you declining this request?")?.trim()
-				: null;
 		if (status === "rejected" && !reason) return;
 		setActingOn(account.id);
 		try {
@@ -125,6 +126,7 @@ function AccountApprovalQueue() {
 			setAccounts((current) =>
 				current.filter((item) => item.id !== account.id),
 			);
+			setAccountToReject(null);
 			toast.success(
 				status === "active" ? "Account approved" : "Account rejected",
 			);
@@ -186,7 +188,7 @@ function AccountApprovalQueue() {
 									</Button>
 									<Button
 										disabled={actingOn === account.id}
-										onClick={() => void review(account, "rejected")}
+										onClick={() => setAccountToReject(account)}
 										size="sm"
 										variant="outline"
 									>
@@ -199,6 +201,16 @@ function AccountApprovalQueue() {
 					</div>
 				)}
 			</CardContent>
+			{accountToReject ? (
+				<AccountRejectionDialog
+					accountName={accountToReject.name}
+					busy={actingOn === accountToReject.id}
+					onCancel={() => setAccountToReject(null)}
+					onConfirm={(reason) =>
+						void review(accountToReject, "rejected", reason)
+					}
+				/>
+			) : null}
 		</Card>
 	);
 }
