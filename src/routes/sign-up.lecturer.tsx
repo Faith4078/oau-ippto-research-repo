@@ -1,7 +1,13 @@
 "use client";
 
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckCircle2, ClipboardPenLine, XCircle } from "lucide-react";
+import {
+	CheckCircle2,
+	ClipboardPenLine,
+	Eye,
+	EyeOff,
+	XCircle,
+} from "lucide-react";
 import { useEffect, useId, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -57,6 +63,7 @@ function LecturerSignUpPage() {
 	const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [password, setPassword] = useState("");
+	const [showPassword, setShowPassword] = useState(false);
 	const [faculty, setFaculty] = useState("");
 	const [department, setDepartment] = useState("");
 	const [organizationOptions, setOrganizationOptions] = useState<{
@@ -346,21 +353,38 @@ function LecturerSignUpPage() {
 
 								<Field>
 									<FieldLabel htmlFor={passwordInputId}>Password</FieldLabel>
-									<Input
-										autoComplete="new-password"
-										className="h-12 rounded border-[#d8d8d8] bg-white text-base md:text-base"
-										aria-invalid={password.length > 0 && !passwordIsValid}
-										id={passwordInputId}
-										maxLength={8}
-										minLength={8}
-										name="password"
-										onChange={(event) => setPassword(event.target.value)}
-										pattern={passwordPolicyPattern}
-										required
-										title={passwordPolicyText}
-										type="password"
-										value={password}
-									/>
+									<div className="relative">
+										<Input
+											autoComplete="new-password"
+											className="h-12 rounded border-[#d8d8d8] bg-white pr-12 text-base md:text-base"
+											aria-invalid={password.length > 0 && !passwordIsValid}
+											id={passwordInputId}
+											maxLength={8}
+											minLength={8}
+											name="password"
+											onChange={(event) => setPassword(event.target.value)}
+											pattern={passwordPolicyPattern}
+											required
+											title={passwordPolicyText}
+											type={showPassword ? "text" : "password"}
+											value={password}
+										/>
+										<button
+											aria-label={
+												showPassword ? "Hide password" : "Show password"
+											}
+											aria-pressed={showPassword}
+											className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#6b7280] hover:text-[#080808] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#146ef5]"
+											onClick={() => setShowPassword((visible) => !visible)}
+											type="button"
+										>
+											{showPassword ? (
+												<EyeOff aria-hidden="true" className="h-5 w-5" />
+											) : (
+												<Eye aria-hidden="true" className="h-5 w-5" />
+											)}
+										</button>
+									</div>
 									<PasswordRequirementHelper
 										password={password}
 										requirements={passwordRequirements}

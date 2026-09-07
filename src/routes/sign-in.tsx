@@ -1,7 +1,7 @@
 "use client";
 
 import { createFileRoute } from "@tanstack/react-router";
-import { LockKeyhole, LogIn } from "lucide-react";
+import { Eye, EyeOff, LockKeyhole, LogIn } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 
 import { Button } from "#/components/ui/button.tsx";
@@ -47,6 +47,7 @@ function SignInPage() {
 	const [error, setError] = useState<string>();
 	const [isHydrated, setIsHydrated] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
 
 	useEffect(() => {
 		setIsHydrated(true);
@@ -145,14 +146,31 @@ function SignInPage() {
 
 								<Field>
 									<FieldLabel htmlFor={passwordInputId}>Password</FieldLabel>
-									<Input
-										autoComplete="current-password"
-										className="h-12 rounded border-[#d8d8d8] bg-white text-base md:text-base"
-										id={passwordInputId}
-										name="password"
-										required
-										type="password"
-									/>
+									<div className="relative">
+										<Input
+											autoComplete="current-password"
+											className="h-12 rounded border-[#d8d8d8] bg-white pr-12 text-base md:text-base"
+											id={passwordInputId}
+											name="password"
+											required
+											type={showPassword ? "text" : "password"}
+										/>
+										<button
+											aria-label={
+												showPassword ? "Hide password" : "Show password"
+											}
+											aria-pressed={showPassword}
+											className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#6b7280] hover:text-[#080808] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#146ef5]"
+											onClick={() => setShowPassword((visible) => !visible)}
+											type="button"
+										>
+											{showPassword ? (
+												<EyeOff aria-hidden="true" className="h-5 w-5" />
+											) : (
+												<Eye aria-hidden="true" className="h-5 w-5" />
+											)}
+										</button>
+									</div>
 									<FieldDescription>
 										<a
 											className="font-medium text-[#146ef5] underline-offset-4 hover:underline"
