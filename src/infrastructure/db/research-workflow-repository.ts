@@ -27,6 +27,7 @@ export class DrizzleResearchWorkflowRepository
 	): Promise<ResearchSubmissionDraft> {
 		const initialState = createInitialResearchSubmissionState(
 			input.requiresIpttoReview,
+			input.accessLevel,
 		);
 		const [record] = await this.database
 			.insert(schema.researchRecords)

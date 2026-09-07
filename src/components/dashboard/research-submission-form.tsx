@@ -3,6 +3,7 @@
 import { UploadCloud } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { Button } from "#/components/ui/button.tsx";
 import {
@@ -137,6 +138,17 @@ export function ResearchSubmissionForm() {
 		}));
 	}
 
+	function updateAccessLevel(
+		accessLevel: ResearchSubmissionFormValues["accessLevel"],
+	) {
+		setValues((current) => ({
+			...current,
+			accessLevel,
+			requiresIpttoReview:
+				accessLevel === "private" ? true : current.requiresIpttoReview,
+		}));
+	}
+
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
 		await submitForm();
@@ -193,8 +205,7 @@ export function ResearchSubmissionForm() {
 				return;
 			}
 
-			const message =
-				"We could not submit your research. Check your connection and try again.";
+			const message = describeSubmissionError(error);
 			toast.error("Research not submitted", {
 				description: message,
 			});
@@ -297,8 +308,7 @@ export function ResearchSubmissionForm() {
 									className="h-10 rounded border border-[#d8d8d8] bg-white px-3 text-sm outline-none focus-visible:border-[#146ef5] focus-visible:ring-[3px] focus-visible:ring-[#146ef5]/20"
 									id="accessLevel"
 									onChange={(event) =>
-										updateValue(
-											"accessLevel",
+										updateAccessLevel(
 											event.target
 												.value as ResearchSubmissionFormValues["accessLevel"],
 										)
@@ -306,7 +316,7 @@ export function ResearchSubmissionForm() {
 									value={values.accessLevel}
 								>
 									<option value="public">Everyone</option>
-									<option value="restricted">Approved OAU staff only</option>
+									{/* Temporarily disabled: "Approved OAU staff only" (accessLevel="restricted") */}
 									<option value="private">Only me and reviewers</option>
 								</select>
 							</Field>
@@ -566,8 +576,7 @@ export function ResearchSubmissionForm() {
 						className="text-sm text-[#6b7280]"
 						data-testid="submission-status"
 					>
-						{submissionState.status === "idle" &&
-							"Check your details, then submit your research for IPTTO review."}
+						{submissionState.status === "idle" && "Submit"}
 						{(submissionState.status === "success" ||
 							submissionState.status === "error") &&
 							submissionState.message}
@@ -581,9 +590,7 @@ export function ResearchSubmissionForm() {
 						type="button"
 					>
 						<UploadCloud className="h-4 w-4" />
-						{submissionState.status === "submitting"
-							? "Submitting…"
-							: "Submit for IPTTO review"}
+						{submissionState.status === "submitting" ? "Submitting…" : "Submit"}
 					</Button>
 				</CardContent>
 				{submissionState.status === "success" ? (
@@ -610,6 +617,25 @@ export function ResearchSubmissionForm() {
 	);
 }
 
+function describeSubmissionError(error: unknown): string {
+	if (error instanceof z.ZodError) {
+		return (
+			error.issues[0]?.message ??
+			"Check your research details and try again."
+		);
+	}
+
+	if (error instanceof TypeError) {
+		return "We could not submit your research. Check your connection and try again.";
+	}
+
+	if (error instanceof Error && error.message) {
+		return error.message;
+	}
+
+	return "We could not submit your research. Check your connection and try again.";
+}
+
 function validateSubmissionForm(
 	values: ResearchSubmissionFormValues,
 	file: File | null,
@@ -634,11 +660,24 @@ function validateSubmissionForm(
 		return "Enter the research area.";
 	}
 
+	if (values.url.trim() && !isValidUrl(values.url.trim())) {
+		return "Enter a valid publication URL, starting with https://.";
+	}
+
 	if (!file) {
 		return "Attach a PDF, PNG, or JPEG research document.";
 	}
 
 	return null;
+}
+
+function isValidUrl(value: string): boolean {
+	try {
+		new URL(value);
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 function TextInputField({

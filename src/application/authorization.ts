@@ -159,5 +159,5 @@ function roleScopeMatches(
 		return scope.facultyId === assignment.facultyId;
 	}
 
-	return !scope.facultyId && !scope.departmentId;
+	return !assignment.departmentId && !assignment.facultyId;
 }
