@@ -4,6 +4,9 @@ import { dashboardDestinationForRoles } from "#/application/dashboard-workspaces
 import { requireDashboardRouteAuth } from "#/lib/auth-functions.ts";
 
 export const Route = createFileRoute("/dashboard")({
+	// Resolve authorization on the server, but hydrate the user-specific
+	// workspace UI on the client rather than caching personalized markup.
+	ssr: "data-only",
 	beforeLoad: async ({ location }) => {
 		const authorization = await requireDashboardRouteAuth({
 			locationHref: location.href,

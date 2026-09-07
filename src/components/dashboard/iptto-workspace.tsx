@@ -24,6 +24,7 @@ import {
 	CardTitle,
 } from "#/components/ui/card.tsx";
 import { Input } from "#/components/ui/input.tsx";
+import { LoadingSkeleton } from "#/components/ui/loading-skeleton.tsx";
 import type { DashboardRow } from "#/presentation/dashboard/data.ts";
 import { workspaces } from "#/presentation/dashboard/data.ts";
 
@@ -171,7 +172,7 @@ export function IpttoWorkspace() {
 					</CardHeader>
 					<CardContent className="space-y-3">
 						{loading ? (
-							<p className="text-sm text-[#6b7280]">Loading IPTTO work…</p>
+							<LoadingSkeleton label="Loading IPTTO work" rows={3} />
 						) : !summary?.rows.length ? (
 							<p className="rounded border border-dashed p-6 text-center font-medium">
 								No innovation, patent or commercialization records yet.

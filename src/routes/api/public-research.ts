@@ -3,6 +3,7 @@ import { sql } from "drizzle-orm";
 
 import { requireDatabaseUrl } from "#/db/env.ts";
 import { createDatabase } from "#/infrastructure/db/index.ts";
+import { publicRevalidationHeaders } from "./-helpers.ts";
 
 type PublicResearchRow = {
 	id: string;
@@ -115,9 +116,10 @@ export const Route = createFileRoute("/api/public-research")({
 						);
 					}
 
-					return Response.json({
-						data: toPublicResearchDetail(row),
-					});
+					return Response.json(
+						{ data: toPublicResearchDetail(row) },
+						{ headers: publicRevalidationHeaders },
+					);
 				}
 
 				const result = await database.execute<PublicResearchRow>(sql`
@@ -154,9 +156,10 @@ export const Route = createFileRoute("/api/public-research")({
 					limit 30
 				`);
 
-				return Response.json({
-					data: result.rows.map(toPublicResearchItem),
-				});
+				return Response.json(
+					{ data: result.rows.map(toPublicResearchItem) },
+					{ headers: publicRevalidationHeaders },
+				);
 			},
 		},
 	},

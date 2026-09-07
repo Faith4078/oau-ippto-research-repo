@@ -11,8 +11,11 @@ import {
 	jsonResult,
 } from "../-helpers.ts";
 
+const entityIdRegex =
+	/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const reviewSchema = z.object({
-	userId: z.uuid(),
+	userId: z.string().trim().regex(entityIdRegex, "Invalid user ID."),
 	status: z.enum(["active", "rejected", "suspended", "deactivated"]),
 	reason: z.string().trim().max(2000).nullable().optional(),
 });

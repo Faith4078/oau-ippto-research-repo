@@ -52,7 +52,10 @@ export class PostgresResearchSearchIndex implements SearchIndex {
 				filtered as (
 					select *
 					from results
-					where entity_type = any(${request.filters.entityTypes}::text[])
+					where entity_type in (${sql.join(
+						request.filters.entityTypes.map((entityType) => sql`${entityType}`),
+						sql`, `,
+					)})
 				),
 				counted as (
 					select *, count(*) over() as total_count
@@ -127,7 +130,7 @@ function publicationSearchQuery(request: NormalizedSearchRequest): SQL {
 			'publication' as entity_type,
 			p.title,
 			coalesce(p.citation, r.abstract) as summary,
-			'/publications#' || p.id::text as url,
+			'/research/' || r.id::text as url,
 			case
 				when sq.query is null then 0
 				else ts_rank_cd(

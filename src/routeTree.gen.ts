@@ -30,6 +30,7 @@ import { Route as ApiCommercializationRouteImport } from './routes/api/commercia
 import { Route as ApiInnovationsRouteImport } from './routes/api/innovations'
 import { Route as ApiOrganizationOptionsRouteImport } from './routes/api/organization-options'
 import { Route as ApiPatentsRouteImport } from './routes/api/patents'
+import { Route as ApiPublicRecordRouteImport } from './routes/api/public-record'
 import { Route as ApiPublicResearchRouteImport } from './routes/api/public-research'
 import { Route as ApiPublicStatisticsRouteImport } from './routes/api/public-statistics'
 import { Route as ApiRelatedRecordsRouteImport } from './routes/api/related-records'
@@ -39,12 +40,17 @@ import { Route as DashboardFacultyAdminRouteImport } from './routes/dashboard.fa
 import { Route as DashboardIpttoOfficerRouteImport } from './routes/dashboard.iptto-officer'
 import { Route as DashboardLecturerRouteImport } from './routes/dashboard.lecturer'
 import { Route as DashboardSuperAdminRouteImport } from './routes/dashboard.super-admin'
+import { Route as DepartmentsIndexRouteImport } from './routes/departments.index'
 import { Route as DepartmentsDepartmentIdRouteImport } from './routes/departments.$departmentId'
+import { Route as FacultiesIndexRouteImport } from './routes/faculties.index'
 import { Route as FacultiesFacultyIdRouteImport } from './routes/faculties.$facultyId'
+import { Route as InnovationsIndexRouteImport } from './routes/innovations.index'
 import { Route as InnovationsInnovationIdRouteImport } from './routes/innovations.$innovationId'
+import { Route as PatentsIndexRouteImport } from './routes/patents.index'
 import { Route as PatentsPatentIdRouteImport } from './routes/patents.$patentId'
 import { Route as ResearchIndexRouteImport } from './routes/research.index'
 import { Route as ResearchRecordIdRouteImport } from './routes/research.$recordId'
+import { Route as ResearchersIndexRouteImport } from './routes/researchers.index'
 import { Route as ResearchersProfileIdRouteImport } from './routes/researchers.$profileId'
 import { Route as SignUpIpttoRouteImport } from './routes/sign-up.iptto'
 import { Route as SignUpLecturerRouteImport } from './routes/sign-up.lecturer'
@@ -176,6 +182,11 @@ const ApiPatentsRoute = ApiPatentsRouteImport.update({
   path: '/api/patents',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicRecordRoute = ApiPublicRecordRouteImport.update({
+  id: '/api/public-record',
+  path: '/api/public-record',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicResearchRoute = ApiPublicResearchRouteImport.update({
   id: '/api/public-research',
   path: '/api/public-research',
@@ -222,20 +233,40 @@ const DashboardSuperAdminRoute = DashboardSuperAdminRouteImport.update({
   path: '/super-admin',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DepartmentsIndexRoute = DepartmentsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DepartmentsRoute,
+} as any)
 const DepartmentsDepartmentIdRoute = DepartmentsDepartmentIdRouteImport.update({
   id: '/$departmentId',
   path: '/$departmentId',
   getParentRoute: () => DepartmentsRoute,
+} as any)
+const FacultiesIndexRoute = FacultiesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FacultiesRoute,
 } as any)
 const FacultiesFacultyIdRoute = FacultiesFacultyIdRouteImport.update({
   id: '/$facultyId',
   path: '/$facultyId',
   getParentRoute: () => FacultiesRoute,
 } as any)
+const InnovationsIndexRoute = InnovationsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => InnovationsRoute,
+} as any)
 const InnovationsInnovationIdRoute = InnovationsInnovationIdRouteImport.update({
   id: '/$innovationId',
   path: '/$innovationId',
   getParentRoute: () => InnovationsRoute,
+} as any)
+const PatentsIndexRoute = PatentsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PatentsRoute,
 } as any)
 const PatentsPatentIdRoute = PatentsPatentIdRouteImport.update({
   id: '/$patentId',
@@ -251,6 +282,11 @@ const ResearchRecordIdRoute = ResearchRecordIdRouteImport.update({
   id: '/$recordId',
   path: '/$recordId',
   getParentRoute: () => ResearchRoute,
+} as any)
+const ResearchersIndexRoute = ResearchersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ResearchersRoute,
 } as any)
 const ResearchersProfileIdRoute = ResearchersProfileIdRouteImport.update({
   id: '/$profileId',
@@ -410,6 +446,7 @@ export interface FileRoutesByFullPath {
   '/api/innovations': typeof ApiInnovationsRouteWithChildren
   '/api/organization-options': typeof ApiOrganizationOptionsRoute
   '/api/patents': typeof ApiPatentsRouteWithChildren
+  '/api/public-record': typeof ApiPublicRecordRoute
   '/api/public-research': typeof ApiPublicResearchRoute
   '/api/public-statistics': typeof ApiPublicStatisticsRoute
   '/api/related-records': typeof ApiRelatedRecordsRoute
@@ -427,7 +464,12 @@ export interface FileRoutesByFullPath {
   '/researchers/$profileId': typeof ResearchersProfileIdRoute
   '/sign-up/iptto': typeof SignUpIpttoRoute
   '/sign-up/lecturer': typeof SignUpLecturerRoute
+  '/departments/': typeof DepartmentsIndexRoute
+  '/faculties/': typeof FacultiesIndexRoute
+  '/innovations/': typeof InnovationsIndexRoute
+  '/patents/': typeof PatentsIndexRoute
   '/research/': typeof ResearchIndexRoute
+  '/researchers/': typeof ResearchersIndexRoute
   '/api/admin/accounts': typeof ApiAdminAccountsRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -455,23 +497,19 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRouteWithChildren
-  '/departments': typeof DepartmentsRouteWithChildren
-  '/faculties': typeof FacultiesRouteWithChildren
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
-  '/innovations': typeof InnovationsRouteWithChildren
   '/news': typeof NewsRoute
-  '/patents': typeof PatentsRouteWithChildren
   '/publications': typeof PublicationsRoute
   '/reports': typeof ReportsRoute
   '/research-areas': typeof ResearchAreasRoute
-  '/researchers': typeof ResearchersRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/sign-in': typeof SignInRoute
   '/api/commercialization': typeof ApiCommercializationRoute
   '/api/innovations': typeof ApiInnovationsRouteWithChildren
   '/api/organization-options': typeof ApiOrganizationOptionsRoute
   '/api/patents': typeof ApiPatentsRouteWithChildren
+  '/api/public-record': typeof ApiPublicRecordRoute
   '/api/public-research': typeof ApiPublicResearchRoute
   '/api/public-statistics': typeof ApiPublicStatisticsRoute
   '/api/related-records': typeof ApiRelatedRecordsRoute
@@ -489,7 +527,12 @@ export interface FileRoutesByTo {
   '/researchers/$profileId': typeof ResearchersProfileIdRoute
   '/sign-up/iptto': typeof SignUpIpttoRoute
   '/sign-up/lecturer': typeof SignUpLecturerRoute
+  '/departments': typeof DepartmentsIndexRoute
+  '/faculties': typeof FacultiesIndexRoute
+  '/innovations': typeof InnovationsIndexRoute
+  '/patents': typeof PatentsIndexRoute
   '/research': typeof ResearchIndexRoute
+  '/researchers': typeof ResearchersIndexRoute
   '/api/admin/accounts': typeof ApiAdminAccountsRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -536,6 +579,7 @@ export interface FileRoutesById {
   '/api/innovations': typeof ApiInnovationsRouteWithChildren
   '/api/organization-options': typeof ApiOrganizationOptionsRoute
   '/api/patents': typeof ApiPatentsRouteWithChildren
+  '/api/public-record': typeof ApiPublicRecordRoute
   '/api/public-research': typeof ApiPublicResearchRoute
   '/api/public-statistics': typeof ApiPublicStatisticsRoute
   '/api/related-records': typeof ApiRelatedRecordsRoute
@@ -553,7 +597,12 @@ export interface FileRoutesById {
   '/researchers/$profileId': typeof ResearchersProfileIdRoute
   '/sign-up/iptto': typeof SignUpIpttoRoute
   '/sign-up/lecturer': typeof SignUpLecturerRoute
+  '/departments/': typeof DepartmentsIndexRoute
+  '/faculties/': typeof FacultiesIndexRoute
+  '/innovations/': typeof InnovationsIndexRoute
+  '/patents/': typeof PatentsIndexRoute
   '/research/': typeof ResearchIndexRoute
+  '/researchers/': typeof ResearchersIndexRoute
   '/api/admin/accounts': typeof ApiAdminAccountsRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -601,6 +650,7 @@ export interface FileRouteTypes {
     | '/api/innovations'
     | '/api/organization-options'
     | '/api/patents'
+    | '/api/public-record'
     | '/api/public-research'
     | '/api/public-statistics'
     | '/api/related-records'
@@ -618,7 +668,12 @@ export interface FileRouteTypes {
     | '/researchers/$profileId'
     | '/sign-up/iptto'
     | '/sign-up/lecturer'
+    | '/departments/'
+    | '/faculties/'
+    | '/innovations/'
+    | '/patents/'
     | '/research/'
+    | '/researchers/'
     | '/api/admin/accounts'
     | '/api/admin/users'
     | '/api/auth/$'
@@ -646,23 +701,19 @@ export interface FileRouteTypes {
     | '/'
     | '/contact'
     | '/dashboard'
-    | '/departments'
-    | '/faculties'
     | '/faq'
     | '/forgot-password'
-    | '/innovations'
     | '/news'
-    | '/patents'
     | '/publications'
     | '/reports'
     | '/research-areas'
-    | '/researchers'
     | '/reset-password'
     | '/sign-in'
     | '/api/commercialization'
     | '/api/innovations'
     | '/api/organization-options'
     | '/api/patents'
+    | '/api/public-record'
     | '/api/public-research'
     | '/api/public-statistics'
     | '/api/related-records'
@@ -680,7 +731,12 @@ export interface FileRouteTypes {
     | '/researchers/$profileId'
     | '/sign-up/iptto'
     | '/sign-up/lecturer'
+    | '/departments'
+    | '/faculties'
+    | '/innovations'
+    | '/patents'
     | '/research'
+    | '/researchers'
     | '/api/admin/accounts'
     | '/api/admin/users'
     | '/api/auth/$'
@@ -726,6 +782,7 @@ export interface FileRouteTypes {
     | '/api/innovations'
     | '/api/organization-options'
     | '/api/patents'
+    | '/api/public-record'
     | '/api/public-research'
     | '/api/public-statistics'
     | '/api/related-records'
@@ -743,7 +800,12 @@ export interface FileRouteTypes {
     | '/researchers/$profileId'
     | '/sign-up/iptto'
     | '/sign-up/lecturer'
+    | '/departments/'
+    | '/faculties/'
+    | '/innovations/'
+    | '/patents/'
     | '/research/'
+    | '/researchers/'
     | '/api/admin/accounts'
     | '/api/admin/users'
     | '/api/auth/$'
@@ -790,6 +852,7 @@ export interface RootRouteChildren {
   ApiInnovationsRoute: typeof ApiInnovationsRouteWithChildren
   ApiOrganizationOptionsRoute: typeof ApiOrganizationOptionsRoute
   ApiPatentsRoute: typeof ApiPatentsRouteWithChildren
+  ApiPublicRecordRoute: typeof ApiPublicRecordRoute
   ApiPublicResearchRoute: typeof ApiPublicResearchRoute
   ApiPublicStatisticsRoute: typeof ApiPublicStatisticsRoute
   ApiRelatedRecordsRoute: typeof ApiRelatedRecordsRoute
@@ -963,6 +1026,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPatentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public-record': {
+      id: '/api/public-record'
+      path: '/api/public-record'
+      fullPath: '/api/public-record'
+      preLoaderRoute: typeof ApiPublicRecordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public-research': {
       id: '/api/public-research'
       path: '/api/public-research'
@@ -1026,12 +1096,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSuperAdminRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/departments/': {
+      id: '/departments/'
+      path: '/'
+      fullPath: '/departments/'
+      preLoaderRoute: typeof DepartmentsIndexRouteImport
+      parentRoute: typeof DepartmentsRoute
+    }
     '/departments/$departmentId': {
       id: '/departments/$departmentId'
       path: '/$departmentId'
       fullPath: '/departments/$departmentId'
       preLoaderRoute: typeof DepartmentsDepartmentIdRouteImport
       parentRoute: typeof DepartmentsRoute
+    }
+    '/faculties/': {
+      id: '/faculties/'
+      path: '/'
+      fullPath: '/faculties/'
+      preLoaderRoute: typeof FacultiesIndexRouteImport
+      parentRoute: typeof FacultiesRoute
     }
     '/faculties/$facultyId': {
       id: '/faculties/$facultyId'
@@ -1040,12 +1124,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FacultiesFacultyIdRouteImport
       parentRoute: typeof FacultiesRoute
     }
+    '/innovations/': {
+      id: '/innovations/'
+      path: '/'
+      fullPath: '/innovations/'
+      preLoaderRoute: typeof InnovationsIndexRouteImport
+      parentRoute: typeof InnovationsRoute
+    }
     '/innovations/$innovationId': {
       id: '/innovations/$innovationId'
       path: '/$innovationId'
       fullPath: '/innovations/$innovationId'
       preLoaderRoute: typeof InnovationsInnovationIdRouteImport
       parentRoute: typeof InnovationsRoute
+    }
+    '/patents/': {
+      id: '/patents/'
+      path: '/'
+      fullPath: '/patents/'
+      preLoaderRoute: typeof PatentsIndexRouteImport
+      parentRoute: typeof PatentsRoute
     }
     '/patents/$patentId': {
       id: '/patents/$patentId'
@@ -1067,6 +1165,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/research/$recordId'
       preLoaderRoute: typeof ResearchRecordIdRouteImport
       parentRoute: typeof ResearchRoute
+    }
+    '/researchers/': {
+      id: '/researchers/'
+      path: '/'
+      fullPath: '/researchers/'
+      preLoaderRoute: typeof ResearchersIndexRouteImport
+      parentRoute: typeof ResearchersRoute
     }
     '/researchers/$profileId': {
       id: '/researchers/$profileId'
@@ -1279,10 +1384,12 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 
 interface DepartmentsRouteChildren {
   DepartmentsDepartmentIdRoute: typeof DepartmentsDepartmentIdRoute
+  DepartmentsIndexRoute: typeof DepartmentsIndexRoute
 }
 
 const DepartmentsRouteChildren: DepartmentsRouteChildren = {
   DepartmentsDepartmentIdRoute: DepartmentsDepartmentIdRoute,
+  DepartmentsIndexRoute: DepartmentsIndexRoute,
 }
 
 const DepartmentsRouteWithChildren = DepartmentsRoute._addFileChildren(
@@ -1291,10 +1398,12 @@ const DepartmentsRouteWithChildren = DepartmentsRoute._addFileChildren(
 
 interface FacultiesRouteChildren {
   FacultiesFacultyIdRoute: typeof FacultiesFacultyIdRoute
+  FacultiesIndexRoute: typeof FacultiesIndexRoute
 }
 
 const FacultiesRouteChildren: FacultiesRouteChildren = {
   FacultiesFacultyIdRoute: FacultiesFacultyIdRoute,
+  FacultiesIndexRoute: FacultiesIndexRoute,
 }
 
 const FacultiesRouteWithChildren = FacultiesRoute._addFileChildren(
@@ -1303,10 +1412,12 @@ const FacultiesRouteWithChildren = FacultiesRoute._addFileChildren(
 
 interface InnovationsRouteChildren {
   InnovationsInnovationIdRoute: typeof InnovationsInnovationIdRoute
+  InnovationsIndexRoute: typeof InnovationsIndexRoute
 }
 
 const InnovationsRouteChildren: InnovationsRouteChildren = {
   InnovationsInnovationIdRoute: InnovationsInnovationIdRoute,
+  InnovationsIndexRoute: InnovationsIndexRoute,
 }
 
 const InnovationsRouteWithChildren = InnovationsRoute._addFileChildren(
@@ -1315,10 +1426,12 @@ const InnovationsRouteWithChildren = InnovationsRoute._addFileChildren(
 
 interface PatentsRouteChildren {
   PatentsPatentIdRoute: typeof PatentsPatentIdRoute
+  PatentsIndexRoute: typeof PatentsIndexRoute
 }
 
 const PatentsRouteChildren: PatentsRouteChildren = {
   PatentsPatentIdRoute: PatentsPatentIdRoute,
+  PatentsIndexRoute: PatentsIndexRoute,
 }
 
 const PatentsRouteWithChildren =
@@ -1340,10 +1453,12 @@ const ResearchRouteWithChildren = ResearchRoute._addFileChildren(
 
 interface ResearchersRouteChildren {
   ResearchersProfileIdRoute: typeof ResearchersProfileIdRoute
+  ResearchersIndexRoute: typeof ResearchersIndexRoute
 }
 
 const ResearchersRouteChildren: ResearchersRouteChildren = {
   ResearchersProfileIdRoute: ResearchersProfileIdRoute,
+  ResearchersIndexRoute: ResearchersIndexRoute,
 }
 
 const ResearchersRouteWithChildren = ResearchersRoute._addFileChildren(
@@ -1417,6 +1532,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiInnovationsRoute: ApiInnovationsRouteWithChildren,
   ApiOrganizationOptionsRoute: ApiOrganizationOptionsRoute,
   ApiPatentsRoute: ApiPatentsRouteWithChildren,
+  ApiPublicRecordRoute: ApiPublicRecordRoute,
   ApiPublicResearchRoute: ApiPublicResearchRoute,
   ApiPublicStatisticsRoute: ApiPublicStatisticsRoute,
   ApiRelatedRecordsRoute: ApiRelatedRecordsRoute,

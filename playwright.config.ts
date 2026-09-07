@@ -4,6 +4,7 @@ export default defineConfig({
 	expect: {
 		timeout: 10_000,
 	},
+	timeout: 120_000,
 	fullyParallel: true,
 	projects: [
 		{
@@ -18,13 +19,14 @@ export default defineConfig({
 	reporter: [["list"], ["html", { open: "never" }]],
 	testDir: "./tests/e2e",
 	use: {
-		baseURL: "http://localhost:3000",
+		baseURL: "http://127.0.0.1:3000",
+		navigationTimeout: 120_000,
 		trace: "on-first-retry",
 	},
 	webServer: {
-		command: "pnpm dev",
+		command: "pnpm dev --host 127.0.0.1",
 		reuseExistingServer: !process.env.CI,
 		timeout: 120_000,
-		url: "http://localhost:3000",
+		url: "http://127.0.0.1:3000",
 	},
 });

@@ -1,16 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
-import {
-	CollectionPage,
-	collectionPages,
-	pageSeo,
-	publicHead,
-} from "@/components/public-pages/public-pages";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/patents")({
-	head: () => publicHead(pageSeo.patents),
-	component: PatentsPage,
+	component: PatentsLayout,
 });
 
-function PatentsPage() {
-	return <CollectionPage config={collectionPages.patents} />;
+function PatentsLayout() {
+	return <Outlet />;
 }

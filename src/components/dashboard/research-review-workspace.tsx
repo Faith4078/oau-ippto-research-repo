@@ -26,6 +26,7 @@ import {
 	CardTitle,
 } from "#/components/ui/card.tsx";
 import { Input } from "#/components/ui/input.tsx";
+import { LoadingSkeleton } from "#/components/ui/loading-skeleton.tsx";
 import { workspaces } from "#/presentation/dashboard/data.ts";
 
 import { DashboardShell } from "./dashboard-shell.tsx";
@@ -333,7 +334,7 @@ function ResearchReviewContent({
 				</CardHeader>
 				<CardContent className="space-y-4">
 					{loading ? (
-						<p className="text-sm text-[#6b7280]">Loading research…</p>
+						<LoadingSkeleton label="Loading research for review" rows={3} />
 					) : visibleItems.length === 0 ? (
 						<div className="rounded border border-dashed border-[#d8d8d8] p-8 text-center">
 							<p className="font-semibold">

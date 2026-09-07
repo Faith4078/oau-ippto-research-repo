@@ -41,9 +41,18 @@ export async function readJsonBody(request: Request): Promise<unknown> {
 	return request.json();
 }
 
-export function jsonResult<T>(result: Result<T>): Response {
+export const publicRevalidationHeaders = {
+	"Cache-Control":
+		"public, max-age=0, s-maxage=300, stale-while-revalidate=86400",
+	Vary: "Accept, Accept-Encoding",
+} as const;
+
+export function jsonResult<T>(
+	result: Result<T>,
+	init?: ResponseInit,
+): Response {
 	if (result.ok) {
-		return Response.json({ data: result.value });
+		return Response.json({ data: result.value }, init);
 	}
 
 	return jsonError(result.error);

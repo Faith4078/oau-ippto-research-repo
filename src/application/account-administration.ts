@@ -91,10 +91,8 @@ export function createAccountAdministrationService(dependencies: {
 					reason: input.reason,
 				});
 			} catch {
-				return fail(
-					"ACCOUNT_NOTIFICATION_FAILED",
-					"The account was updated, but its status email could not be delivered.",
-				);
+				// Email delivery is secondary and must not turn a committed account
+				// status transition into a failed administration action.
 			}
 			return ok({ userId: account.id, status: input.status });
 		},

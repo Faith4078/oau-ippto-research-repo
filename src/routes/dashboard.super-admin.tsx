@@ -15,6 +15,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "#/components/ui/card.tsx";
+import { LoadingSkeleton } from "#/components/ui/loading-skeleton.tsx";
 import { requireDashboardRouteAuth } from "#/lib/auth-functions.ts";
 import { workspaces } from "#/presentation/dashboard/data.ts";
 
@@ -128,7 +129,7 @@ function AccountApprovalQueue() {
 			);
 			setAccountToReject(null);
 			toast.success(
-				status === "active" ? "Account approved" : "Account rejected",
+				status === "active" ? "The account was updated" : "Account rejected",
 			);
 		} catch (error) {
 			toast.error("Account not updated", {
@@ -159,7 +160,7 @@ function AccountApprovalQueue() {
 			</CardHeader>
 			<CardContent>
 				{loading ? (
-					<p className="text-sm text-[#6b7280]">Loading account requests…</p>
+					<LoadingSkeleton label="Loading account requests" rows={3} />
 				) : accounts.length === 0 ? (
 					<p className="text-sm text-[#6b7280]">
 						No account requests need your review.
@@ -466,7 +467,7 @@ function FailedJobsPanel() {
 			</CardHeader>
 			<CardContent>
 				{loading ? (
-					<p className="text-sm text-[#6b7280]">Checking platform tasks…</p>
+					<LoadingSkeleton label="Checking platform tasks" rows={2} />
 				) : jobs.length === 0 ? (
 					<p className="rounded border border-dashed p-6 text-center font-medium">
 						No failed automatic tasks.

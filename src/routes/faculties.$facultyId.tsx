@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
-	DetailPlaceholderPage,
-	detailPages,
+	LivePublicRecordPage,
 	pageSeo,
 	publicHead,
 } from "@/components/public-pages/public-pages";
@@ -14,7 +13,5 @@ export const Route = createFileRoute("/faculties/$facultyId")({
 function FacultyDetailPage() {
 	const { facultyId } = Route.useParams();
 
-	return (
-		<DetailPlaceholderPage config={detailPages.faculty} param={facultyId} />
-	);
+	return <LivePublicRecordPage id={facultyId} type="faculty" />;
 }

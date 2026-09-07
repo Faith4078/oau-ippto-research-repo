@@ -5,11 +5,8 @@ import {
 	ArrowRight,
 	BadgeCheck,
 	BookOpen,
-	Building2,
 	Database,
 	FileSearch,
-	FlaskConical,
-	Globe2,
 	GraduationCap,
 	Handshake,
 	LayoutDashboard,
@@ -17,10 +14,8 @@ import {
 	LockKeyhole,
 	LogOut,
 	Menu,
-	Network,
 	Scale,
 	Search,
-	ShieldCheck,
 	Sparkles,
 	Users,
 	X,
@@ -28,11 +23,11 @@ import {
 import { useEffect, useState } from "react";
 
 import { signOutAndRedirectHome } from "#/lib/sign-out.ts";
+import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 
 const universityName = "Obafemi Awolowo University";
 
 const headerLinks = [
-	{ label: "Search", href: "#search" },
 	{ label: "Public Research", href: "/research" },
 	{ label: "Researchers", href: "/researchers" },
 	{ label: "Publications", href: "/publications" },
@@ -75,44 +70,22 @@ export const Route = createFileRoute("/")({
 	component: Home,
 });
 
-const quickFilters = [
-	"Publications",
-	"Researchers",
-	"Departments",
-	"Faculties",
-	"Research Areas",
-	"Innovations",
-	"Patents",
-];
-
 const statistics = [
-	{ value: "12k", label: "Research Publications" },
-	{ value: "380", label: "Active Researchers" },
-	{ value: "96", label: "Departments" },
-	{ value: "13", label: "Faculties" },
-	{ value: "54", label: "Research Areas" },
-	{ value: "96", label: "Innovations" },
-	{ value: "42", label: "Patents" },
-	{ value: "28", label: "Industry Collaborations" },
+	{ value: "—", label: "Published Research" },
+	{ value: "—", label: "Publications" },
+	{ value: "—", label: "Active Researchers" },
+	{ value: "—", label: "Departments" },
+	{ value: "—", label: "Faculties" },
+	{ value: "—", label: "Innovations" },
+	{ value: "—", label: "Patents" },
 ];
 
-const featuredResearch = [
-	{
-		area: "Renewable Energy",
-		title: "Smart energy systems for resilient communities",
-		text: "Applied research focused on cleaner power distribution, energy access, and sustainable infrastructure.",
-	},
-	{
-		area: "Medicine",
-		title: "Public health intelligence for better outcomes",
-		text: "Scholarly work connecting clinical insight, data, and policy to improve community health decisions.",
-	},
-	{
-		area: "Agriculture",
-		title: "Food security through field-tested innovation",
-		text: "Research that improves crop systems, strengthens agribusiness, and supports local farmers.",
-	},
-];
+type FeaturedResearchItem = {
+	area: string;
+	title: string;
+	text: string;
+	href: string;
+};
 
 const publicationTypes = [
 	"Journal Articles",
@@ -122,17 +95,6 @@ const publicationTypes = [
 	"Technical Reports",
 	"Theses & Dissertations",
 	"Working Papers",
-];
-
-const researcherProfileItems = [
-	"Biography",
-	"Research Interests",
-	"Publications",
-	"Research Metrics",
-	"Current Projects",
-	"Department",
-	"Faculty",
-	"Contact Information",
 ];
 
 const researchAreas = [
@@ -191,26 +153,100 @@ const valueCards = [
 ];
 
 const footerLinks = [
-	"Research",
-	"Researchers",
-	"Departments",
-	"Faculties",
-	"Innovations",
-	"Patents",
-	"Reports",
-	"News",
-	"FAQ",
-	"Contact",
-];
-
-const trustItems = [
-	{ icon: LockKeyhole, label: "Kept safe" },
-	{ icon: Globe2, label: "Open to everyone" },
-	{ icon: Network, label: "Easy to explore" },
-	{ icon: ShieldCheck, label: "Reviewed by OAU" },
+	{ label: "Research", href: "/research" },
+	{ label: "Researchers", href: "/researchers" },
+	{ label: "Departments", href: "/departments" },
+	{ label: "Faculties", href: "/faculties" },
+	{ label: "Innovations", href: "/innovations" },
+	{ label: "Patents", href: "/patents" },
+	{ label: "Reports", href: "/reports" },
+	{ label: "News", href: "/news" },
+	{ label: "FAQ", href: "/faq" },
+	{ label: "Contact", href: "/contact" },
 ];
 
 function Home() {
+	const [repositoryStats, setRepositoryStats] = useState(statistics);
+	const [featuredResearch, setFeaturedResearch] = useState<
+		FeaturedResearchItem[]
+	>([]);
+	const [isStatsLoading, setIsStatsLoading] = useState(true);
+	const [isFeaturedLoading, setIsFeaturedLoading] = useState(true);
+
+	useEffect(() => {
+		let cancelled = false;
+		void fetch("/api/public-statistics", {
+			headers: { Accept: "application/json" },
+		})
+			.then((response) => {
+				if (!response.ok) throw new Error("Statistics unavailable");
+				return response.json();
+			})
+			.then((payload) => {
+				if (cancelled || !payload.data) return;
+				setRepositoryStats([
+					{
+						value: String(payload.data.researchRecords),
+						label: "Published Research",
+					},
+					{ value: String(payload.data.publications), label: "Publications" },
+					{
+						value: String(payload.data.researchers),
+						label: "Active Researchers",
+					},
+					{ value: String(payload.data.departments), label: "Departments" },
+					{ value: String(payload.data.faculties), label: "Faculties" },
+					{ value: String(payload.data.innovations), label: "Innovations" },
+					{ value: String(payload.data.patents), label: "Patents" },
+				]);
+			})
+			.catch(() => undefined)
+			.finally(() => {
+				if (!cancelled) setIsStatsLoading(false);
+			});
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
+	useEffect(() => {
+		let cancelled = false;
+		void fetch("/api/public-research", {
+			headers: { Accept: "application/json" },
+		})
+			.then((response) => {
+				if (!response.ok) throw new Error("Research unavailable");
+				return response.json();
+			})
+			.then((payload) => {
+				if (cancelled || !Array.isArray(payload.data)) return;
+				setFeaturedResearch(
+					payload.data
+						.slice(0, 3)
+						.map(
+							(item: {
+								title: string;
+								description: string;
+								href: string;
+								tags?: string[];
+							}) => ({
+								area: item.tags?.[0] ?? "Published Research",
+								title: item.title,
+								text: item.description,
+								href: item.href,
+							}),
+						),
+				);
+			})
+			.catch(() => undefined)
+			.finally(() => {
+				if (!cancelled) setIsFeaturedLoading(false);
+			});
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
 	return (
 		<main className="min-h-screen bg-[#ffffff] text-[#080808]">
 			<Header />
@@ -231,11 +267,7 @@ function Home() {
 								publications, experts, patents, and ideas ready for real-world
 								use.
 							</p>
-							<div className="mt-8 flex flex-col gap-3 sm:flex-row">
-								<a className="btn-primary" href="#search">
-									<Search className="h-5 w-5" />
-									Search Research
-								</a>
+							<div className="mt-8 flex">
 								<a className="btn-secondary-dark" href="#researchers">
 									<Users className="h-5 w-5" />
 									Find a Researcher
@@ -248,60 +280,25 @@ function Home() {
 								Research at a Glance
 							</p>
 							<div className="mt-4 grid grid-cols-2 gap-3">
-								{statistics.slice(0, 4).map((metric) => (
+								{repositoryStats.slice(0, 4).map((metric) => (
 									<div className="metric-tile" key={metric.label}>
-										<strong>{metric.value}</strong>
+										<strong className="min-h-10">
+											{isStatsLoading ? (
+												<>
+													<span className="sr-only">
+														Loading {metric.label}
+													</span>
+													<span
+														aria-hidden="true"
+														className="mt-1 block h-8 w-16 animate-pulse rounded bg-[#d8d8d8]"
+													/>
+												</>
+											) : (
+												metric.value
+											)}
+										</strong>
 										<span>{metric.label}</span>
 									</div>
-								))}
-							</div>
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<section className="border-b border-[#d8d8d8] bg-white px-4 py-6 sm:px-6 lg:px-8">
-				<div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
-					<p className="max-w-xl text-sm leading-6 text-[#6b7280]">
-						Search OAU research, experts, innovations, and patents in one place.
-					</p>
-					<div className="flex flex-wrap gap-2">
-						{trustItems.map((item) => (
-							<div className="trust-chip" key={item.label}>
-								<item.icon className="h-4 w-4" />
-								{item.label}
-							</div>
-						))}
-					</div>
-				</div>
-			</section>
-
-			<section id="search" className="section-wrap">
-				<div className="search-panel rise-in">
-					<div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-						<div>
-							<span className="eyebrow">Find What You Need</span>
-							<h2 className="mt-4 text-4xl font-semibold leading-tight tracking-normal sm:text-5xl">
-								Search OAU Research
-							</h2>
-							<p className="mt-4 text-base leading-7 text-[#6b7280]">
-								Search by topic, title, researcher, department, or innovation.
-							</p>
-						</div>
-						<div>
-							<label className="search-box" htmlFor="repository-search">
-								<Search className="h-5 w-5 text-[#146ef5]" />
-								<input
-									id="repository-search"
-									placeholder="Try a topic, title, researcher, or department"
-									type="search"
-								/>
-							</label>
-							<div className="mt-4 flex flex-wrap gap-2">
-								{quickFilters.map((filter) => (
-									<a className="trust-chip" href="#featured" key={filter}>
-										{filter}
-									</a>
 								))}
 							</div>
 						</div>
@@ -320,13 +317,25 @@ function Home() {
 				</div>
 
 				<div className="stats-grid">
-					{statistics.map((metric, index) => (
+					{repositoryStats.map((metric, index) => (
 						<div
 							className="stat-card rise-in"
 							key={metric.label}
 							style={{ animationDelay: `${index * 35}ms` }}
 						>
-							<strong>{metric.value}</strong>
+							<strong className="min-h-10">
+								{isStatsLoading ? (
+									<>
+										<span className="sr-only">Loading {metric.label}</span>
+										<span
+											aria-hidden="true"
+											className="mt-1 block h-8 w-16 animate-pulse rounded bg-[#d8d8d8]"
+										/>
+									</>
+								) : (
+									metric.value
+								)}
+							</strong>
 							<span>{metric.label}</span>
 						</div>
 					))}
@@ -345,19 +354,34 @@ function Home() {
 							and more.
 						</p>
 					</div>
-					<a className="btn-secondary" href="#search">
+					<a className="btn-secondary" href="/research">
 						View All Research
 						<ArrowRight className="h-5 w-5" />
 					</a>
 				</div>
 				<div className="story-grid">
-					{featuredResearch.map((item) => (
-						<article className="story-card" key={item.title}>
-							<span>{item.area}</span>
-							<h3>{item.title}</h3>
-							<p>{item.text}</p>
-						</article>
-					))}
+					{isFeaturedLoading ? (
+						<div className="lg:col-span-3">
+							<LoadingSkeleton label="Loading featured research" rows={3} />
+						</div>
+					) : featuredResearch.length ? (
+						featuredResearch.map((item) => (
+							<a href={item.href} key={item.href}>
+								<article className="story-card h-full">
+									<span>{item.area}</span>
+									<h3>{item.title}</h3>
+									<p>{item.text}</p>
+								</article>
+							</a>
+						))
+					) : (
+						<div className="story-card lg:col-span-3">
+							<h3>Published research is being prepared</h3>
+							<p>
+								Browse the catalogue to see all currently available records.
+							</p>
+						</div>
+					)}
 				</div>
 			</section>
 
@@ -365,7 +389,7 @@ function Home() {
 				<ContentPanel
 					cta="Browse Publications"
 					eyebrow="Latest Publications"
-					href="#search"
+					href="/publications"
 					icon={BookOpen}
 					text="Stay up to date with the latest scholarly publications contributed by our researchers."
 					title="Recently Published"
@@ -377,14 +401,16 @@ function Home() {
 				id="researchers"
 				className="section-wrap grid gap-8 pt-0 lg:grid-cols-[1.05fr_0.95fr] lg:items-start"
 			>
-				<TagPanel
-					items={researcherProfileItems}
-					title="Each researcher profile includes"
-				/>
+				<div className="researcher-visual">
+					<img
+						alt="University academic reviewing research papers in his office"
+						src="/oau-academic-researcher.png"
+					/>
+				</div>
 				<ContentPanel
 					cta="Explore Researcher Profiles"
 					eyebrow="Meet Our Researchers"
-					href="#search"
+					href="/researchers"
 					icon={Users}
 					text="Find OAU experts by name, department, or research interest and explore their published work."
 					title="Find the Right Researcher"
@@ -399,7 +425,7 @@ function Home() {
 				</div>
 				<div className="tag-cloud">
 					{researchAreas.map((area) => (
-						<a href="#search" key={area}>
+						<a href={`/research?query=${encodeURIComponent(area)}`} key={area}>
 							{area}
 						</a>
 					))}
@@ -419,7 +445,7 @@ function Home() {
 							See how OAU ideas become useful products, protected inventions,
 							and industry partnerships—with support from IPTTO.
 						</p>
-						<a className="btn-primary mt-8 w-fit" href="#search">
+						<a className="btn-primary mt-8 w-fit" href="/innovations">
 							<Lightbulb className="h-5 w-5" />
 							Explore Innovations
 						</a>
@@ -442,7 +468,7 @@ function Home() {
 				<ContentPanel
 					cta="View Patents"
 					eyebrow="Patents & Intellectual Property"
-					href="#search"
+					href="/patents"
 					icon={Scale}
 					text="Explore inventions developed at OAU, who created them, and how they may be used."
 					title="Protecting Innovation"
@@ -450,20 +476,13 @@ function Home() {
 				<TagPanel items={patentItems} title="Patent profiles provide" />
 			</section>
 
-			<section className="section-wrap grid gap-8 pt-0 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+			<section className="section-wrap pt-0">
 				<div className="faculty-visual">
-					<Building2 className="h-12 w-12 text-[#146ef5]" />
-					<GraduationCap className="h-12 w-12 text-[#146ef5]" />
-					<FlaskConical className="h-12 w-12 text-[#146ef5]" />
+					<img
+						alt="University research faculty deliberating around a meeting table"
+						src="/research-faculty-deliberation.png"
+					/>
 				</div>
-				<ContentPanel
-					cta="Browse Faculties"
-					eyebrow="Departments & Faculties"
-					href="#areas"
-					icon={Building2}
-					text="Choose a faculty or department to see its researchers, publications, and projects."
-					title="Research Across Every Faculty"
-				/>
 			</section>
 
 			<section className="section-wrap pt-0">
@@ -492,7 +511,7 @@ function Home() {
 				<ContentPanel
 					cta="Add Your Research"
 					eyebrow="For Researchers"
-					href="#contact"
+					href="/sign-in"
 					icon={GraduationCap}
 					text="Add your work once so students, collaborators, funders, policymakers, and industry partners can find it."
 					title="Help More People Find Your Research"
@@ -531,7 +550,7 @@ function Home() {
 							</p>
 						</div>
 						<div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-							<a className="btn-primary" href="#search">
+							<a className="btn-primary" href="/research">
 								<Search className="h-5 w-5" />
 								Search Research
 							</a>
@@ -791,8 +810,8 @@ function Footer() {
 					<h3 className="text-base font-semibold">Quick Links</h3>
 					<div className="footer-links">
 						{footerLinks.map((link) => (
-							<a href="#search" key={link}>
-								{link}
+							<a href={link.href} key={link.href}>
+								{link.label}
 							</a>
 						))}
 					</div>

@@ -74,4 +74,30 @@ describe("account administration service", () => {
 		expect(result.ok ? null : result.error.code).toBe("ACCOUNT_STATUS_CONFLICT");
 		expect(sendStatus).not.toHaveBeenCalled();
 	});
+
+	it("keeps a completed account update successful when status email delivery fails", async () => {
+		const repository = createRepository();
+		const sendStatus = vi.fn(async () => {
+			throw new Error("Email provider unavailable");
+		});
+		const service = createAccountAdministrationService({
+			repository,
+			notifications: { sendStatus },
+		});
+
+		const result = await service.review(actor, {
+			userId,
+			status: "active",
+			reason: null,
+			ipAddress: null,
+			userAgent: null,
+		});
+
+		expect(result).toEqual({
+			ok: true,
+			value: { userId, status: "active" },
+		});
+		expect(repository.applyStatusTransition).toHaveBeenCalledOnce();
+		expect(sendStatus).toHaveBeenCalledOnce();
+	});
 });

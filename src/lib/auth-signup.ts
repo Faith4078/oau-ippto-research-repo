@@ -22,6 +22,9 @@ const passwordSchema = z
 	.length(8, "Password must be exactly 8 characters.")
 	.refine(isValidPassword, passwordPolicyText);
 
+const entityIdRegex =
+	/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const lecturerSignUpSchema = z
 	.object({
 		kind: z.literal("lecturer"),
@@ -29,8 +32,11 @@ const lecturerSignUpSchema = z
 		lastName: z.string().trim().min(1, "Last name is required."),
 		staffId: z.string().trim().min(1, "Staff ID is required."),
 		email: z.email("Enter a valid institutional email address."),
-		facultyId: z.uuid("Select a valid faculty."),
-		departmentId: z.uuid("Select a valid department."),
+		facultyId: z.string().trim().regex(entityIdRegex, "Select a valid faculty."),
+		departmentId: z
+			.string()
+			.trim()
+			.regex(entityIdRegex, "Select a valid department."),
 		password: passwordSchema,
 	})
 	.refine((input) => isLecturerStaffId(input.staffId), {

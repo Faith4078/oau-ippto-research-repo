@@ -9,16 +9,20 @@ import { readAuthSession } from "#/lib/auth-server.ts";
 
 import { actorFromSession, jsonResult } from "../-helpers.ts";
 
+const entityIdRegex =
+	/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const entityIdField = z.string().trim().regex(entityIdRegex, "Invalid ID format.");
+
 const accessSchema = z.object({
-	departmentId: z.uuid().nullable(),
-	facultyId: z.uuid().nullable(),
+	departmentId: entityIdField.nullable(),
+	facultyId: entityIdField.nullable(),
 	role: z.enum([
 		"lecturer",
 		"department_administrator",
 		"faculty_administrator",
 		"iptto_officer",
 	]),
-	userId: z.uuid(),
+	userId: entityIdField,
 });
 
 export const Route = createFileRoute("/api/admin/users")({

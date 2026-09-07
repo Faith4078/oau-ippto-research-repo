@@ -5,12 +5,11 @@ import { ArrowLeft, BookOpenCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { PublicResearchDetail } from "#/routes/api/public-research.ts";
 import {
-	DetailPlaceholderPage,
-	detailPages,
 	PublicPageShell,
 	pageSeo,
 	publicHead,
 } from "@/components/public-pages/public-pages";
+import { LoadingSkeletonFrame } from "@/components/ui/loading-skeleton";
 
 export const Route = createFileRoute("/research/$recordId")({
 	head: () => publicHead(pageSeo.researchDetail),
@@ -73,14 +72,8 @@ function ResearchDetailPage() {
 		return (
 			<PublicPageShell>
 				<section className="section-wrap pb-12 pt-32">
-					<div className="max-w-3xl">
-						<span className="eyebrow">
-							<BookOpenCheck className="h-4 w-4" />
-							Research
-						</span>
-						<h1 className="mt-5 text-4xl font-semibold leading-tight tracking-normal sm:text-6xl">
-							Loading research…
-						</h1>
+					<div className="max-w-3xl rounded-xl border border-[#e5e7eb] bg-white p-6">
+						<LoadingSkeletonFrame label="Loading research record" />
 					</div>
 				</section>
 			</PublicPageShell>
@@ -88,7 +81,22 @@ function ResearchDetailPage() {
 	}
 
 	return (
-		<DetailPlaceholderPage config={detailPages.research} param={recordId} />
+		<PublicPageShell>
+			<section className="section-wrap pb-20 pt-32">
+				<span className="eyebrow">Record unavailable</span>
+				<h1 className="mt-5 text-4xl font-semibold">
+					This public research record was not found
+				</h1>
+				<p className="mt-4 max-w-2xl text-[#6b7280]">
+					It may have been unpublished, archived, restricted, or the link may be
+					incorrect.
+				</p>
+				<a className="btn-primary mt-8 w-fit" href="/research">
+					<ArrowLeft className="h-5 w-5" />
+					Back to all research
+				</a>
+			</section>
+		</PublicPageShell>
 	);
 }
 

@@ -179,12 +179,12 @@ export const signedDownloadRequestSchema = z.object({
 const metadataSchema = z.record(z.string(), z.unknown()).optional().default({});
 
 const supportingFileLinkSchema = z.object({
-	fileId: z.uuid(),
+	fileId: entityIdSchema,
 	label: z.string().trim().min(1).max(255).nullable().optional(),
 });
 
 const inventorInputSchema = z.object({
-	userId: z.uuid().nullable().optional(),
+	userId: entityIdSchema.nullable().optional(),
 	name: z.string().trim().min(2).max(255),
 	email: z.email().nullable().optional(),
 	affiliation: z.string().trim().min(2).max(255).nullable().optional(),
@@ -193,10 +193,10 @@ const inventorInputSchema = z.object({
 export const innovationCreateInputSchema = z.object({
 	title: z.string().trim().min(5).max(500),
 	summary: z.string().trim().min(20).max(10000),
-	facultyId: z.uuid().nullable().optional(),
-	departmentId: z.uuid().nullable().optional(),
-	leadResearcherId: z.uuid().nullable().optional(),
-	researchRecordId: z.uuid().nullable().optional(),
+	facultyId: entityIdSchema.nullable().optional(),
+	departmentId: entityIdSchema.nullable().optional(),
+	leadResearcherId: entityIdSchema.nullable().optional(),
+	researchRecordId: entityIdSchema.nullable().optional(),
 	technologyReadinessLevel: z
 		.number()
 		.int()
@@ -231,7 +231,7 @@ export const innovationReviewInputSchema = z.object({
 });
 
 export const patentUpsertInputSchema = z.object({
-	innovationId: z.uuid().nullable().optional(),
+	innovationId: entityIdSchema.nullable().optional(),
 	title: z.string().trim().min(5).max(500),
 	applicationNumber: z.string().trim().min(2).max(160).nullable().optional(),
 	patentNumber: z.string().trim().min(2).max(160).nullable().optional(),
@@ -255,8 +255,8 @@ export const patentUpdateInputSchema = patentUpsertInputSchema.partial();
 
 export const commercializationActivityInputSchema = z
 	.object({
-		innovationId: z.uuid().nullable().optional(),
-		patentId: z.uuid().nullable().optional(),
+		innovationId: entityIdSchema.nullable().optional(),
+		patentId: entityIdSchema.nullable().optional(),
 		type: commercializationTypeSchema,
 		title: z.string().trim().min(3).max(255),
 		partnerName: z.string().trim().min(2).max(255).nullable().optional(),

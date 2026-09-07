@@ -175,6 +175,29 @@ function SignInPage() {
 								{isSubmitting ? "Signing in" : "Sign in"}
 							</Button>
 						</form>
+						<div className="mt-6 border-t border-[#d8d8d8] pt-5 text-sm text-[#6b7280]">
+							<p>Need staff access?</p>
+							<div className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
+								<a
+									className="font-medium text-[#146ef5] hover:underline"
+									href="/sign-up/lecturer"
+								>
+									Lecturer account request
+								</a>
+								<a
+									className="font-medium text-[#146ef5] hover:underline"
+									href="/sign-up/iptto"
+								>
+									IPTTO account request
+								</a>
+							</div>
+							<a
+								className="mt-4 inline-block font-medium text-[#080808] hover:underline"
+								href="/"
+							>
+								Back to the public repository
+							</a>
+						</div>
 					</CardContent>
 				</Card>
 			</section>

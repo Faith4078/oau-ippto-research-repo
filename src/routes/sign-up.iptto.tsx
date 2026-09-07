@@ -20,7 +20,7 @@ import {
 	FieldLabel,
 } from "#/components/ui/field.tsx";
 import { Input } from "#/components/ui/input.tsx";
-import { staffSignUpEndpoint } from "#/lib/auth.ts";
+import { isAdministrativeStaffId, staffSignUpEndpoint } from "#/lib/auth.ts";
 import {
 	getPasswordRequirements,
 	isValidPassword,
@@ -50,6 +50,7 @@ function IpttoSignUpPage() {
 	const emailInputId = useId();
 	const passwordInputId = useId();
 	const [error, setError] = useState<string>();
+	const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [password, setPassword] = useState("");
 	const passwordRequirements = getPasswordRequirements(password);
@@ -58,15 +59,39 @@ function IpttoSignUpPage() {
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
 		setError(undefined);
+		setFieldErrors({});
 
-		const formData = new FormData(event.currentTarget);
+		const form = event.currentTarget;
+		const formData = new FormData(form);
+		const name = String(formData.get("name") ?? "").trim();
+		const staffId = String(formData.get("staffId") ?? "").trim();
+		const email = String(formData.get("email") ?? "").trim();
 		const nextPassword = String(formData.get("password") ?? "");
 
+		const clientErrors: Record<string, string[]> = {};
+		if (!name) clientErrors.name = ["Name is required."];
+		if (!staffId) {
+			clientErrors.staffId = ["Staff ID is required."];
+		} else if (!isAdministrativeStaffId(staffId)) {
+			clientErrors.staffId = [
+				"IPTTO/admin Staff ID must use AT/ followed by exactly 4 digits, for example AT/1302.",
+			];
+		}
+		if (!email) {
+			clientErrors.email = ["Institutional email is required."];
+		}
 		if (!isValidPassword(nextPassword)) {
-			const message = passwordPolicyText;
-			setError(message);
-			toast.error("Update your password", {
-				description: message,
+			clientErrors.password = [passwordPolicyText];
+		}
+
+		if (Object.keys(clientErrors).length > 0) {
+			setFieldErrors(clientErrors);
+			const firstMessage =
+				Object.values(clientErrors)[0]?.[0] ??
+				"Check the highlighted signup fields.";
+			setError(firstMessage);
+			toast.error("Check signup details", {
+				description: firstMessage,
 			});
 			return;
 		}
@@ -76,11 +101,11 @@ function IpttoSignUpPage() {
 		try {
 			const response = await fetch(staffSignUpEndpoint, {
 				body: JSON.stringify({
+					email,
 					kind: "iptto",
-					email: String(formData.get("email") ?? ""),
-					name: String(formData.get("name") ?? ""),
-					password: String(formData.get("password") ?? ""),
-					staffId: String(formData.get("staffId") ?? ""),
+					name,
+					password: nextPassword,
+					staffId,
 				}),
 				headers: {
 					"content-type": "application/json",
@@ -90,8 +115,14 @@ function IpttoSignUpPage() {
 
 			if (!response.ok) {
 				const payload = await response.json().catch(() => null);
+				const serverFieldErrors = payload?.error?.fieldErrors ?? {};
+				setFieldErrors(serverFieldErrors);
+				const firstFieldError = Object.values(serverFieldErrors).flat()[0];
 				const message =
-					payload?.error?.message ?? "We could not create your account.";
+					firstFieldError ??
+					payload?.error?.message ??
+					payload?.message ??
+					"We could not create your account.";
 				setError(message);
 				toast.error("Account not created", {
 					description: message,
@@ -99,11 +130,14 @@ function IpttoSignUpPage() {
 				return;
 			}
 
-			toast.success("Account request sent", {
-				description: "You can sign in after an OAU reviewer approves it.",
+			toast.success("Signup request submitted", {
+				description:
+					"Your request is now under review. A super administrator must approve your account before you can sign in. You will be notified once a decision is made.",
+				duration: 8000,
 			});
-			event.currentTarget.reset();
+			form.reset();
 			setPassword("");
+			setFieldErrors({});
 		} catch {
 			const message =
 				"We could not create your account. Check your connection and try again.";
@@ -152,6 +186,9 @@ function IpttoSignUpPage() {
 										required
 										type="text"
 									/>
+									{fieldErrors.name?.[0] && (
+										<FieldError>{fieldErrors.name[0]}</FieldError>
+									)}
 								</Field>
 
 								<Field>
@@ -166,6 +203,9 @@ function IpttoSignUpPage() {
 										required
 										type="email"
 									/>
+									{fieldErrors.email?.[0] && (
+										<FieldError>{fieldErrors.email[0]}</FieldError>
+									)}
 								</Field>
 
 								<Field>
@@ -184,6 +224,9 @@ function IpttoSignUpPage() {
 									<p className="text-sm text-[#6b7280]">
 										Enter AT/ followed by your 4 staff ID digits.
 									</p>
+									{fieldErrors.staffId?.[0] && (
+										<FieldError>{fieldErrors.staffId[0]}</FieldError>
+									)}
 								</Field>
 
 								<Field>
@@ -207,10 +250,13 @@ function IpttoSignUpPage() {
 										password={password}
 										requirements={passwordRequirements}
 									/>
+									{fieldErrors.password?.[0] && (
+										<FieldError>{fieldErrors.password[0]}</FieldError>
+									)}
 								</Field>
 							</FieldGroup>
 
-							<FieldError>{error}</FieldError>
+							{error && <FieldError>{error}</FieldError>}
 
 							<Button
 								className="h-12 rounded bg-[#146ef5] text-base text-white hover:bg-[#0d5fdc]"
@@ -221,6 +267,22 @@ function IpttoSignUpPage() {
 								{isSubmitting ? "Creating account" : "Create account"}
 							</Button>
 						</form>
+						<p className="mt-6 border-t border-[#d8d8d8] pt-5 text-sm text-[#6b7280]">
+							Already requested access?{" "}
+							<a
+								className="font-medium text-[#146ef5] hover:underline"
+								href="/sign-in"
+							>
+								Sign in
+							</a>
+							{" · "}
+							<a
+								className="font-medium text-[#080808] hover:underline"
+								href="/"
+							>
+								Public repository
+							</a>
+						</p>
 					</CardContent>
 				</Card>
 			</section>

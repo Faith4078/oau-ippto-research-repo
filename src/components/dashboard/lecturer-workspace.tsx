@@ -21,6 +21,7 @@ import {
 	CardTitle,
 } from "#/components/ui/card.tsx";
 import { Input } from "#/components/ui/input.tsx";
+import { LoadingSkeleton } from "#/components/ui/loading-skeleton.tsx";
 import { workspaces } from "#/presentation/dashboard/data.ts";
 
 type Submission = {
@@ -88,7 +89,11 @@ export function LecturerWorkspace() {
 							becomes public.
 						</p>
 					</div>
-					<Button asChild>
+					<Button
+						asChild
+						className="bg-[#146ef5] text-white hover:bg-[#0d5fdc] focus-visible:ring-[#146ef5]/35"
+						size="lg"
+					>
 						<Link to="/dashboard/lecturer/submit">
 							<FilePlus2 className="h-4 w-4" />
 							Add research
@@ -139,7 +144,7 @@ export function LecturerWorkspace() {
 					</CardHeader>
 					<CardContent className="space-y-3">
 						{loading ? (
-							<p className="text-sm text-[#6b7280]">Loading your research…</p>
+							<LoadingSkeleton label="Loading your research" rows={3} />
 						) : visible.length === 0 ? (
 							<div className="rounded border border-dashed p-8 text-center">
 								<p className="font-semibold">
@@ -180,7 +185,13 @@ export function LecturerWorkspace() {
 									</div>
 									{item.published && (
 										<Button asChild variant="outline">
-											<a href={`/research/${item.id}`}>View public page</a>
+											<a
+												href={`/research/${item.id}`}
+												rel="noopener noreferrer"
+												target="_blank"
+											>
+												View public page
+											</a>
 										</Button>
 									)}
 								</article>

@@ -118,18 +118,39 @@ describe("staff ID sign-in scaffolding", () => {
 		);
 	});
 
-	it("requires signup passwords to include uppercase lowercase number and a special symbol", () => {
+	it("accepts lecturer signup with seeded zero-prefixed UUIDs", () => {
 		const result = validateStaffSignUpInput({
-			kind: "iptto",
-			email: "innovation@oauife.edu.ng",
-			name: "Innovation Desk",
-			password: "Pass1234",
-			staffId: "AT/1302",
+			departmentId: "00000000-0000-0000-0000-000000000201",
+			email: "amina@oauife.edu.ng",
+			facultyId: "00000000-0000-0000-0000-000000000101",
+			firstName: "Amina",
+			kind: "lecturer",
+			lastName: "Adeyemi",
+			password: "Pass12!A",
+			staffId: "AC/1234",
+		});
+
+		expect(result.ok).toBe(true);
+	});
+
+	it("validates faculty and department selection for lecturer signup", () => {
+		const result = validateStaffSignUpInput({
+			departmentId: "invalid-dept",
+			email: "amina@oauife.edu.ng",
+			facultyId: "invalid-faculty",
+			firstName: "Amina",
+			kind: "lecturer",
+			lastName: "Adeyemi",
+			password: "Pass12!A",
+			staffId: "AC/1234",
 		});
 
 		expect(result.ok).toBe(false);
-		expect(result.ok ? null : result.fieldErrors.password).toContain(
-			"Use exactly 8 characters with uppercase, lowercase, a number, and a special symbol.",
+		expect(result.ok ? null : result.fieldErrors.facultyId).toContain(
+			"Select a valid faculty.",
+		);
+		expect(result.ok ? null : result.fieldErrors.departmentId).toContain(
+			"Select a valid department.",
 		);
 	});
 });

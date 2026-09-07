@@ -14,7 +14,6 @@ import {
 	CircleHelp,
 	Download,
 	FileSearch,
-	Filter,
 	FlaskConical,
 	GraduationCap,
 	LayoutDashboard,
@@ -31,9 +30,18 @@ import {
 	Users,
 	X,
 } from "lucide-react";
-import { type ComponentType, type ReactNode, useEffect, useState } from "react";
+import {
+	type ComponentType,
+	type FormEvent,
+	type ReactNode,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from "react";
 
 import { signOutAndRedirectHome } from "#/lib/sign-out.ts";
+import type { PublicRecordDetail } from "#/routes/api/public-record.ts";
 import {
 	Card,
 	CardContent,
@@ -41,6 +49,10 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import {
+	LoadingSkeleton,
+	LoadingSkeletonFrame,
+} from "@/components/ui/loading-skeleton";
 
 const siteName = "OAU IPTTO Research Repository";
 const baseUrl = "https://research.oauife.edu.ng";
@@ -71,9 +83,45 @@ export type CardItem = {
 	tags: Array<string>;
 };
 
+type SearchEntityType =
+	| "research"
+	| "researcher"
+	| "publication"
+	| "innovation"
+	| "patent";
+
+type SearchResultPayload = {
+	id: string;
+	entityType: SearchEntityType;
+	title: string;
+	summary: string;
+	url: string;
+	year: number | null;
+	metadata: Record<string, string | number | boolean | null>;
+};
+
+type SearchPagePayload = {
+	items: SearchResultPayload[];
+	page: number;
+	totalItems: number;
+	totalPages: number;
+	hasNextPage: boolean;
+	hasPreviousPage: boolean;
+};
+
 type StatItem = {
 	label: string;
 	value: string;
+};
+
+type PublicStatsPayload = {
+	researchRecords: number;
+	publications: number;
+	researchers: number;
+	innovations: number;
+	patents: number;
+	faculties: number;
+	departments: number;
 };
 
 type CollectionConfig = {
@@ -361,7 +409,7 @@ export const collectionPages = {
 				["Agriculture", "Climate", "Document available"],
 			),
 		],
-		"Filters",
+		"Search fields",
 		[
 			"Keyword search",
 			"Faculty",
@@ -724,29 +772,29 @@ export const collectionPages = {
 		"Report type",
 		"Latest report",
 		[
-			{ value: "12k", label: "Public research" },
-			{ value: "18%", label: "Growth this year" },
-			{ value: "28", label: "Industry collaborations" },
+			{ value: "—", label: "Public research" },
+			{ value: "—", label: "Researchers" },
+			{ value: "—", label: "Innovations and patents" },
 		],
 		[
 			card(
 				"OAU research summary",
-				"Institutional report | 2026",
-				"A clear summary of OAU publications, research areas, public access, and growth.",
+				"Live repository summary",
+				"Current public totals for published research, publications, and researcher profiles.",
 				undefined,
 				["Key figures", "Research", "Public information"],
 			),
 			card(
 				"Innovation and technology transfer activity",
-				"IPTTO report | 2026",
-				"A public summary of OAU innovations, patents, partnerships, and trials.",
+				"Live IPTTO summary",
+				"Current public totals for published innovations and related patents.",
 				undefined,
 				["Innovation", "Patents", "Partnerships"],
 			),
 			card(
 				"Faculty research visibility overview",
-				"Analytics report | 2025",
-				"Public figures across faculties, departments, research areas, and publication types.",
+				"Live organization summary",
+				"Current public totals across faculties, departments, researchers, and research records.",
 				undefined,
 				["Faculties", "Departments", "Trends"],
 			),
@@ -772,33 +820,11 @@ export const collectionPages = {
 		"Content type",
 		"Newest update",
 		[
-			{ value: "18", label: "Updates" },
-			{ value: "6", label: "Upcoming events" },
-			{ value: "4", label: "Open calls" },
+			{ value: "0", label: "Published updates" },
+			{ value: "0", label: "Upcoming events" },
+			{ value: "0", label: "Open calls" },
 		],
-		[
-			card(
-				"How to add your research: workshop for academic staff",
-				"Event | 18 August 2026",
-				"A practical session on completing your profile, adding publications, and sending research for review.",
-				undefined,
-				["Workshop", "Researchers", "Adding research"],
-			),
-			card(
-				"IPTTO opens call for innovation disclosure updates",
-				"Announcement | 04 August 2026",
-				"Researchers with promising technologies can update public innovation summaries for review.",
-				undefined,
-				["Innovation", "IPTTO", "Call"],
-			),
-			card(
-				"New public statistics dashboard published",
-				"News | 22 July 2026",
-				"The reports page now shows clear public figures for research and innovations.",
-				undefined,
-				["Reports", "Statistics", "Public"],
-			),
-		],
+		[],
 		"Browse updates",
 		["News", "Events", "Workshops", "Open calls", "Announcements"],
 		"No updates match this search",
@@ -1049,14 +1075,153 @@ export const detailPages = {
 	),
 } satisfies Record<string, DetailConfig>;
 
-export function CollectionPage({
-	config,
-	liveItems = [],
-}: {
-	config: CollectionConfig;
-	liveItems?: Array<CardItem>;
-}) {
-	const items = mergeCollectionItems(liveItems, config.items);
+export function CollectionPage({ config }: { config: CollectionConfig }) {
+	const dataSource = useMemo(
+		() => collectionDataSource(config.seo.path),
+		[config.seo.path],
+	);
+	const [query, setQuery] = useState("");
+	const [sort, setSort] = useState("relevance");
+	const [items, setItems] = useState<Array<CardItem>>(
+		dataSource.kind === "static" ? config.items : [],
+	);
+	const [page, setPage] = useState(1);
+	const [totalItems, setTotalItems] = useState(
+		dataSource.kind === "static" ? config.items.length : 0,
+	);
+	const [totalPages, setTotalPages] = useState(1);
+	const [isLoading, setIsLoading] = useState(dataSource.kind !== "static");
+	const [error, setError] = useState<string | null>(null);
+
+	const loadItems = useCallback(
+		async (requestedPage: number, keyword: string, requestedSort: string) => {
+			if (dataSource.kind === "static") {
+				const normalized = keyword.trim().toLowerCase();
+				const filtered = config.items.filter((item) =>
+					[item.title, item.meta, item.description, ...item.tags]
+						.join(" ")
+						.toLowerCase()
+						.includes(normalized),
+				);
+				const sorted = [...filtered].sort((left, right) =>
+					requestedSort === "title" ? left.title.localeCompare(right.title) : 0,
+				);
+				setItems(sorted);
+				setTotalItems(sorted.length);
+				setTotalPages(1);
+				setPage(1);
+				setError(null);
+				return;
+			}
+
+			setIsLoading(true);
+			setError(null);
+
+			try {
+				if (dataSource.kind === "organization") {
+					const response = await fetch("/api/organization-options", {
+						headers: { Accept: "application/json" },
+					});
+					if (!response.ok) throw new Error("The directory is unavailable.");
+					const payload = (await response.json()) as {
+						data?: {
+							faculties: Array<{ id: string; name: string }>;
+							departments: Array<{
+								id: string;
+								name: string;
+								facultyId: string;
+							}>;
+						};
+					};
+					const directory = payload.data;
+					if (!directory) throw new Error("The directory returned no data.");
+					const facultyNames = new Map(
+						directory.faculties.map((faculty) => [faculty.id, faculty.name]),
+					);
+					const source =
+						dataSource.entity === "faculty"
+							? directory.faculties.map((faculty) => ({
+									title: faculty.name,
+									meta: "Obafemi Awolowo University",
+									description:
+										"Explore departments, researchers, and published work from this faculty.",
+									href: `/faculties/${faculty.id}`,
+									tags: [
+										`${directory.departments.filter((department) => department.facultyId === faculty.id).length} departments`,
+									],
+								}))
+							: directory.departments.map((department) => ({
+									title: department.name,
+									meta: facultyNames.get(department.facultyId) ?? "OAU faculty",
+									description:
+										"Explore researchers and published work from this department.",
+									href: `/departments/${department.id}`,
+									tags: ["Department"],
+								}));
+					const normalized = keyword.trim().toLowerCase();
+					const filtered = source.filter((item) =>
+						`${item.title} ${item.meta}`.toLowerCase().includes(normalized),
+					);
+					if (requestedSort === "title") {
+						filtered.sort((left, right) =>
+							left.title.localeCompare(right.title),
+						);
+					}
+					setItems(filtered);
+					setTotalItems(filtered.length);
+					setTotalPages(1);
+					setPage(1);
+					return;
+				}
+
+				const response = await fetch("/api/search", {
+					method: "POST",
+					headers: {
+						Accept: "application/json",
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						keyword,
+						filters: { entityTypes: dataSource.entityTypes },
+						page: requestedPage,
+						pageSize: 12,
+						sort: requestedSort,
+					}),
+				});
+				if (!response.ok) throw new Error("Search is temporarily unavailable.");
+				const payload = (await response.json()) as { data?: SearchPagePayload };
+				if (!payload.data) throw new Error("Search returned no data.");
+				setItems(payload.data.items.map(searchResultToCard));
+				setPage(payload.data.page);
+				setTotalItems(payload.data.totalItems);
+				setTotalPages(payload.data.totalPages);
+			} catch (cause) {
+				setItems([]);
+				setTotalItems(0);
+				setTotalPages(1);
+				setError(
+					cause instanceof Error
+						? cause.message
+						: "This public collection could not be loaded.",
+				);
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[config.items, dataSource],
+	);
+
+	useEffect(() => {
+		const initialQuery =
+			new URLSearchParams(window.location.search).get("query") ?? "";
+		setQuery(initialQuery);
+		void loadItems(1, initialQuery, "relevance");
+	}, [loadItems]);
+
+	function submitSearch(event: FormEvent<HTMLFormElement>) {
+		event.preventDefault();
+		void loadItems(1, query, sort);
+	}
 
 	return (
 		<PublicPageShell>
@@ -1064,20 +1229,45 @@ export function CollectionPage({
 			<section className="section-wrap pt-0">
 				<div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
 					<div className="space-y-4">
-						<SearchFilterPanel config={config} />
+						<SearchFilterPanel
+							config={config}
+							isLoading={isLoading}
+							onQueryChange={setQuery}
+							onSortChange={setSort}
+							onSubmit={submitSearch}
+							query={query}
+							sort={sort}
+							totalItems={totalItems}
+						/>
+						{error ? (
+							<div
+								role="alert"
+								className="rounded-lg border border-[#d92d20] bg-red-50 p-4 text-sm text-[#8f1d16]"
+							>
+								{error} Please try again.
+							</div>
+						) : null}
+						{isLoading ? (
+							<LoadingSkeleton label="Loading public records" rows={3} />
+						) : null}
 						<div className="grid gap-4">
 							{items.map((item) => (
-								<ResultCard item={item} key={item.title} />
+								<ResultCard item={item} key={item.href ?? item.title} />
 							))}
 						</div>
-						<Pagination
-							label={
-								liveItems.length > 0
-									? `${liveItems.length} results`
-									: config.resultLabel
-							}
-						/>
-						<EmptyState title={config.emptyTitle} text={config.emptyText} />
+						{!isLoading && !error && totalItems > 0 ? (
+							<Pagination
+								page={page}
+								totalItems={totalItems}
+								totalPages={totalPages}
+								onPageChange={(nextPage) =>
+									void loadItems(nextPage, query, sort)
+								}
+							/>
+						) : null}
+						{!isLoading && !error && totalItems === 0 ? (
+							<EmptyState title={config.emptyTitle} text={config.emptyText} />
+						) : null}
 					</div>
 					<Sidebar title={config.sidebarTitle} items={config.sidebarItems} />
 				</div>
@@ -1086,16 +1276,70 @@ export function CollectionPage({
 	);
 }
 
-function mergeCollectionItems(
-	liveItems: Array<CardItem>,
-	staticItems: Array<CardItem>,
-) {
-	const liveTitles = new Set(liveItems.map((item) => item.title));
+function collectionDataSource(path: string) {
+	const searchTypes: Partial<Record<string, SearchEntityType[]>> = {
+		"/research": ["research"],
+		"/researchers": ["researcher"],
+		"/publications": ["publication"],
+		"/innovations": ["innovation"],
+		"/patents": ["patent"],
+	};
+	const entityTypes = searchTypes[path];
+	if (entityTypes) return { kind: "search" as const, entityTypes };
+	if (path === "/faculties") {
+		return { kind: "organization" as const, entity: "faculty" as const };
+	}
+	if (path === "/departments") {
+		return { kind: "organization" as const, entity: "department" as const };
+	}
+	return { kind: "static" as const };
+}
 
-	return [
-		...liveItems,
-		...staticItems.filter((item) => !liveTitles.has(item.title)),
-	];
+function searchResultToCard(item: SearchResultPayload): CardItem {
+	const details = [
+		formatEntityType(item.entityType),
+		item.year ? String(item.year) : null,
+		metadataLabel(item),
+	].filter((value): value is string => Boolean(value));
+	return {
+		title: item.title,
+		meta: details.join(" | "),
+		description: item.summary || "Open this record to view its public details.",
+		href: item.url,
+		tags: Object.entries(item.metadata)
+			.filter(([, value]) => value !== null && value !== "")
+			.slice(0, 3)
+			.map(
+				([key, value]) =>
+					`${formatMetadataKey(key)}: ${String(value).replace(/_/g, " ")}`,
+			),
+	};
+}
+
+function metadataLabel(item: SearchResultPayload) {
+	if (item.entityType === "researcher")
+		return String(item.metadata.title ?? "Researcher");
+	if (item.entityType === "publication")
+		return String(item.metadata.type ?? "Publication").replace(/_/g, " ");
+	if (
+		item.entityType === "innovation" &&
+		item.metadata.technologyReadinessLevel
+	) {
+		return `TRL ${item.metadata.technologyReadinessLevel}`;
+	}
+	if (item.entityType === "patent")
+		return String(item.metadata.status ?? "Patent").replace(/_/g, " ");
+	return null;
+}
+
+function formatEntityType(value: SearchEntityType) {
+	return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function formatMetadataKey(value: string) {
+	return value
+		.replace(/([A-Z])/g, " $1")
+		.replace(/^./, (letter) => letter.toUpperCase());
 }
 
 export function DetailPlaceholderPage({
@@ -1175,7 +1419,133 @@ export function DetailPlaceholderPage({
 				</div>
 				<div className="grid gap-4 lg:grid-cols-2">
 					{config.related.map((item) => (
-						<ResultCard item={item} key={item.title} />
+						<ResultCard item={item} key={item.href ?? item.title} />
+					))}
+				</div>
+			</section>
+		</PublicPageShell>
+	);
+}
+
+export function LivePublicRecordPage({
+	type,
+	id,
+}: {
+	type: "researcher" | "department" | "faculty" | "innovation" | "patent";
+	id: string;
+}) {
+	const [record, setRecord] = useState<PublicRecordDetail | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
+	const [notFound, setNotFound] = useState(false);
+
+	useEffect(() => {
+		let cancelled = false;
+		setIsLoading(true);
+		setNotFound(false);
+		fetch(
+			`/api/public-record?type=${encodeURIComponent(type)}&id=${encodeURIComponent(id)}`,
+			{ headers: { Accept: "application/json" } },
+		)
+			.then(async (response) => {
+				if (response.status === 404 || response.status === 400) return null;
+				if (!response.ok) throw new Error("Public record unavailable");
+				const payload = (await response.json()) as {
+					data?: PublicRecordDetail;
+				};
+				return payload.data ?? null;
+			})
+			.then((detail) => {
+				if (cancelled) return;
+				setRecord(detail);
+				setNotFound(detail === null);
+			})
+			.catch(() => {
+				if (!cancelled) setNotFound(true);
+			})
+			.finally(() => {
+				if (!cancelled) setIsLoading(false);
+			});
+		return () => {
+			cancelled = true;
+		};
+	}, [id, type]);
+
+	if (isLoading) {
+		return (
+			<PublicPageShell>
+				<section className="section-wrap pb-20 pt-32" aria-live="polite">
+					<LoadingSkeletonFrame label="Loading public record" />
+				</section>
+			</PublicPageShell>
+		);
+	}
+
+	if (notFound || !record) {
+		const backHref = `/${type === "faculty" ? "faculties" : `${type}s`}`;
+		return (
+			<PublicPageShell>
+				<section className="section-wrap pb-20 pt-32">
+					<span className="eyebrow">Record unavailable</span>
+					<h1 className="mt-5 text-4xl font-semibold">
+						This public record was not found
+					</h1>
+					<p className="mt-4 max-w-2xl text-[#6b7280]">
+						It may have been unpublished, archived, or the link may be
+						incorrect.
+					</p>
+					<a className="btn-primary mt-8 w-fit" href={backHref}>
+						<ArrowLeft className="h-5 w-5" />
+						Back to public records
+					</a>
+				</section>
+			</PublicPageShell>
+		);
+	}
+
+	return (
+		<PublicPageShell>
+			<section className="section-wrap pb-12 pt-32">
+				<a
+					className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-[#146ef5]"
+					href={record.backHref}
+				>
+					<ArrowLeft className="h-4 w-4" />
+					{record.backLabel}
+				</a>
+				<div className="grid gap-8 lg:grid-cols-[1fr_360px] lg:items-start">
+					<div>
+						<span className="eyebrow">{record.eyebrow}</span>
+						<h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-tight tracking-normal sm:text-6xl">
+							{record.title}
+						</h1>
+						<p className="mt-5 max-w-3xl text-base leading-8 text-[#6b7280] sm:text-lg">
+							{record.description}
+						</p>
+						{record.tags.length ? (
+							<div className="mt-6 flex flex-wrap gap-2">
+								{record.tags.map((tag) => (
+									<span className="trust-chip bg-white" key={tag}>
+										{tag}
+									</span>
+								))}
+							</div>
+						) : null}
+					</div>
+					<RecordFacts facts={record.facts} />
+				</div>
+			</section>
+			<section className="section-wrap pt-0">
+				<div className="grid gap-4 lg:grid-cols-3">
+					{record.sections.map((section) => (
+						<article
+							className="rounded-lg border border-[#d8d8d8] bg-[#f0f0f0] p-5"
+							key={section.title}
+						>
+							<h2 className="text-xl font-semibold">{section.title}</h2>
+							<p className="mt-3 text-sm leading-6 text-[#6b7280]">
+								{section.body}
+							</p>
+						</article>
 					))}
 				</div>
 			</section>
@@ -1666,6 +2036,40 @@ function PublicFooter() {
 }
 
 function PageHero({ config }: { config: CollectionConfig }) {
+	const [publicStats, setPublicStats] = useState<PublicStatsPayload | null>(
+		null,
+	);
+	const showsLiveStats = [
+		"/research",
+		"/researchers",
+		"/publications",
+		"/departments",
+		"/faculties",
+		"/innovations",
+		"/patents",
+		"/reports",
+	].includes(config.seo.path);
+
+	useEffect(() => {
+		let cancelled = false;
+		fetch("/api/public-statistics", { headers: { Accept: "application/json" } })
+			.then((response) => {
+				if (!response.ok) throw new Error("Statistics unavailable");
+				return response.json() as Promise<{ data?: PublicStatsPayload }>;
+			})
+			.then((payload) => {
+				if (!cancelled) setPublicStats(payload.data ?? null);
+			})
+			.catch(() => {
+				if (!cancelled) setPublicStats(null);
+			});
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
+	const stats = liveStatsForPath(config.seo.path, publicStats) ?? config.stats;
+
 	return (
 		<section className="section-wrap pb-12 pt-32">
 			<div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:items-end">
@@ -1682,12 +2086,24 @@ function PageHero({ config }: { config: CollectionConfig }) {
 					</p>
 				</div>
 				<div className="grid grid-cols-3 gap-3 rounded-lg border border-[#d8d8d8] bg-[#f0f0f0] p-3">
-					{config.stats.map((stat) => (
+					{stats.map((stat) => (
 						<div
 							className="rounded-lg border border-[#d8d8d8] bg-white p-3"
 							key={stat.label}
 						>
-							<strong className="block text-2xl font-bold">{stat.value}</strong>
+							<strong className="block min-h-8 text-2xl font-bold">
+								{showsLiveStats && !publicStats ? (
+									<>
+										<span className="sr-only">Loading {stat.label}</span>
+										<span
+											aria-hidden="true"
+											className="mt-1 block h-6 w-12 animate-pulse rounded bg-[#d8d8d8]"
+										/>
+									</>
+								) : (
+									stat.value
+								)}
+							</strong>
 							<span className="mt-2 block text-xs leading-5 text-[#6b7280]">
 								{stat.label}
 							</span>
@@ -1699,10 +2115,84 @@ function PageHero({ config }: { config: CollectionConfig }) {
 	);
 }
 
-function SearchFilterPanel({ config }: { config: CollectionConfig }) {
+function liveStatsForPath(
+	path: string,
+	stats: PublicStatsPayload | null,
+): StatItem[] | null {
+	if (!stats) return null;
+	const common: Record<string, StatItem[]> = {
+		"/research": [
+			{ value: String(stats.researchRecords), label: "Published research" },
+			{ value: String(stats.publications), label: "Publications" },
+			{ value: String(stats.researchers), label: "Researchers" },
+		],
+		"/researchers": [
+			{ value: String(stats.researchers), label: "Profiles" },
+			{ value: String(stats.departments), label: "Departments" },
+			{ value: String(stats.faculties), label: "Faculties" },
+		],
+		"/publications": [
+			{ value: String(stats.publications), label: "Publications" },
+			{ value: String(stats.researchRecords), label: "Research records" },
+			{ value: String(stats.researchers), label: "Researchers" },
+		],
+		"/departments": [
+			{ value: String(stats.departments), label: "Departments" },
+			{ value: String(stats.faculties), label: "Faculties" },
+			{ value: String(stats.researchRecords), label: "Research records" },
+		],
+		"/faculties": [
+			{ value: String(stats.faculties), label: "Faculties" },
+			{ value: String(stats.departments), label: "Departments" },
+			{ value: String(stats.researchRecords), label: "Research records" },
+		],
+		"/innovations": [
+			{ value: String(stats.innovations), label: "Published innovations" },
+			{ value: String(stats.patents), label: "Patents" },
+			{ value: String(stats.researchRecords), label: "Research records" },
+		],
+		"/patents": [
+			{ value: String(stats.patents), label: "Patents" },
+			{ value: String(stats.innovations), label: "Innovations" },
+			{ value: String(stats.researchRecords), label: "Research records" },
+		],
+		"/reports": [
+			{ value: String(stats.researchRecords), label: "Published research" },
+			{ value: String(stats.researchers), label: "Researchers" },
+			{
+				value: String(stats.innovations + stats.patents),
+				label: "Innovations and patents",
+			},
+		],
+	};
+	return common[path] ?? null;
+}
+
+function SearchFilterPanel({
+	config,
+	query,
+	sort,
+	totalItems,
+	isLoading,
+	onQueryChange,
+	onSortChange,
+	onSubmit,
+}: {
+	config: CollectionConfig;
+	query: string;
+	sort: string;
+	totalItems: number;
+	isLoading: boolean;
+	onQueryChange: (value: string) => void;
+	onSortChange: (value: string) => void;
+	onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+}) {
 	return (
-		<div className="rounded-lg border border-[#d8d8d8] bg-[#f0f0f0] p-4">
-			<div className="grid gap-3 lg:grid-cols-[1fr_210px_180px_52px]">
+		<form
+			className="rounded-lg border border-[#d8d8d8] bg-[#f0f0f0] p-4"
+			onSubmit={onSubmit}
+		>
+			<div className="grid gap-3 sm:grid-cols-[1fr_190px_56px]">
 				<label
 					className="search-box min-h-14"
 					htmlFor={`${config.eyebrow}-search`}
@@ -1710,57 +2200,41 @@ function SearchFilterPanel({ config }: { config: CollectionConfig }) {
 					<Search className="h-5 w-5 text-[#146ef5]" />
 					<input
 						id={`${config.eyebrow}-search`}
+						onChange={(event) => onQueryChange(event.target.value)}
 						placeholder={config.searchPlaceholder}
 						type="search"
+						value={query}
 					/>
-				</label>
-				<label className="flex min-h-14 items-center gap-2 rounded border border-[#d8d8d8] bg-white px-4 text-sm font-medium text-[#6b7280]">
-					<Filter className="h-4 w-4 text-[#146ef5]" />
-					<select
-						aria-label={config.filterLabel}
-						className="min-w-0 flex-1 bg-transparent text-[#080808] outline-none"
-					>
-						<option>{config.filterLabel}</option>
-						{config.sidebarItems.slice(0, 4).map((item) => (
-							<option key={item}>{item}</option>
-						))}
-					</select>
 				</label>
 				<label className="flex min-h-14 items-center gap-2 rounded border border-[#d8d8d8] bg-white px-4 text-sm font-medium text-[#6b7280]">
 					<SlidersHorizontal className="h-4 w-4 text-[#146ef5]" />
 					<select
 						aria-label="Sort"
 						className="min-w-0 flex-1 bg-transparent text-[#080808] outline-none"
+						onChange={(event) => onSortChange(event.target.value)}
+						value={sort}
 					>
-						<option>{config.sortLabel}</option>
-						<option>Oldest first</option>
-						<option>A to Z</option>
-						<option>Highest activity</option>
+						<option value="relevance">Most relevant</option>
+						<option value="newest">Newest first</option>
+						<option value="oldest">Oldest first</option>
+						<option value="title">A to Z</option>
 					</select>
 				</label>
 				<button
 					aria-label="Search"
 					className="flex min-h-14 items-center justify-center rounded bg-[#146ef5] text-white hover:bg-[#0d5fdc]"
-					type="button"
+					disabled={isLoading}
+					type="submit"
 				>
 					<Search className="h-5 w-5" />
 				</button>
 			</div>
-			<div className="mt-4 flex flex-col justify-between gap-3 text-sm text-[#6b7280] sm:flex-row sm:items-center">
-				<span>Showing {config.resultLabel} from public data</span>
-				<div className="flex flex-wrap gap-2">
-					{["2026", "Open access", "Faculty filter"].map((chipText) => (
-						<button
-							className="trust-chip bg-white"
-							type="button"
-							key={chipText}
-						>
-							{chipText}
-						</button>
-					))}
-				</div>
+			<div className="mt-4 text-sm text-[#6b7280]" aria-live="polite">
+				{isLoading
+					? "Searching public records…"
+					: `${totalItems} ${totalItems === 1 ? "result" : "results"} from public data`}
 			</div>
-		</div>
+		</form>
 	);
 }
 
@@ -1823,22 +2297,45 @@ function RecordFacts({
 	);
 }
 
-function Pagination({ label }: { label: string }) {
+function Pagination({
+	page,
+	totalItems,
+	totalPages,
+	onPageChange,
+}: {
+	page: number;
+	totalItems: number;
+	totalPages: number;
+	onPageChange: (page: number) => void;
+}) {
 	return (
 		<nav
 			aria-label="Pagination"
 			className="flex flex-col justify-between gap-3 rounded-lg border border-[#d8d8d8] bg-white p-4 text-sm text-[#6b7280] sm:flex-row sm:items-center"
 		>
-			<span>Page 1 of 1 for {label}</span>
+			<span>
+				Page {page} of {totalPages} for {totalItems}{" "}
+				{totalItems === 1 ? "result" : "results"}
+			</span>
 			<div className="flex items-center gap-2">
-				<button className="trust-chip bg-white" type="button">
+				<button
+					className="trust-chip bg-white disabled:cursor-not-allowed disabled:opacity-50"
+					disabled={page <= 1}
+					onClick={() => onPageChange(page - 1)}
+					type="button"
+				>
 					<ChevronLeft className="h-4 w-4" />
 					Previous
 				</button>
 				<span className="trust-chip border-[#146ef5] bg-[#146ef5] text-white">
-					1
+					{page}
 				</span>
-				<button className="trust-chip bg-white" type="button">
+				<button
+					className="trust-chip bg-white disabled:cursor-not-allowed disabled:opacity-50"
+					disabled={page >= totalPages}
+					onClick={() => onPageChange(page + 1)}
+					type="button"
+				>
 					Next
 					<ChevronRight className="h-4 w-4" />
 				</button>

@@ -15,12 +15,14 @@ import {
 	Lightbulb,
 	LockKeyhole,
 	LogOut,
+	Menu,
 	MoreHorizontal,
 	Plus,
 	Settings,
 	ShieldCheck,
 	SlidersHorizontal,
 	UserCircle2,
+	X,
 	XCircle,
 } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
@@ -46,10 +48,10 @@ import {
 	type DashboardRole,
 	type DashboardRow,
 	type DashboardWorkspace,
-	dashboardNav,
 	roleLabels,
 	type StatusTone,
 } from "#/presentation/dashboard/data.ts";
+import { formatDashboardName } from "#/presentation/dashboard/display-name.ts";
 
 type LecturerSubmissionItem = {
 	id: string;
@@ -189,17 +191,80 @@ export function DashboardShell({
 }) {
 	const isResponsiveWorkspace = isNonAdminWorkspace(workspace.role);
 	const workspaceNav = getWorkspaceNav(workspace.role);
+	const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+	const [isDesktop, setIsDesktop] = useState(false);
+	const [signedInName, setSignedInName] = useState<string | null>(null);
+	const displayName = formatDashboardName(signedInName ?? workspace.persona);
+
+	useEffect(() => {
+		if (workspace.role !== "lecturer" && workspace.role !== "iptto-officer") {
+			return;
+		}
+
+		let cancelled = false;
+
+		void fetch("/api/dashboard/me", { cache: "no-store" })
+			.then((response) => (response.ok ? response.json() : null))
+			.then((payload) => {
+				const name = payload?.data?.name;
+				if (!cancelled && typeof name === "string" && name.trim()) {
+					setSignedInName(name.trim());
+				}
+			})
+			.catch(() => {
+				// Keep the workspace fallback when identity cannot be loaded.
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [workspace.role]);
+
+	useEffect(() => {
+		const query = window.matchMedia("(min-width: 1024px)");
+		const updateDesktopState = () => setIsDesktop(query.matches);
+		updateDesktopState();
+		query.addEventListener("change", updateDesktopState);
+		return () => query.removeEventListener("change", updateDesktopState);
+	}, []);
+
+	useEffect(() => {
+		if (!isMobileSidebarOpen) return;
+		const closeOnEscape = (event: KeyboardEvent) => {
+			if (event.key === "Escape") setIsMobileSidebarOpen(false);
+		};
+		window.addEventListener("keydown", closeOnEscape);
+		return () => window.removeEventListener("keydown", closeOnEscape);
+	}, [isMobileSidebarOpen]);
 
 	return (
 		<main className="min-h-screen bg-[#f0f0f0] text-[#080808]">
 			<div className="mx-auto flex min-h-screen w-full max-w-[1440px] bg-white">
+				{isResponsiveWorkspace && isMobileSidebarOpen ? (
+					<button
+						aria-label="Close dashboard navigation"
+						className="fixed inset-0 z-40 bg-black/35 lg:hidden"
+						onClick={() => setIsMobileSidebarOpen(false)}
+						type="button"
+					/>
+				) : null}
 				<aside
+					aria-hidden={
+						isResponsiveWorkspace && !isDesktop && !isMobileSidebarOpen
+							? true
+							: undefined
+					}
+					aria-label="Dashboard navigation"
 					className={cn(
-						"w-[268px] shrink-0 border-[#d8d8d8] border-r bg-[#f7f7f7]",
+						"w-[268px] shrink-0 flex-col border-[#d8d8d8] border-r bg-[#f7f7f7]",
 						isResponsiveWorkspace
-							? "hidden lg:flex lg:flex-col"
+							? cn(
+									"fixed inset-y-0 left-0 z-50 flex shadow-xl transition-transform duration-200 lg:static lg:z-auto lg:translate-x-0 lg:shadow-none",
+									isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full",
+								)
 							: "flex flex-col",
 					)}
+					inert={isResponsiveWorkspace && !isDesktop && !isMobileSidebarOpen}
 				>
 					<div className="flex h-20 items-center justify-between border-[#d8d8d8] border-b px-5">
 						<a className="flex items-center gap-3" href="/dashboard">
@@ -213,6 +278,16 @@ export function DashboardShell({
 								<span className="text-xs text-[#6b7280]">Staff dashboard</span>
 							</div>
 						</a>
+						{isResponsiveWorkspace ? (
+							<button
+								aria-label="Close dashboard navigation"
+								className="flex h-10 w-10 items-center justify-center rounded border border-[#d8d8d8] bg-white lg:hidden"
+								onClick={() => setIsMobileSidebarOpen(false)}
+								type="button"
+							>
+								<X className="h-5 w-5" />
+							</button>
+						) : null}
 					</div>
 
 					<div className="border-[#d8d8d8] border-b p-4">
@@ -226,7 +301,7 @@ export function DashboardShell({
 								</span>
 								<span className="min-w-0">
 									<strong className="block truncate text-sm font-semibold">
-										{workspace.persona}
+										{displayName}
 									</strong>
 									<span className="block truncate text-xs text-[#6b7280]">
 										{roleLabels[workspace.role]}
@@ -245,6 +320,7 @@ export function DashboardShell({
 									icon={item.icon}
 									key={item.label}
 									label={item.label}
+									onClick={() => setIsMobileSidebarOpen(false)}
 								/>
 							))}
 						</SidebarGroup>
@@ -256,19 +332,21 @@ export function DashboardShell({
 									icon={item.icon}
 									key={item.label}
 									label={item.label}
+									onClick={() => setIsMobileSidebarOpen(false)}
 								/>
 							))}
 						</SidebarGroup>
 					</nav>
 
-					<SidebarFooter workspace={workspace} />
+					<SidebarFooter displayName={displayName} workspace={workspace} />
 				</aside>
 
 				<section className="min-w-0 flex-1">
-					<TopBar role={workspace.role} />
-					{isResponsiveWorkspace && (
-						<MobileWorkspaceNav role={workspace.role} />
-					)}
+					<TopBar
+						displayName={displayName}
+						onMenuClick={() => setIsMobileSidebarOpen(true)}
+						showMenu={isResponsiveWorkspace}
+					/>
 					<div
 						className={cn(
 							isResponsiveWorkspace ? "p-3 sm:p-6 lg:p-8" : "p-4 sm:p-6 lg:p-8",
@@ -290,12 +368,30 @@ function shouldShowConfirmationPreview(role: DashboardRole) {
 	return role === "department-admin" || role === "faculty-admin";
 }
 
-function TopBar({ role }: { role: DashboardRole }) {
+function TopBar({
+	displayName,
+	onMenuClick,
+	showMenu,
+}: {
+	displayName: string;
+	onMenuClick: () => void;
+	showMenu: boolean;
+}) {
 	return (
 		<header className="sticky top-0 z-30 border-[#d8d8d8] border-b bg-white/95 backdrop-blur">
 			<div className="flex h-20 items-center gap-3 px-4 sm:px-6 lg:px-8">
+				{showMenu ? (
+					<button
+						aria-label="Open dashboard navigation"
+						className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-[#d8d8d8] bg-white lg:hidden"
+						onClick={onMenuClick}
+						type="button"
+					>
+						<Menu className="h-5 w-5" />
+					</button>
+				) : null}
 				<p className="min-w-0 flex-1 truncate text-sm font-semibold">
-					{roleLabels[role]}
+					{displayName}
 				</p>
 				<div className="ml-auto flex items-center gap-2">
 					<button
@@ -309,44 +405,6 @@ function TopBar({ role }: { role: DashboardRole }) {
 				</div>
 			</div>
 		</header>
-	);
-}
-
-function MobileWorkspaceNav({ role }: { role: DashboardRole }) {
-	const items = getWorkspaceNav(role).primary;
-	return (
-		<nav
-			aria-label="Dashboard sections"
-			className="border-[#d8d8d8] border-b bg-[#f7f7f7] px-3 py-3 lg:hidden"
-		>
-			<div className="flex gap-2 overflow-x-auto pb-1">
-				{items.map((item, index) => (
-					<a
-						className={cn(
-							"inline-flex h-10 shrink-0 items-center gap-2 rounded border px-3 text-sm font-medium",
-							index === 0
-								? "border-[#146ef5] bg-[#eef4ff] text-[#146ef5]"
-								: "border-[#d8d8d8] bg-white text-[#6b7280]",
-						)}
-						key={item.label}
-						href={item.href}
-					>
-						<item.icon className="h-4 w-4" />
-						{item.label}
-					</a>
-				))}
-				<a
-					className="inline-flex h-10 shrink-0 items-center gap-2 rounded border border-[#d8d8d8] bg-white px-3 text-sm font-medium text-[#080808]"
-					href={
-						dashboardNav.find((item) => item.role === role)?.href ??
-						"/dashboard"
-					}
-				>
-					<UserCircle2 className="h-4 w-4 text-[#146ef5]" />
-					{roleLabels[role]}
-				</a>
-			</div>
-		</nav>
 	);
 }
 
@@ -365,7 +423,13 @@ function SidebarGroup({
 	);
 }
 
-function SidebarFooter({ workspace }: { workspace: DashboardWorkspace }) {
+function SidebarFooter({
+	displayName,
+	workspace,
+}: {
+	displayName: string;
+	workspace: DashboardWorkspace;
+}) {
 	return (
 		<div className="border-[#d8d8d8] border-t p-4">
 			<p className="mb-2 text-xs font-medium text-[#6b7280]">
@@ -373,9 +437,7 @@ function SidebarFooter({ workspace }: { workspace: DashboardWorkspace }) {
 			</p>
 			<div className="rounded border border-[#d8d8d8] bg-white p-3">
 				<p className="text-sm font-semibold">{roleLabels[workspace.role]}</p>
-				<p className="mt-1 text-xs leading-5 text-[#6b7280]">
-					{workspace.persona}
-				</p>
+				<p className="mt-1 text-xs leading-5 text-[#6b7280]">{displayName}</p>
 			</div>
 		</div>
 	);
@@ -386,11 +448,13 @@ function SidebarButton({
 	href,
 	icon: Icon,
 	label,
+	onClick,
 }: {
 	active?: boolean;
 	href: string;
 	icon: LucideIcon;
 	label: string;
+	onClick?: () => void;
 }) {
 	return (
 		<a
@@ -399,6 +463,7 @@ function SidebarButton({
 				active && "bg-white text-[#080808]",
 			)}
 			href={href}
+			onClick={onClick}
 		>
 			<Icon className="h-4 w-4" />
 			{label}

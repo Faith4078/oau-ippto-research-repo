@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { createRuntimeApplicationServices } from "#/infrastructure/app-services.ts";
 
-import { jsonResult } from "./-helpers.ts";
+import { jsonResult, publicRevalidationHeaders } from "./-helpers.ts";
 
 export const Route = createFileRoute("/api/organization-options")({
 	server: {
@@ -10,6 +10,7 @@ export const Route = createFileRoute("/api/organization-options")({
 			GET: async () =>
 				jsonResult(
 					await createRuntimeApplicationServices().organizationDirectory.listOptions(),
+					{ headers: publicRevalidationHeaders },
 				),
 		},
 	},
