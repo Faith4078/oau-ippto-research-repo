@@ -156,15 +156,16 @@ type DetailConfig = {
 };
 
 const navLinks = [
-	{ label: "Public Research", href: "/research" },
-	{ label: "Researchers", href: "/researchers" },
-	{ label: "Publications", href: "/publications" },
-	{ label: "Departments", href: "/departments" },
-	{ label: "Faculties", href: "/faculties" },
-	{ label: "Research Areas", href: "/research-areas" },
-	{ label: "Innovations", href: "/innovations" },
-	{ label: "Patents", href: "/patents" },
-	{ label: "Reports", href: "/reports" },
+	{ label: "Home", href: "/", icon: FileSearch },
+	{ label: "Public Research", href: "/research", icon: BookOpen },
+	{ label: "Researchers", href: "/researchers", icon: Users },
+	{ label: "Publications", href: "/publications", icon: BadgeCheck },
+	{ label: "Departments", href: "/departments", icon: Building2 },
+	{ label: "Faculties", href: "/faculties", icon: GraduationCap },
+	{ label: "Research Areas", href: "/research-areas", icon: FlaskConical },
+	{ label: "Innovations", href: "/innovations", icon: Lightbulb },
+	{ label: "Patents", href: "/patents", icon: Scale },
+	{ label: "Reports", href: "/reports", icon: ChartNoAxesCombined },
 ];
 
 const publicLinks = [
@@ -1875,30 +1876,40 @@ function NavigationDrawer({
 				type="button"
 			/>
 			<aside
-				className={`absolute right-0 top-0 flex h-dvh w-[min(88vw,390px)] flex-col overflow-hidden bg-white p-5 shadow-2xl transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+				className={`absolute right-0 top-0 flex h-dvh w-[min(86vw,340px)] flex-col overflow-hidden border-[#e5e7eb] border-l bg-white p-4 shadow-2xl transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
 			>
-				<div className="flex items-center justify-between gap-4 border-[#d8d8d8] border-b pb-4">
-					<strong className="text-sm font-semibold">Menu</strong>
+				<div className="flex items-center justify-between gap-4 border-[#e5e7eb] border-b pb-3">
+					<div>
+						<strong className="block text-sm font-semibold">Explore</strong>
+						<span className="text-xs text-[#6b7280]">Repository sections</span>
+					</div>
 					<button
 						aria-label="Close navigation menu"
-						className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded border border-[#d8d8d8] hover:border-[#146ef5] hover:text-[#146ef5]"
+						className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-[#d8d8d8] text-[#6b7280] transition hover:border-[#146ef5] hover:text-[#146ef5]"
 						onClick={onClose}
 						type="button"
 					>
-						<X className="h-5 w-5" />
+						<X className="h-4 w-4" />
 					</button>
 				</div>
-				<div className="mt-6 grid flex-1 gap-2 overflow-y-auto pb-4">
-					{navLinks.map((link) => (
-						<a
-							className="rounded-lg px-3 py-3 text-sm font-semibold hover:bg-[#eef4ff] hover:text-[#146ef5]"
-							href={link.href}
-							key={link.href}
-							onClick={onClose}
-						>
-							{link.label}
-						</a>
-					))}
+				<div className="mt-4 grid flex-1 content-start gap-1 overflow-y-auto pb-3">
+					{navLinks.map((link) => {
+						const Icon = link.icon;
+
+						return (
+							<a
+								className="group flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium text-[#374151] transition hover:bg-[#f4f7ff] hover:text-[#146ef5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#146ef5]/30"
+								href={link.href}
+								key={link.href}
+								onClick={onClose}
+							>
+								<span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#f7f7f7] text-[#6b7280] transition group-hover:bg-white group-hover:text-[#146ef5]">
+									<Icon className="h-4 w-4" />
+								</span>
+								<span>{link.label}</span>
+							</a>
+						);
+					})}
 				</div>
 			</aside>
 		</div>
