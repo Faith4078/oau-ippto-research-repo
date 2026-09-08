@@ -26,6 +26,7 @@ import { Route as ResearchAreasRouteImport } from './routes/research-areas'
 import { Route as ResearchersRouteImport } from './routes/researchers'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as ApiCommercializationRouteImport } from './routes/api/commercialization'
 import { Route as ApiInnovationsRouteImport } from './routes/api/innovations'
 import { Route as ApiOrganizationOptionsRouteImport } from './routes/api/organization-options'
@@ -162,6 +163,11 @@ const SignInRoute = SignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SignUpRoute = SignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCommercializationRoute = ApiCommercializationRouteImport.update({
   id: '/api/commercialization',
   path: '/api/commercialization',
@@ -294,14 +300,14 @@ const ResearchersProfileIdRoute = ResearchersProfileIdRouteImport.update({
   getParentRoute: () => ResearchersRoute,
 } as any)
 const SignUpIpttoRoute = SignUpIpttoRouteImport.update({
-  id: '/sign-up/iptto',
-  path: '/sign-up/iptto',
-  getParentRoute: () => rootRouteImport,
+  id: '/iptto',
+  path: '/iptto',
+  getParentRoute: () => SignUpRoute,
 } as any)
 const SignUpLecturerRoute = SignUpLecturerRouteImport.update({
-  id: '/sign-up/lecturer',
-  path: '/sign-up/lecturer',
-  getParentRoute: () => rootRouteImport,
+  id: '/lecturer',
+  path: '/lecturer',
+  getParentRoute: () => SignUpRoute,
 } as any)
 const ApiAdminAccountsRoute = ApiAdminAccountsRouteImport.update({
   id: '/api/admin/accounts',
@@ -442,6 +448,7 @@ export interface FileRoutesByFullPath {
   '/researchers': typeof ResearchersRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRouteWithChildren
   '/api/commercialization': typeof ApiCommercializationRoute
   '/api/innovations': typeof ApiInnovationsRouteWithChildren
   '/api/organization-options': typeof ApiOrganizationOptionsRoute
@@ -505,6 +512,7 @@ export interface FileRoutesByTo {
   '/research-areas': typeof ResearchAreasRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRouteWithChildren
   '/api/commercialization': typeof ApiCommercializationRoute
   '/api/innovations': typeof ApiInnovationsRouteWithChildren
   '/api/organization-options': typeof ApiOrganizationOptionsRoute
@@ -575,6 +583,7 @@ export interface FileRoutesById {
   '/researchers': typeof ResearchersRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRouteWithChildren
   '/api/commercialization': typeof ApiCommercializationRoute
   '/api/innovations': typeof ApiInnovationsRouteWithChildren
   '/api/organization-options': typeof ApiOrganizationOptionsRoute
@@ -646,6 +655,7 @@ export interface FileRouteTypes {
     | '/researchers'
     | '/reset-password'
     | '/sign-in'
+    | '/sign-up'
     | '/api/commercialization'
     | '/api/innovations'
     | '/api/organization-options'
@@ -709,6 +719,7 @@ export interface FileRouteTypes {
     | '/research-areas'
     | '/reset-password'
     | '/sign-in'
+    | '/sign-up'
     | '/api/commercialization'
     | '/api/innovations'
     | '/api/organization-options'
@@ -778,6 +789,7 @@ export interface FileRouteTypes {
     | '/researchers'
     | '/reset-password'
     | '/sign-in'
+    | '/sign-up'
     | '/api/commercialization'
     | '/api/innovations'
     | '/api/organization-options'
@@ -848,6 +860,7 @@ export interface RootRouteChildren {
   ResearchersRoute: typeof ResearchersRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignInRoute: typeof SignInRoute
+  SignUpRoute: typeof SignUpRouteWithChildren
   ApiCommercializationRoute: typeof ApiCommercializationRoute
   ApiInnovationsRoute: typeof ApiInnovationsRouteWithChildren
   ApiOrganizationOptionsRoute: typeof ApiOrganizationOptionsRoute
@@ -857,8 +870,6 @@ export interface RootRouteChildren {
   ApiPublicStatisticsRoute: typeof ApiPublicStatisticsRoute
   ApiRelatedRecordsRoute: typeof ApiRelatedRecordsRoute
   ApiSearchRoute: typeof ApiSearchRoute
-  SignUpIpttoRoute: typeof SignUpIpttoRoute
-  SignUpLecturerRoute: typeof SignUpLecturerRoute
   ApiAdminAccountsRoute: typeof ApiAdminAccountsRoute
   ApiAdminUsersRoute: typeof ApiAdminUsersRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -996,6 +1007,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-up': {
+      id: '/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/commercialization': {
@@ -1182,17 +1200,17 @@ declare module '@tanstack/react-router' {
     }
     '/sign-up/iptto': {
       id: '/sign-up/iptto'
-      path: '/sign-up/iptto'
+      path: '/iptto'
       fullPath: '/sign-up/iptto'
       preLoaderRoute: typeof SignUpIpttoRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof SignUpRoute
     }
     '/sign-up/lecturer': {
       id: '/sign-up/lecturer'
-      path: '/sign-up/lecturer'
+      path: '/lecturer'
       fullPath: '/sign-up/lecturer'
       preLoaderRoute: typeof SignUpLecturerRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof SignUpRoute
     }
     '/api/admin/accounts': {
       id: '/api/admin/accounts'
@@ -1465,6 +1483,19 @@ const ResearchersRouteWithChildren = ResearchersRoute._addFileChildren(
   ResearchersRouteChildren,
 )
 
+interface SignUpRouteChildren {
+  SignUpIpttoRoute: typeof SignUpIpttoRoute
+  SignUpLecturerRoute: typeof SignUpLecturerRoute
+}
+
+const SignUpRouteChildren: SignUpRouteChildren = {
+  SignUpIpttoRoute: SignUpIpttoRoute,
+  SignUpLecturerRoute: SignUpLecturerRoute,
+}
+
+const SignUpRouteWithChildren =
+  SignUpRoute._addFileChildren(SignUpRouteChildren)
+
 interface ApiInnovationsInnovationIdRouteChildren {
   ApiInnovationsInnovationIdArchiveRoute: typeof ApiInnovationsInnovationIdArchiveRoute
   ApiInnovationsInnovationIdPublishRoute: typeof ApiInnovationsInnovationIdPublishRoute
@@ -1528,6 +1559,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResearchersRoute: ResearchersRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   SignInRoute: SignInRoute,
+  SignUpRoute: SignUpRouteWithChildren,
   ApiCommercializationRoute: ApiCommercializationRoute,
   ApiInnovationsRoute: ApiInnovationsRouteWithChildren,
   ApiOrganizationOptionsRoute: ApiOrganizationOptionsRoute,
@@ -1537,8 +1569,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicStatisticsRoute: ApiPublicStatisticsRoute,
   ApiRelatedRecordsRoute: ApiRelatedRecordsRoute,
   ApiSearchRoute: ApiSearchRoute,
-  SignUpIpttoRoute: SignUpIpttoRoute,
-  SignUpLecturerRoute: SignUpLecturerRoute,
   ApiAdminAccountsRoute: ApiAdminAccountsRoute,
   ApiAdminUsersRoute: ApiAdminUsersRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

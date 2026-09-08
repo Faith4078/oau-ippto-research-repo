@@ -16,9 +16,7 @@ import {
 	FileSearch,
 	FlaskConical,
 	GraduationCap,
-	LayoutDashboard,
 	Lightbulb,
-	LogOut,
 	Mail,
 	MapPin,
 	Menu,
@@ -40,7 +38,7 @@ import {
 	useState,
 } from "react";
 
-import { signOutAndRedirectHome } from "#/lib/sign-out.ts";
+import { PublicNavActions } from "#/components/public-pages/public-nav-actions.tsx";
 import type { PublicRecordDetail } from "#/routes/api/public-record.ts";
 import {
 	Card,
@@ -167,11 +165,6 @@ const navLinks = [
 	{ label: "Innovations", href: "/innovations" },
 	{ label: "Patents", href: "/patents" },
 	{ label: "Reports", href: "/reports" },
-];
-
-const staffAccessLinks = [
-	{ label: "Lecturer sign up", href: "/sign-up/lecturer" },
-	{ label: "IPTTO sign up", href: "/sign-up/iptto" },
 ];
 
 const publicLinks = [
@@ -1842,35 +1835,32 @@ function PublicHeader() {
 						<span className="text-xs text-[#6b7280]">Research repository</span>
 					</div>
 				</a>
-				<button
-					aria-expanded={isOpen}
-					aria-label="Open navigation menu"
-					className="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded border border-[#d8d8d8] bg-white text-[#080808] transition hover:border-[#146ef5] hover:text-[#146ef5] active:scale-[0.98]"
-					onClick={() => setIsOpen(true)}
-					type="button"
-				>
-					<Menu className="h-5 w-5" />
-				</button>
+				<div className="ml-auto flex items-center gap-2">
+					<PublicNavActions
+						dashboardHref={dashboardHref}
+						isSignedIn={isSignedIn}
+					/>
+					<button
+						aria-expanded={isOpen}
+						aria-label="Open navigation menu"
+						className="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded border border-[#d8d8d8] bg-white text-[#080808] transition hover:border-[#146ef5] hover:text-[#146ef5] active:scale-[0.98]"
+						onClick={() => setIsOpen(true)}
+						type="button"
+					>
+						<Menu className="h-5 w-5" />
+					</button>
+				</div>
 			</nav>
-			<NavigationDrawer
-				dashboardHref={dashboardHref}
-				isOpen={isOpen}
-				isSignedIn={isSignedIn}
-				onClose={() => setIsOpen(false)}
-			/>
+			<NavigationDrawer isOpen={isOpen} onClose={() => setIsOpen(false)} />
 		</header>
 	);
 }
 
 function NavigationDrawer({
-	dashboardHref,
 	isOpen,
-	isSignedIn,
 	onClose,
 }: {
-	dashboardHref: string;
 	isOpen: boolean;
-	isSignedIn: boolean;
 	onClose: () => void;
 }) {
 	return (
@@ -1909,44 +1899,6 @@ function NavigationDrawer({
 							{link.label}
 						</a>
 					))}
-				</div>
-				<div className="grid shrink-0 gap-2 border-[#d8d8d8] border-t pt-5">
-					{isSignedIn ? (
-						<>
-							<a
-								className="btn-primary h-11"
-								href={dashboardHref}
-								onClick={onClose}
-							>
-								<LayoutDashboard className="h-4 w-4" />
-								Dashboard
-							</a>
-							<button
-								className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded border border-[#d8d8d8] bg-white px-4 text-sm font-semibold text-[#080808] transition hover:border-[#146ef5] hover:text-[#146ef5] active:scale-[0.98]"
-								onClick={() => void signOutAndRedirectHome()}
-								type="button"
-							>
-								<LogOut className="h-4 w-4" />
-								Logout
-							</button>
-						</>
-					) : (
-						<>
-							{staffAccessLinks.map((link) => (
-								<a
-									className="rounded-lg border border-[#d8d8d8] px-3 py-3 text-sm font-semibold hover:border-[#146ef5] hover:text-[#146ef5]"
-									href={link.href}
-									key={link.href}
-									onClick={onClose}
-								>
-									{link.label}
-								</a>
-							))}
-							<a className="btn-primary h-11" href="/sign-in" onClick={onClose}>
-								Staff sign in
-							</a>
-						</>
-					)}
 				</div>
 			</aside>
 		</div>
