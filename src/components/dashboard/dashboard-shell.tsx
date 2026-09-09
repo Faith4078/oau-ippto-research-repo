@@ -5,6 +5,7 @@ import type { LucideIcon } from "lucide-react";
 import {
 	BadgeCheck,
 	BookOpenCheck,
+	Building2,
 	CalendarDays,
 	CheckCircle2,
 	ChevronDown,
@@ -22,6 +23,7 @@ import {
 	ShieldCheck,
 	SlidersHorizontal,
 	UserCircle2,
+	UsersRound,
 	X,
 	XCircle,
 } from "lucide-react";
@@ -42,6 +44,7 @@ import {
 	FieldLabel,
 } from "#/components/ui/field.tsx";
 import { Input } from "#/components/ui/input.tsx";
+import { LoadingSkeletonFrame } from "#/components/ui/loading-skeleton.tsx";
 import { signOutAndRedirectHome } from "#/lib/sign-out.ts";
 import { cn } from "#/lib/utils.ts";
 import {
@@ -140,19 +143,34 @@ const workspaceNavByRole: Record<
 	},
 	"faculty-admin": {
 		primary: [
-			{ label: "Needs Review", icon: FileClock, href: "#review-queue" },
+			{
+				label: "Needs Review",
+				icon: FileClock,
+				href: "/dashboard/faculty-admin#review-queue",
+			},
+			{
+				label: "Departments",
+				icon: Building2,
+				href: "/dashboard/faculty-admin/departments",
+			},
+			{
+				label: "Users by Role",
+				icon: UsersRound,
+				href: "/dashboard/faculty-admin/users",
+			},
+		],
+		secondary: [
 			{
 				label: "Department Summary",
 				icon: SlidersHorizontal,
-				href: "#department-summary",
+				href: "/dashboard/faculty-admin#department-summary",
 			},
 			{
 				label: "Faculty Report",
 				icon: CalendarDays,
-				href: "#dashboard-report",
+				href: "/dashboard/faculty-admin#dashboard-report",
 			},
 		],
-		secondary: [],
 	},
 	"iptto-officer": {
 		primary: [
@@ -174,12 +192,31 @@ const workspaceNavByRole: Record<
 			{
 				label: "Account Requests",
 				icon: UserCircle2,
-				href: "#account-requests",
+				href: "/dashboard/super-admin#account-requests",
 			},
-			{ label: "User Access", icon: ShieldCheck, href: "#user-access" },
-			{ label: "Needs Attention", icon: Settings, href: "#platform-attention" },
+			{
+				label: "User Access",
+				icon: ShieldCheck,
+				href: "/dashboard/super-admin#user-access",
+			},
+			{
+				label: "Organization",
+				icon: Building2,
+				href: "/dashboard/super-admin/organization",
+			},
+			{
+				label: "Users by Role",
+				icon: UsersRound,
+				href: "/dashboard/super-admin/users",
+			},
 		],
-		secondary: [],
+		secondary: [
+			{
+				label: "Needs Attention",
+				icon: Settings,
+				href: "/dashboard/super-admin#platform-attention",
+			},
+		],
 	},
 };
 
@@ -209,13 +246,19 @@ export function DashboardShell({
 	const workspaceNav = getWorkspaceNav(workspace.role);
 	const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 	const [isDesktop, setIsDesktop] = useState(false);
+	const [isIdentityLoading, setIsIdentityLoading] = useState(true);
 	const [signedInName, setSignedInName] = useState<string | null>(null);
 	const [lecturerIdentity, setLecturerIdentity] =
 		useState<LecturerTopBarIdentity | null>(null);
-	const displayName = formatDashboardName(signedInName ?? workspace.persona);
+	const displayName = signedInName
+		? formatDashboardName(signedInName)
+		: roleLabels[workspace.role];
 
 	useEffect(() => {
 		let cancelled = false;
+		setIsIdentityLoading(true);
+		setSignedInName(null);
+		setLecturerIdentity(null);
 
 		void fetch("/api/dashboard/me", { cache: "no-store" })
 			.then((response) => (response.ok ? response.json() : null))
@@ -241,9 +284,13 @@ export function DashboardShell({
 							typeof data?.facultyName === "string" ? data.facultyName : null,
 					});
 				}
+
+				setIsIdentityLoading(false);
 			})
 			.catch(() => {
-				// Keep the workspace fallback when identity cannot be loaded.
+				if (!cancelled) {
+					setIsIdentityLoading(false);
+				}
 			});
 
 		return () => {
@@ -348,13 +395,18 @@ export function DashboardShell({
 						</SidebarGroup>
 					</nav>
 
-					<SidebarFooter displayName={displayName} workspace={workspace} />
+					<SidebarFooter
+						displayName={displayName}
+						isIdentityLoading={isIdentityLoading}
+						workspace={workspace}
+					/>
 				</aside>
 
 				<section className="min-w-0 flex-1">
 					<TopBar
 						displayName={displayName}
 						identity={workspace.role === "lecturer" ? lecturerIdentity : null}
+						isIdentityLoading={isIdentityLoading}
 						onMenuClick={() => setIsMobileSidebarOpen(true)}
 						showMenu={isResponsiveWorkspace}
 					/>
@@ -382,11 +434,13 @@ function shouldShowConfirmationPreview(role: DashboardRole) {
 function TopBar({
 	displayName,
 	identity,
+	isIdentityLoading,
 	onMenuClick,
 	showMenu,
 }: {
 	displayName: string;
 	identity: LecturerTopBarIdentity | null;
+	isIdentityLoading: boolean;
 	onMenuClick: () => void;
 	showMenu: boolean;
 }) {
@@ -410,7 +464,11 @@ function TopBar({
 					</button>
 				) : null}
 				<div className="min-w-0 flex-1">
-					<p className="truncate text-sm font-semibold">{displayName}</p>
+					{isIdentityLoading ? (
+						<IdentityLoadingSkeleton label="Loading signed-in user" />
+					) : (
+						<p className="truncate text-sm font-semibold">{displayName}</p>
+					)}
 					{identityDetails.length > 0 ? (
 						<p className="mt-0.5 truncate text-xs text-[#6b7280]">
 							{identityDetails.join(" · ")}
@@ -449,9 +507,11 @@ function SidebarGroup({
 
 function SidebarFooter({
 	displayName,
+	isIdentityLoading,
 	workspace,
 }: {
 	displayName: string;
+	isIdentityLoading: boolean;
 	workspace: DashboardWorkspace;
 }) {
 	return (
@@ -464,9 +524,13 @@ function SidebarFooter({
 							<UserCircle2 className="h-5 w-5" />
 						</span>
 						<span className="min-w-0">
-							<strong className="block truncate text-sm font-semibold">
-								{displayName}
-							</strong>
+							{isIdentityLoading ? (
+								<IdentityLoadingSkeleton label="Loading signed-in user" />
+							) : (
+								<strong className="block truncate text-sm font-semibold">
+									{displayName}
+								</strong>
+							)}
 							<span className="block truncate text-xs text-[#6b7280]">
 								{roleLabels[workspace.role]}
 							</span>
@@ -483,6 +547,14 @@ function SidebarFooter({
 				Logout
 			</button>
 		</div>
+	);
+}
+
+function IdentityLoadingSkeleton({ label }: { label: string }) {
+	return (
+		<LoadingSkeletonFrame label={label}>
+			<span className="block h-4 w-28 rounded-full bg-[#d8d8d8]" />
+		</LoadingSkeletonFrame>
 	);
 }
 
