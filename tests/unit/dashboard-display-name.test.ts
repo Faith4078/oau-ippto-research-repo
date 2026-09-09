@@ -3,11 +3,13 @@ import { describe, expect, it } from "vitest";
 import { formatDashboardName } from "#/presentation/dashboard/display-name.ts";
 
 describe("formatDashboardName", () => {
-	it("removes academic titles and abbreviates the last name", () => {
-		expect(formatDashboardName("Dr. Adebayo Adeyemi")).toBe("Adebayo A.");
-		expect(formatDashboardName("Dr. A. Adeyemi")).toBe("Adeyemi A.");
+	it("removes academic titles while keeping the full name", () => {
+		expect(formatDashboardName("Dr. Adebayo Adeyemi")).toBe(
+			"Adebayo Adeyemi",
+		);
+		expect(formatDashboardName("Dr. A. Adeyemi")).toBe("A. Adeyemi");
 		expect(formatDashboardName("Prof Funmilayo Oladipo (Lecturer)")).toBe(
-			"Funmilayo O.",
+			"Funmilayo Oladipo",
 		);
 	});
 

@@ -211,10 +211,6 @@ export function DashboardShell({
 	const displayName = formatDashboardName(signedInName ?? workspace.persona);
 
 	useEffect(() => {
-		if (workspace.role !== "lecturer" && workspace.role !== "iptto-officer") {
-			return;
-		}
-
 		let cancelled = false;
 
 		void fetch("/api/dashboard/me", { cache: "no-store" })
@@ -270,7 +266,7 @@ export function DashboardShell({
 
 	return (
 		<main className="min-h-screen bg-[#f0f0f0] text-[#080808]">
-			<div className="mx-auto flex min-h-screen w-full max-w-[1440px] bg-white">
+			<div className="mx-auto flex min-h-screen w-full max-w-360 bg-white">
 				{isResponsiveWorkspace && isMobileSidebarOpen ? (
 					<button
 						aria-label="Close dashboard navigation"
@@ -287,7 +283,7 @@ export function DashboardShell({
 					}
 					aria-label="Dashboard navigation"
 					className={cn(
-						"w-[268px] shrink-0 flex-col border-[#d8d8d8] border-r bg-[#f7f7f7]",
+						"w-67 shrink-0 flex-col border-[#d8d8d8] border-r bg-[#f7f7f7]",
 						isResponsiveWorkspace
 							? cn(
 									"fixed inset-y-0 left-0 z-50 flex shadow-xl transition-transform duration-200 lg:static lg:z-auto lg:translate-x-0 lg:shadow-none",
@@ -319,27 +315,6 @@ export function DashboardShell({
 								<X className="h-5 w-5" />
 							</button>
 						) : null}
-					</div>
-
-					<div className="border-[#d8d8d8] border-b p-4">
-						<p className="mb-2 text-xs font-medium text-[#6b7280]">
-							Signed in as
-						</p>
-						<div className="flex w-full items-center justify-between gap-3 rounded-lg border border-[#d8d8d8] bg-white p-3 text-left">
-							<span className="flex min-w-0 items-center gap-3">
-								<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-[#080808] text-white">
-									<UserCircle2 className="h-5 w-5" />
-								</span>
-								<span className="min-w-0">
-									<strong className="block truncate text-sm font-semibold">
-										{displayName}
-									</strong>
-									<span className="block truncate text-xs text-[#6b7280]">
-										{roleLabels[workspace.role]}
-									</span>
-								</span>
-							</span>
-						</div>
 					</div>
 
 					<nav className="flex-1 space-y-6 p-4">
@@ -476,16 +451,27 @@ function SidebarFooter({
 	workspace: DashboardWorkspace;
 }) {
 	return (
-		<div className="border-[#d8d8d8] border-t p-4">
-			<p className="mb-2 text-xs font-medium text-[#6b7280]">
-				Current workspace
-			</p>
-			<div className="rounded border border-[#d8d8d8] bg-white p-3">
-				<p className="text-sm font-semibold">{roleLabels[workspace.role]}</p>
-				<p className="mt-1 text-xs leading-5 text-[#6b7280]">{displayName}</p>
+		<div className="space-y-3 border-[#d8d8d8] border-t p-4">
+			<div>
+				<p className="mb-2 text-xs font-medium text-[#6b7280]">Signed in as</p>
+				<div className="flex w-full items-center justify-between gap-3 rounded-lg border border-[#d8d8d8] bg-white p-3 text-left">
+					<span className="flex min-w-0 items-center gap-3">
+						<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-[#080808] text-white">
+							<UserCircle2 className="h-5 w-5" />
+						</span>
+						<span className="min-w-0">
+							<strong className="block truncate text-sm font-semibold">
+								{displayName}
+							</strong>
+							<span className="block truncate text-xs text-[#6b7280]">
+								{roleLabels[workspace.role]}
+							</span>
+						</span>
+					</span>
+				</div>
 			</div>
 			<button
-				className="mt-3 flex w-full items-center justify-center gap-2 rounded border border-[#d8d8d8] bg-white px-3 py-2.5 text-sm font-medium text-[#080808] hover:border-[#146ef5]"
+				className="flex w-full items-center justify-center gap-2 rounded border border-[#d8d8d8] bg-white px-3 py-2.5 text-sm font-medium text-[#080808] hover:border-[#146ef5]"
 				onClick={() => void signOutAndRedirectHome()}
 				type="button"
 			>
@@ -1036,8 +1022,8 @@ function InsightGrid({
 				>
 					<div
 						className={cn(
-							"grid h-[220px] grid-cols-8 items-end gap-3 border-[#d8d8d8] border-b bg-[linear-gradient(to_top,#f0f0f0_1px,transparent_1px)] bg-[length:100%_44px] px-1 pb-6",
-							isResponsiveWorkspace && "min-w-[520px] sm:min-w-0",
+							"grid h-55 grid-cols-8 items-end gap-3 border-[#d8d8d8] border-b bg-[linear-gradient(to_top,#f0f0f0_1px,transparent_1px)] bg-size-[100%_44px] px-1 pb-6",
+							isResponsiveWorkspace && "min-w-130 sm:min-w-0",
 						)}
 					>
 						{throughputBars.map((bar) => (
@@ -1073,8 +1059,8 @@ function InsightGrid({
 					<svg
 						aria-label="Review progress line chart"
 						className={cn(
-							"h-[220px] w-full",
-							isResponsiveWorkspace && "min-w-[300px]",
+							"h-55 w-full",
+							isResponsiveWorkspace && "min-w-75",
 						)}
 						role="img"
 						viewBox="0 0 320 220"
@@ -1297,8 +1283,8 @@ function DataTable({
 				className={cn(
 					"w-full border-collapse text-left",
 					isResponsiveWorkspace
-						? "min-w-[760px] md:min-w-[860px]"
-						: "min-w-[860px]",
+						? "min-w-190 md:min-w-215"
+						: "min-w-215",
 				)}
 			>
 				<thead className="bg-[#f7f7f7] text-xs font-semibold text-[#6b7280]">
@@ -1325,7 +1311,7 @@ function DataTable({
 									<input aria-label={`Select ${row.id}`} type="checkbox" />
 								</td>
 							)}
-							<td className="max-w-[280px] px-4 py-4">
+							<td className="max-w-70 px-4 py-4">
 								<strong className="block truncate font-semibold text-[#080808]">
 									{row.title}
 								</strong>
