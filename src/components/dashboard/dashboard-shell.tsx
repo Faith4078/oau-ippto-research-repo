@@ -107,7 +107,11 @@ const workspaceNavByRole: Record<
 > = {
 	lecturer: {
 		primary: [
-			{ label: "My Research", icon: FileClock, href: "#my-research" },
+			{
+				label: "My Research",
+				icon: FileClock,
+				href: "/dashboard/lecturer#my-research",
+			},
 			{
 				label: "Add Research",
 				icon: SlidersHorizontal,
@@ -500,9 +504,9 @@ function SidebarButton({
 		active && "bg-white text-[#080808]",
 	);
 
-	// In-page anchors (e.g. "#my-research") scroll to a section on the
-	// current page and must stay plain <a> tags; everything else is a real
-	// route and should use client-side navigation.
+	// In-page anchors (e.g. "#dashboard-report") scroll on the current page.
+	// Route links, including route links with hashes, should use client-side
+	// navigation so they can leave nested dashboard sections first.
 	if (href.startsWith("#")) {
 		return (
 			<a className={className} href={href} onClick={onClick}>
@@ -1058,10 +1062,7 @@ function InsightGrid({
 				>
 					<svg
 						aria-label="Review progress line chart"
-						className={cn(
-							"h-55 w-full",
-							isResponsiveWorkspace && "min-w-75",
-						)}
+						className={cn("h-55 w-full", isResponsiveWorkspace && "min-w-75")}
 						role="img"
 						viewBox="0 0 320 220"
 					>
@@ -1282,9 +1283,7 @@ function DataTable({
 			<table
 				className={cn(
 					"w-full border-collapse text-left",
-					isResponsiveWorkspace
-						? "min-w-190 md:min-w-215"
-						: "min-w-215",
+					isResponsiveWorkspace ? "min-w-190 md:min-w-215" : "min-w-215",
 				)}
 			>
 				<thead className="bg-[#f7f7f7] text-xs font-semibold text-[#6b7280]">
