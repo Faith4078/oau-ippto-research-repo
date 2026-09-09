@@ -111,9 +111,14 @@ const workspaceNavByRole: Record<
 	lecturer: {
 		primary: [
 			{
-				label: "My Research",
-				icon: FileClock,
-				href: "/dashboard/lecturer#my-research",
+				label: "Home",
+				icon: House,
+				href: "/dashboard/lecturer",
+			},
+			{
+				label: "Profile",
+				icon: UserCircle2,
+				href: "/dashboard/lecturer/profile",
 			},
 			{
 				label: "Add Research",
@@ -121,13 +126,7 @@ const workspaceNavByRole: Record<
 				href: "/dashboard/lecturer/submit",
 			},
 		],
-		secondary: [
-			{
-				label: "My Profile",
-				icon: UserCircle2,
-				href: "/dashboard/lecturer/profile",
-			},
-		],
+		secondary: [],
 	},
 	"department-admin": {
 		primary: [
@@ -381,23 +380,25 @@ export function DashboardShell({
 								/>
 							))}
 						</SidebarGroup>
-						<SidebarGroup label="Tools">
-							{workspaceNav.secondary.map((item, index) => (
-								<SidebarButton
-									active={isSidebarItemActive(
-										item.href,
-										location.pathname,
-										location.hash,
-										index === 0 && workspaceNav.primary.length === 0,
-									)}
-									href={item.href}
-									icon={item.icon}
-									key={item.label}
-									label={item.label}
-									onClick={() => setIsMobileSidebarOpen(false)}
-								/>
-							))}
-						</SidebarGroup>
+						{workspaceNav.secondary.length > 0 ? (
+							<SidebarGroup label="Tools">
+								{workspaceNav.secondary.map((item, index) => (
+									<SidebarButton
+										active={isSidebarItemActive(
+											item.href,
+											location.pathname,
+											location.hash,
+											index === 0 && workspaceNav.primary.length === 0,
+										)}
+										href={item.href}
+										icon={item.icon}
+										key={item.label}
+										label={item.label}
+										onClick={() => setIsMobileSidebarOpen(false)}
+									/>
+								))}
+							</SidebarGroup>
+						) : null}
 					</nav>
 
 					<SidebarFooter
