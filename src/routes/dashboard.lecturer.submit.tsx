@@ -1,14 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { ResearchSubmissionForm } from "#/components/dashboard/research-submission-form.tsx";
-import { requireDashboardRouteAuth } from "#/lib/auth-functions.ts";
+import { requireDashboardRole } from "#/lib/auth-functions.ts";
 
 export const Route = createFileRoute("/dashboard/lecturer/submit")({
-	beforeLoad: ({ location }) =>
-		requireDashboardRouteAuth({
-			locationHref: location.href,
-			roles: ["lecturer"],
-		}),
+	// The "/dashboard" ancestor route already resolved the signed-in user
+	// (one network round trip); reuse it from context instead of
+	// re-fetching it here.
+	beforeLoad: ({ context }) => {
+		requireDashboardRole(context.user, ["lecturer"]);
+	},
 	head: () => ({
 		meta: [
 			{

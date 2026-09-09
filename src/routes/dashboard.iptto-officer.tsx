@@ -1,14 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { IpttoWorkspace } from "#/components/dashboard/iptto-workspace.tsx";
-import { requireDashboardRouteAuth } from "#/lib/auth-functions.ts";
+import { requireDashboardRole } from "#/lib/auth-functions.ts";
 
 export const Route = createFileRoute("/dashboard/iptto-officer")({
-	beforeLoad: ({ location }) =>
-		requireDashboardRouteAuth({
-			locationHref: location.href,
-			roles: ["iptto_officer", "super_administrator"],
-		}),
+	// The parent "/dashboard" route already resolved the signed-in user (one
+	// network round trip); reuse it from context instead of re-fetching it
+	// here, which used to double the auth work done for every navigation.
+	beforeLoad: ({ context }) => {
+		requireDashboardRole(context.user, [
+			"iptto_officer",
+			"super_administrator",
+		]);
+	},
 	head: () => ({
 		meta: [
 			{

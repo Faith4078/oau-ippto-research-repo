@@ -13,7 +13,7 @@ test("staff sign-in page exposes Staff ID password access", async ({ page }) => 
 	await expect(
 		page.getByText(/IPTTO and platform staff: AT\/ plus 4 digits/i),
 	).toBeVisible();
-	await expect(page.getByLabel(/Password/i)).toBeVisible();
+	await expect(page.getByLabel("Password", { exact: true })).toBeVisible();
 	await expect(page.getByRole("link", { name: /Forgot your password/i })).toHaveAttribute(
 		"href",
 		"/forgot-password",
@@ -129,8 +129,8 @@ test("lecturer signup submits once and clears the form after success", async ({
 	);
 	await expect(page.getByLabel(/Faculty/i)).toBeVisible();
 	await expect(page.getByLabel(/Department/i)).toBeVisible();
-	await expect(page.getByLabel(/Password/i)).toHaveAttribute("minlength", "8");
-	await expect(page.getByLabel(/Password/i)).toHaveAttribute("maxlength", "8");
+	await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute("minlength", "8");
+	await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute("maxlength", "8");
 	await expect(page.getByText("Exactly 8 characters", { exact: true })).toBeVisible();
 	await expect(
 		page.getByText("At least one special symbol", { exact: true }),
@@ -147,7 +147,7 @@ test("lecturer signup submits once and clears the form after success", async ({
 	await page
 		.getByLabel(/Department/i)
 		.selectOption({ label: "Computer Science and Engineering" });
-	await page.getByLabel(/Password/i).fill("Pass12!A");
+	await page.getByLabel("Password", { exact: true }).fill("Pass12!A");
 
 	await expect(page.getByLabel(/Staff ID/i)).toHaveValue("AC/1234");
 	await expect(page.getByLabel(/Institutional email/i)).toHaveValue(
@@ -159,7 +159,7 @@ test("lecturer signup submits once and clears the form after success", async ({
 	await expect(page.getByLabel(/Department/i)).toHaveValue(
 		"00000000-0000-0000-0000-000000000201",
 	);
-	await expect(page.getByLabel(/Password/i)).toHaveValue("Pass12!A");
+	await expect(page.getByLabel("Password", { exact: true })).toHaveValue("Pass12!A");
 
 	await page.getByRole("button", { name: "Create account" }).click();
 
@@ -175,7 +175,7 @@ test("lecturer signup submits once and clears the form after success", async ({
 	await expect(page.getByLabel(/Institutional email/i)).toHaveValue("");
 	await expect(page.getByLabel(/Faculty/i)).toHaveValue("");
 	await expect(page.getByLabel(/Department/i)).toHaveValue("");
-	await expect(page.getByLabel(/Password/i)).toHaveValue("");
+	await expect(page.getByLabel("Password", { exact: true })).toHaveValue("");
 });
 
 test("IPTTO signup page captures required AT staff fields", async ({ page }) => {
@@ -193,8 +193,8 @@ test("IPTTO signup page captures required AT staff fields", async ({ page }) => 
 		"pattern",
 		"AT/[0-9]{4}",
 	);
-	await expect(page.getByLabel(/Password/i)).toHaveAttribute("minlength", "8");
-	await expect(page.getByLabel(/Password/i)).toHaveAttribute("maxlength", "8");
+	await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute("minlength", "8");
+	await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute("maxlength", "8");
 	await expect(page.getByText("Exactly 8 characters", { exact: true })).toBeVisible();
 	await expect(
 		page.getByText("At least one special symbol", { exact: true }),

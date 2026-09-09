@@ -2,15 +2,16 @@ import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 
 import { DashboardShell } from "#/components/dashboard/dashboard-shell.tsx";
 import { LecturerWorkspace } from "#/components/dashboard/lecturer-workspace.tsx";
-import { requireDashboardRouteAuth } from "#/lib/auth-functions.ts";
+import { requireDashboardRole } from "#/lib/auth-functions.ts";
 import { workspaces } from "#/presentation/dashboard/data.ts";
 
 export const Route = createFileRoute("/dashboard/lecturer")({
-	beforeLoad: ({ location }) =>
-		requireDashboardRouteAuth({
-			locationHref: location.href,
-			roles: ["lecturer"],
-		}),
+	// The parent "/dashboard" route already resolved the signed-in user (one
+	// network round trip); reuse it from context instead of re-fetching it
+	// here, which used to double the auth work done for every navigation.
+	beforeLoad: ({ context }) => {
+		requireDashboardRole(context.user, ["lecturer"]);
+	},
 	head: () => ({
 		meta: [
 			{

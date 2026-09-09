@@ -90,14 +90,29 @@ function staffIdFromSyntheticEmail(email: string) {
 	return `${match.groups.prefix}/${match.groups.value}`;
 }
 
-async function readApplicationUserByStaffId(staffId: string) {
+let cachedDatabase: ReturnType<typeof drizzle> | undefined;
+
+function getDatabase() {
 	const databaseUrl = getDatabaseUrl();
 
 	if (!databaseUrl) {
+		return undefined;
+	}
+
+	if (!cachedDatabase) {
+		cachedDatabase = drizzle(databaseUrl, { schema });
+	}
+
+	return cachedDatabase;
+}
+
+async function readApplicationUserByStaffId(staffId: string) {
+	const database = getDatabase();
+
+	if (!database) {
 		return null;
 	}
 
-	const database = drizzle(databaseUrl, { schema });
 	const rows = await database
 		.select({
 			id: schema.users.id,

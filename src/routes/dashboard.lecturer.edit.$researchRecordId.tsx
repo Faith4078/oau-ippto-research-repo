@@ -6,17 +6,18 @@ import { useEffect, useState } from "react";
 import { ResearchSubmissionForm } from "#/components/dashboard/research-submission-form.tsx";
 import { Button } from "#/components/ui/button.tsx";
 import { LoadingSkeletonFrame } from "#/components/ui/loading-skeleton.tsx";
-import { requireDashboardRouteAuth } from "#/lib/auth-functions.ts";
+import { requireDashboardRole } from "#/lib/auth-functions.ts";
 import type { ResearchSubmissionFormValues } from "#/presentation/research-submission/direct-upload.ts";
 
 export const Route = createFileRoute(
 	"/dashboard/lecturer/edit/$researchRecordId",
 )({
-	beforeLoad: ({ location }) =>
-		requireDashboardRouteAuth({
-			locationHref: location.href,
-			roles: ["lecturer"],
-		}),
+	// The "/dashboard" ancestor route already resolved the signed-in user
+	// (one network round trip); reuse it from context instead of
+	// re-fetching it here.
+	beforeLoad: ({ context }) => {
+		requireDashboardRole(context.user, ["lecturer"]);
+	},
 	head: () => ({
 		meta: [
 			{

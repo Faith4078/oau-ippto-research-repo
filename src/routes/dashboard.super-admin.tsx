@@ -16,15 +16,16 @@ import {
 	CardTitle,
 } from "#/components/ui/card.tsx";
 import { LoadingSkeleton } from "#/components/ui/loading-skeleton.tsx";
-import { requireDashboardRouteAuth } from "#/lib/auth-functions.ts";
+import { requireDashboardRole } from "#/lib/auth-functions.ts";
 import { workspaces } from "#/presentation/dashboard/data.ts";
 
 export const Route = createFileRoute("/dashboard/super-admin")({
-	beforeLoad: ({ location }) =>
-		requireDashboardRouteAuth({
-			locationHref: location.href,
-			roles: ["super_administrator"],
-		}),
+	// The parent "/dashboard" route already resolved the signed-in user (one
+	// network round trip); reuse it from context instead of re-fetching it
+	// here, which used to double the auth work done for every navigation.
+	beforeLoad: ({ context }) => {
+		requireDashboardRole(context.user, ["super_administrator"]);
+	},
 	head: () => ({
 		meta: [
 			{
