@@ -3,6 +3,7 @@ import type {
 	EntityId,
 	Innovation,
 	Patent,
+	ResearchRecord,
 } from "#/domain/index.ts";
 import { permissions } from "#/domain/permissions.ts";
 import {
@@ -84,6 +85,10 @@ export type InnovationManagementRepository = {
 	}): Promise<PublicRelatedRecords>;
 };
 
+export type ResearchRecordLookup = {
+	findResearchRecordById(id: EntityId): Promise<ResearchRecord | null>;
+};
+
 export type InnovationManagementAuditRepository = {
 	appendAuditLog(input: {
 		actorId: EntityId | null;
@@ -124,8 +129,9 @@ export type InnovationManagementService = ReturnType<
 export function createInnovationManagementService(dependencies: {
 	repository: InnovationManagementRepository;
 	auditRepository: InnovationManagementAuditRepository;
+	researchRecordLookup?: ResearchRecordLookup;
 }) {
-	const { auditRepository, repository } = dependencies;
+	const { auditRepository, repository, researchRecordLookup } = dependencies;
 
 	return {
 		async createInnovation(
@@ -147,6 +153,18 @@ export function createInnovationManagementService(dependencies: {
 
 			if (!authorization.ok) {
 				return authorization;
+			}
+
+			if (input.value.researchRecordId) {
+				const ownershipCheck = await verifyResearchRecordOwnership(
+					researchRecordLookup,
+					authorization.value,
+					input.value.researchRecordId,
+				);
+
+				if (!ownershipCheck.ok) {
+					return ownershipCheck;
+				}
 			}
 
 			const innovation = await repository.createInnovation({
@@ -601,6 +619,46 @@ async function appendInnovationHistoryAndAudit(input: {
 			toStatus: input.toStatus,
 		},
 	});
+}
+
+async function verifyResearchRecordOwnership(
+	researchRecordLookup: ResearchRecordLookup | undefined,
+	actor: AuthenticatedActor,
+	researchRecordId: EntityId,
+): Promise<Result<true>> {
+	if (
+		actor.roles.some((assignment) =>
+			["iptto_officer", "super_administrator"].includes(assignment.role),
+		)
+	) {
+		return ok(true);
+	}
+
+	if (!researchRecordLookup) {
+		return fail(
+			"RESEARCH_RECORD_NOT_FOUND",
+			"The linked research record was not found.",
+		);
+	}
+
+	const record =
+		await researchRecordLookup.findResearchRecordById(researchRecordId);
+
+	if (!record) {
+		return fail(
+			"RESEARCH_RECORD_NOT_FOUND",
+			"The linked research record was not found.",
+		);
+	}
+
+	if (record.ownerId !== actor.userId) {
+		return fail(
+			"FORBIDDEN",
+			"You can only link a research record you own to this request.",
+		);
+	}
+
+	return ok(true);
 }
 
 function scopeFromInnovationInput(input: InnovationCreateInput) {

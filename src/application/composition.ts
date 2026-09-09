@@ -72,6 +72,7 @@ export function createApplicationServices(
 			repository: dependencies.innovationRepository,
 			auditRepository:
 				dependencies.innovationAuditRepository ?? dependencies.auditRepository,
+			researchRecordLookup: dependencies.researchRepository,
 		}),
 		rateLimiter: createRateLimiterService({
 			store: dependencies.rateLimitStore,
