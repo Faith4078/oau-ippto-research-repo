@@ -61,6 +61,7 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiAuthSignUpRouteImport } from './routes/api/auth/sign-up'
 import { Route as ApiDashboardIpttoSummaryRouteImport } from './routes/api/dashboard/iptto-summary'
 import { Route as ApiDashboardMeRouteImport } from './routes/api/dashboard/me'
+import { Route as ApiDashboardProfileRouteImport } from './routes/api/dashboard/profile'
 import { Route as ApiDashboardReportRouteImport } from './routes/api/dashboard/report'
 import { Route as ApiDashboardResearchReviewRouteImport } from './routes/api/dashboard/research-review'
 import { Route as ApiFilesConfirmUploadRouteImport } from './routes/api/files/confirm-upload'
@@ -71,6 +72,7 @@ import { Route as ApiJobsFailedRouteImport } from './routes/api/jobs/failed'
 import { Route as ApiPatentsPatentIdRouteImport } from './routes/api/patents.$patentId'
 import { Route as ApiResearchApprovalTransitionsRouteImport } from './routes/api/research/approval-transitions'
 import { Route as ApiResearchSubmissionsRouteImport } from './routes/api/research/submissions'
+import { Route as DashboardLecturerProfileRouteImport } from './routes/dashboard.lecturer.profile'
 import { Route as DashboardLecturerSubmitRouteImport } from './routes/dashboard.lecturer.submit'
 import { Route as ApiAuthStaffPasswordResetCompleteRouteImport } from './routes/api/auth/staff-password-reset/complete'
 import { Route as ApiAuthStaffPasswordResetRequestRouteImport } from './routes/api/auth/staff-password-reset/request'
@@ -342,6 +344,11 @@ const ApiDashboardMeRoute = ApiDashboardMeRouteImport.update({
   path: '/api/dashboard/me',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDashboardProfileRoute = ApiDashboardProfileRouteImport.update({
+  id: '/api/dashboard/profile',
+  path: '/api/dashboard/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDashboardReportRoute = ApiDashboardReportRouteImport.update({
   id: '/api/dashboard/report',
   path: '/api/dashboard/report',
@@ -396,6 +403,12 @@ const ApiResearchSubmissionsRoute = ApiResearchSubmissionsRouteImport.update({
   path: '/api/research/submissions',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardLecturerProfileRoute =
+  DashboardLecturerProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => DashboardLecturerRoute,
+  } as any)
 const DashboardLecturerSubmitRoute = DashboardLecturerSubmitRouteImport.update({
   id: '/submit',
   path: '/submit',
@@ -497,6 +510,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/sign-up': typeof ApiAuthSignUpRoute
   '/api/dashboard/iptto-summary': typeof ApiDashboardIpttoSummaryRoute
   '/api/dashboard/me': typeof ApiDashboardMeRoute
+  '/api/dashboard/profile': typeof ApiDashboardProfileRoute
   '/api/dashboard/report': typeof ApiDashboardReportRoute
   '/api/dashboard/research-review': typeof ApiDashboardResearchReviewRoute
   '/api/files/confirm-upload': typeof ApiFilesConfirmUploadRoute
@@ -507,6 +521,7 @@ export interface FileRoutesByFullPath {
   '/api/patents/$patentId': typeof ApiPatentsPatentIdRoute
   '/api/research/approval-transitions': typeof ApiResearchApprovalTransitionsRoute
   '/api/research/submissions': typeof ApiResearchSubmissionsRouteWithChildren
+  '/dashboard/lecturer/profile': typeof DashboardLecturerProfileRoute
   '/dashboard/lecturer/submit': typeof DashboardLecturerSubmitRoute
   '/api/auth/staff-password-reset/complete': typeof ApiAuthStaffPasswordResetCompleteRoute
   '/api/auth/staff-password-reset/request': typeof ApiAuthStaffPasswordResetRequestRoute
@@ -563,6 +578,7 @@ export interface FileRoutesByTo {
   '/api/auth/sign-up': typeof ApiAuthSignUpRoute
   '/api/dashboard/iptto-summary': typeof ApiDashboardIpttoSummaryRoute
   '/api/dashboard/me': typeof ApiDashboardMeRoute
+  '/api/dashboard/profile': typeof ApiDashboardProfileRoute
   '/api/dashboard/report': typeof ApiDashboardReportRoute
   '/api/dashboard/research-review': typeof ApiDashboardResearchReviewRoute
   '/api/files/confirm-upload': typeof ApiFilesConfirmUploadRoute
@@ -573,6 +589,7 @@ export interface FileRoutesByTo {
   '/api/patents/$patentId': typeof ApiPatentsPatentIdRoute
   '/api/research/approval-transitions': typeof ApiResearchApprovalTransitionsRoute
   '/api/research/submissions': typeof ApiResearchSubmissionsRouteWithChildren
+  '/dashboard/lecturer/profile': typeof DashboardLecturerProfileRoute
   '/dashboard/lecturer/submit': typeof DashboardLecturerSubmitRoute
   '/api/auth/staff-password-reset/complete': typeof ApiAuthStaffPasswordResetCompleteRoute
   '/api/auth/staff-password-reset/request': typeof ApiAuthStaffPasswordResetRequestRoute
@@ -636,6 +653,7 @@ export interface FileRoutesById {
   '/api/auth/sign-up': typeof ApiAuthSignUpRoute
   '/api/dashboard/iptto-summary': typeof ApiDashboardIpttoSummaryRoute
   '/api/dashboard/me': typeof ApiDashboardMeRoute
+  '/api/dashboard/profile': typeof ApiDashboardProfileRoute
   '/api/dashboard/report': typeof ApiDashboardReportRoute
   '/api/dashboard/research-review': typeof ApiDashboardResearchReviewRoute
   '/api/files/confirm-upload': typeof ApiFilesConfirmUploadRoute
@@ -646,6 +664,7 @@ export interface FileRoutesById {
   '/api/patents/$patentId': typeof ApiPatentsPatentIdRoute
   '/api/research/approval-transitions': typeof ApiResearchApprovalTransitionsRoute
   '/api/research/submissions': typeof ApiResearchSubmissionsRouteWithChildren
+  '/dashboard/lecturer/profile': typeof DashboardLecturerProfileRoute
   '/dashboard/lecturer/submit': typeof DashboardLecturerSubmitRoute
   '/api/auth/staff-password-reset/complete': typeof ApiAuthStaffPasswordResetCompleteRoute
   '/api/auth/staff-password-reset/request': typeof ApiAuthStaffPasswordResetRequestRoute
@@ -710,6 +729,7 @@ export interface FileRouteTypes {
     | '/api/auth/sign-up'
     | '/api/dashboard/iptto-summary'
     | '/api/dashboard/me'
+    | '/api/dashboard/profile'
     | '/api/dashboard/report'
     | '/api/dashboard/research-review'
     | '/api/files/confirm-upload'
@@ -720,6 +740,7 @@ export interface FileRouteTypes {
     | '/api/patents/$patentId'
     | '/api/research/approval-transitions'
     | '/api/research/submissions'
+    | '/dashboard/lecturer/profile'
     | '/dashboard/lecturer/submit'
     | '/api/auth/staff-password-reset/complete'
     | '/api/auth/staff-password-reset/request'
@@ -776,6 +797,7 @@ export interface FileRouteTypes {
     | '/api/auth/sign-up'
     | '/api/dashboard/iptto-summary'
     | '/api/dashboard/me'
+    | '/api/dashboard/profile'
     | '/api/dashboard/report'
     | '/api/dashboard/research-review'
     | '/api/files/confirm-upload'
@@ -786,6 +808,7 @@ export interface FileRouteTypes {
     | '/api/patents/$patentId'
     | '/api/research/approval-transitions'
     | '/api/research/submissions'
+    | '/dashboard/lecturer/profile'
     | '/dashboard/lecturer/submit'
     | '/api/auth/staff-password-reset/complete'
     | '/api/auth/staff-password-reset/request'
@@ -848,6 +871,7 @@ export interface FileRouteTypes {
     | '/api/auth/sign-up'
     | '/api/dashboard/iptto-summary'
     | '/api/dashboard/me'
+    | '/api/dashboard/profile'
     | '/api/dashboard/report'
     | '/api/dashboard/research-review'
     | '/api/files/confirm-upload'
@@ -858,6 +882,7 @@ export interface FileRouteTypes {
     | '/api/patents/$patentId'
     | '/api/research/approval-transitions'
     | '/api/research/submissions'
+    | '/dashboard/lecturer/profile'
     | '/dashboard/lecturer/submit'
     | '/api/auth/staff-password-reset/complete'
     | '/api/auth/staff-password-reset/request'
@@ -902,6 +927,7 @@ export interface RootRouteChildren {
   ApiAuthSignUpRoute: typeof ApiAuthSignUpRoute
   ApiDashboardIpttoSummaryRoute: typeof ApiDashboardIpttoSummaryRoute
   ApiDashboardMeRoute: typeof ApiDashboardMeRoute
+  ApiDashboardProfileRoute: typeof ApiDashboardProfileRoute
   ApiDashboardReportRoute: typeof ApiDashboardReportRoute
   ApiDashboardResearchReviewRoute: typeof ApiDashboardResearchReviewRoute
   ApiFilesConfirmUploadRoute: typeof ApiFilesConfirmUploadRoute
@@ -1280,6 +1306,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDashboardMeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/dashboard/profile': {
+      id: '/api/dashboard/profile'
+      path: '/api/dashboard/profile'
+      fullPath: '/api/dashboard/profile'
+      preLoaderRoute: typeof ApiDashboardProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/dashboard/report': {
       id: '/api/dashboard/report'
       path: '/api/dashboard/report'
@@ -1350,6 +1383,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiResearchSubmissionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/lecturer/profile': {
+      id: '/dashboard/lecturer/profile'
+      path: '/profile'
+      fullPath: '/dashboard/lecturer/profile'
+      preLoaderRoute: typeof DashboardLecturerProfileRouteImport
+      parentRoute: typeof DashboardLecturerRoute
+    }
     '/dashboard/lecturer/submit': {
       id: '/dashboard/lecturer/submit'
       path: '/submit'
@@ -1410,11 +1450,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface DashboardLecturerRouteChildren {
+  DashboardLecturerProfileRoute: typeof DashboardLecturerProfileRoute
   DashboardLecturerSubmitRoute: typeof DashboardLecturerSubmitRoute
   DashboardLecturerEditResearchRecordIdRoute: typeof DashboardLecturerEditResearchRecordIdRoute
 }
 
 const DashboardLecturerRouteChildren: DashboardLecturerRouteChildren = {
+  DashboardLecturerProfileRoute: DashboardLecturerProfileRoute,
   DashboardLecturerSubmitRoute: DashboardLecturerSubmitRoute,
   DashboardLecturerEditResearchRecordIdRoute:
     DashboardLecturerEditResearchRecordIdRoute,
@@ -1633,6 +1675,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthSignUpRoute: ApiAuthSignUpRoute,
   ApiDashboardIpttoSummaryRoute: ApiDashboardIpttoSummaryRoute,
   ApiDashboardMeRoute: ApiDashboardMeRoute,
+  ApiDashboardProfileRoute: ApiDashboardProfileRoute,
   ApiDashboardReportRoute: ApiDashboardReportRoute,
   ApiDashboardResearchReviewRoute: ApiDashboardResearchReviewRoute,
   ApiFilesConfirmUploadRoute: ApiFilesConfirmUploadRoute,

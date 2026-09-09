@@ -108,7 +108,13 @@ const workspaceNavByRole: Record<
 				href: "/dashboard/lecturer/submit",
 			},
 		],
-		secondary: [],
+		secondary: [
+			{
+				label: "My Profile",
+				icon: UserCircle2,
+				href: "/dashboard/lecturer/profile",
+			},
+		],
 	},
 	"department-admin": {
 		primary: [

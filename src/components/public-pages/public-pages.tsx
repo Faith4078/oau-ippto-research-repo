@@ -1508,6 +1508,13 @@ export function LivePublicRecordPage({
 				</a>
 				<div className="grid gap-8 lg:grid-cols-[1fr_360px] lg:items-start">
 					<div>
+						{record.imageUrl ? (
+							<img
+								alt={record.title}
+								className="mb-5 h-24 w-24 rounded-full border border-[#d8d8d8] object-cover"
+								src={record.imageUrl}
+							/>
+						) : null}
 						<span className="eyebrow">{record.eyebrow}</span>
 						<h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-tight tracking-normal sm:text-6xl">
 							{record.title}

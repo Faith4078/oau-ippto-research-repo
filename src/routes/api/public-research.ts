@@ -26,6 +26,7 @@ type PublicResearchDetailRow = PublicResearchRow & {
 	funding_info: string | null;
 	comment: string | null;
 	image_file_id: string | null;
+	owner_id: string | null;
 };
 
 export type PublicResearchItem = {
@@ -51,6 +52,8 @@ export type PublicResearchDetail = PublicResearchItem & {
 	fundingInfo: string | null;
 	comment: string | null;
 	imageFileId: string | null;
+	/** The id of the research record owner, usable as a `/researchers/$profileId` link target. */
+	ownerId: string | null;
 };
 
 export const Route = createFileRoute("/api/public-research")({
@@ -77,6 +80,7 @@ export const Route = createFileRoute("/api/public-research")({
 							r.commercialization_status,
 							r.funding_info,
 							r.comment,
+							r.owner_id::text as owner_id,
 							(
 								select img.id::text
 								from files img
@@ -121,7 +125,8 @@ export const Route = createFileRoute("/api/public-research")({
 							p.citation,
 							r.commercialization_status,
 							r.funding_info,
-							r.comment
+							r.comment,
+							r.owner_id
 						limit 1
 					`);
 					const row = result.rows[0];
@@ -228,5 +233,6 @@ function toPublicResearchDetail(
 		fundingInfo: row.funding_info,
 		comment: row.comment,
 		imageFileId: row.image_file_id,
+		ownerId: row.owner_id,
 	};
 }

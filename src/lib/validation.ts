@@ -282,6 +282,30 @@ export const commercializationActivityInputSchema = z
 		path: ["innovationId"],
 	});
 
+export const userProfileUpdateInputSchema = z
+	.object({
+		title: z.string().trim().max(64).nullable().optional(),
+		bio: z.string().trim().max(5000).nullable().optional(),
+		researchInterests: z
+			.array(z.string().trim().min(2).max(120))
+			.max(30)
+			.nullable()
+			.optional(),
+		orcid: z
+			.string()
+			.trim()
+			.regex(/^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/i, "Invalid ORCID format.")
+			.nullable()
+			.optional(),
+		phone: z.string().trim().max(64).nullable().optional(),
+		publicEmail: z.email().nullable().optional(),
+		recoveryEmail: z.email().nullable().optional(),
+		avatarFileId: entityIdSchema.nullable().optional(),
+	})
+	.refine((value) => Object.keys(value).length > 0, {
+		message: "At least one profile field is required.",
+	});
+
 export type ResearchSubmissionInput = z.infer<
 	typeof researchSubmissionInputSchema
 >;
@@ -300,6 +324,9 @@ export type PatentUpsertInput = z.infer<typeof patentUpsertInputSchema>;
 export type PatentUpdateInput = z.infer<typeof patentUpdateInputSchema>;
 export type CommercializationActivityInput = z.infer<
 	typeof commercializationActivityInputSchema
+>;
+export type UserProfileUpdateInput = z.infer<
+	typeof userProfileUpdateInputSchema
 >;
 
 export function validatePayload<T>(

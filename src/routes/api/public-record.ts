@@ -3,6 +3,7 @@ import { sql } from "drizzle-orm";
 
 import { requireDatabaseUrl } from "#/db/env.ts";
 import { createDatabase } from "#/infrastructure/db/index.ts";
+import { resolveFileDownloadUrl } from "#/infrastructure/storage/resolve-file-url.ts";
 import { publicRevalidationHeaders } from "./-helpers.ts";
 
 type PublicRecordType =
@@ -21,6 +22,8 @@ export type PublicRecordDetail = {
 	facts: Array<{ label: string; value: string }>;
 	sections: Array<{ title: string; body: string }>;
 	tags: string[];
+	/** A publicly viewable image for this record (currently only populated for researcher profiles). */
+	imageUrl?: string | null;
 };
 
 export const Route = createFileRoute("/api/public-record")({
@@ -91,6 +94,7 @@ async function readResearcher(database: Database, id: string) {
 		faculty_name: string | null;
 		department_name: string | null;
 		publication_count: number | string;
+		avatar_file_id: string | null;
 	};
 	const result = await database.execute<Row>(sql`
 		select
@@ -100,6 +104,7 @@ async function readResearcher(database: Database, id: string) {
 			up.research_interests,
 			up.orcid,
 			up.public_email,
+			up.avatar_file_id,
 			f.name as faculty_name,
 			d.name as department_name,
 			count(distinct r.id)::int as publication_count
@@ -111,12 +116,15 @@ async function readResearcher(database: Database, id: string) {
 			and r.status = 'published' and r.access_level = 'public'
 		where u.id = ${id} and u.status = 'active'
 		group by u.id, u.name, up.title, up.bio, up.research_interests,
-			up.orcid, up.public_email, f.name, d.name
+			up.orcid, up.public_email, up.avatar_file_id, f.name, d.name
 		limit 1
 	`);
 	const row = result.rows[0];
 	if (!row) return null;
 	const interests = row.research_interests ?? [];
+	const imageUrl = row.avatar_file_id
+		? await resolveFileDownloadUrl(database, row.avatar_file_id)
+		: null;
 	return {
 		title: row.name,
 		eyebrow: row.profile_title ?? "OAU Researcher",
@@ -151,6 +159,7 @@ async function readResearcher(database: Database, id: string) {
 			},
 		],
 		tags: interests.slice(0, 6),
+		imageUrl,
 	} satisfies PublicRecordDetail;
 }
 

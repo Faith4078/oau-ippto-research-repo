@@ -9,6 +9,7 @@ import {
 	Pencil,
 	Search,
 	Trash2,
+	UserCircle2,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -131,16 +132,24 @@ export function LecturerWorkspace() {
 							becomes public.
 						</p>
 					</div>
-					<Button
-						asChild
-						className="bg-[#146ef5] text-white hover:bg-[#0d5fdc] focus-visible:ring-[#146ef5]/35"
-						size="lg"
-					>
-						<Link to="/dashboard/lecturer/submit">
-							<FilePlus2 className="h-4 w-4" />
-							Add research
-						</Link>
-					</Button>
+					<div className="flex flex-wrap gap-2">
+						<Button asChild size="lg" variant="outline">
+							<Link to="/dashboard/lecturer/profile">
+								<UserCircle2 className="h-4 w-4" />
+								My profile
+							</Link>
+						</Button>
+						<Button
+							asChild
+							className="bg-[#146ef5] text-white hover:bg-[#0d5fdc] focus-visible:ring-[#146ef5]/35"
+							size="lg"
+						>
+							<Link to="/dashboard/lecturer/submit">
+								<FilePlus2 className="h-4 w-4" />
+								Add research
+							</Link>
+						</Button>
+					</div>
 				</header>
 
 				<section className="grid gap-3 sm:grid-cols-3">

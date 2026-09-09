@@ -232,7 +232,20 @@ function LiveResearchDetail({
 					<article className="rounded-lg border border-[#d8d8d8] bg-white p-5">
 						<h2 className="text-xl font-semibold">Authors</h2>
 						<p className="mt-3 text-sm leading-6 text-[#6b7280]">
-							{record.authors.length ? record.authors.join(", ") : "Not listed"}
+							{record.authors.length ? (
+								record.ownerId ? (
+									<a
+										className="font-medium text-[#146ef5] hover:underline"
+										href={`/researchers/${record.ownerId}`}
+									>
+										{record.authors.join(", ")}
+									</a>
+								) : (
+									record.authors.join(", ")
+								)
+							) : (
+								"Not listed"
+							)}
 						</p>
 					</article>
 					<article className="rounded-lg border border-[#d8d8d8] bg-white p-5">

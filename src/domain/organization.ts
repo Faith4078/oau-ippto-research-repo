@@ -53,6 +53,7 @@ export type UserProfile = Timestamped & {
 	orcid: string | null;
 	phone: string | null;
 	publicEmail: string | null;
+	recoveryEmail: string | null;
 	avatarFileId: EntityId | null;
 };
 
