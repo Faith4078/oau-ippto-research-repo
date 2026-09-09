@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 import type {
 	AssignableStaffRole,
 	UserAccessRepository,
+	UserAccessRoleAssignment,
 	UserAccessSummary,
 } from "#/application/user-access.ts";
 import type { RoleKey } from "#/domain/organization.ts";
@@ -62,12 +63,15 @@ export class PostgresUserAccessRepository implements UserAccessRepository {
 	async listUsers(): Promise<readonly UserAccessSummary[]> {
 		const rows = await this.database
 			.select({
+				assignedAt: schema.userRoles.assignedAt,
 				departmentId: schema.userProfiles.departmentId,
 				email: schema.users.email,
 				facultyId: schema.userProfiles.facultyId,
 				id: schema.users.id,
 				name: schema.users.name,
 				role: schema.roles.key,
+				roleDepartmentId: schema.userRoles.departmentId,
+				roleFacultyId: schema.userRoles.facultyId,
 				staffId: schema.users.staffId,
 				status: schema.users.status,
 			})
@@ -81,10 +85,21 @@ export class PostgresUserAccessRepository implements UserAccessRepository {
 
 		const users = new Map<string, UserAccessSummary>();
 		for (const row of rows) {
+			const roleAssignment = roleAssignmentFromRow(row);
 			const current = users.get(row.id);
 			if (current) {
-				if (isRoleKey(row.role) && !current.roles.includes(row.role))
+				if (roleAssignment) {
+					if (!current.roles.includes(roleAssignment.role))
+						current.roles = [...current.roles, roleAssignment.role];
+					if (!hasRoleAssignment(current.roleAssignments, roleAssignment)) {
+						current.roleAssignments = [
+							...current.roleAssignments,
+							roleAssignment,
+						];
+					}
+				} else if (isRoleKey(row.role) && !current.roles.includes(row.role)) {
 					current.roles = [...current.roles, row.role];
+				}
 				continue;
 			}
 			users.set(row.id, {
@@ -93,7 +108,12 @@ export class PostgresUserAccessRepository implements UserAccessRepository {
 				facultyId: row.facultyId,
 				id: row.id,
 				name: row.name,
-				roles: isRoleKey(row.role) ? [row.role] : [],
+				roleAssignments: roleAssignment ? [roleAssignment] : [],
+				roles: roleAssignment
+					? [roleAssignment.role]
+					: isRoleKey(row.role)
+						? [row.role]
+						: [],
 				staffId: row.staffId,
 				status: row.status,
 			});
@@ -174,4 +194,32 @@ export class PostgresUserAccessRepository implements UserAccessRepository {
 			});
 		});
 	}
+}
+
+function hasRoleAssignment(
+	assignments: readonly UserAccessRoleAssignment[],
+	candidate: UserAccessRoleAssignment,
+): boolean {
+	return assignments.some(
+		(assignment) =>
+			assignment.role === candidate.role &&
+			assignment.facultyId === candidate.facultyId &&
+			assignment.departmentId === candidate.departmentId,
+	);
+}
+
+function roleAssignmentFromRow(row: {
+	assignedAt: Date | null;
+	role: string | null;
+	roleDepartmentId: string | null;
+	roleFacultyId: string | null;
+}): UserAccessRoleAssignment | null {
+	if (!isRoleKey(row.role) || !row.assignedAt) return null;
+
+	return {
+		assignedAt: row.assignedAt,
+		departmentId: row.roleDepartmentId,
+		facultyId: row.roleFacultyId,
+		role: row.role,
+	};
 }

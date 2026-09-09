@@ -448,7 +448,10 @@ function isSidebarItemActive(
 	}
 
 	const [itemPath, hashFragment] = href.split("#");
-	if (pathname !== itemPath) {
+	const isPathMatch =
+		pathname === itemPath ||
+		(!isDefault && Boolean(itemPath) && pathname.startsWith(`${itemPath}/`));
+	if (!isPathMatch) {
 		return false;
 	}
 

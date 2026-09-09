@@ -1,6 +1,6 @@
 "use client";
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 
 import { UserRoleDirectory } from "#/components/dashboard/user-role-directory.tsx";
 import { requireDashboardRouteAuth } from "#/lib/auth-functions.ts";
@@ -23,5 +23,8 @@ export const Route = createFileRoute("/dashboard/faculty-admin/users")({
 });
 
 function FacultyUsersRoute() {
-	return <UserRoleDirectory scope="faculty" />;
+	const location = useLocation();
+	const isList = location.pathname === "/dashboard/faculty-admin/users";
+
+	return isList ? <UserRoleDirectory scope="faculty" /> : <Outlet />;
 }

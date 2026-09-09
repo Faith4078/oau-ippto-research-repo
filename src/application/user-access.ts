@@ -15,12 +15,20 @@ export type AssignableStaffRole =
 	| "faculty_administrator"
 	| "iptto_officer";
 
+export type UserAccessRoleAssignment = {
+	assignedAt: Date;
+	departmentId: string | null;
+	facultyId: string | null;
+	role: RoleKey;
+};
+
 export type UserAccessSummary = {
 	departmentId: string | null;
 	email: string;
 	facultyId: string | null;
 	id: string;
 	name: string;
+	roleAssignments: readonly UserAccessRoleAssignment[];
 	roles: readonly RoleKey[];
 	staffId: string;
 	status: UserStatus;

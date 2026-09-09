@@ -1,6 +1,6 @@
 "use client";
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 
 import { UserRoleDirectory } from "#/components/dashboard/user-role-directory.tsx";
 import { requireDashboardRouteAuth } from "#/lib/auth-functions.ts";
@@ -23,5 +23,8 @@ export const Route = createFileRoute("/dashboard/super-admin/users")({
 });
 
 function SuperAdminUsersRoute() {
-	return <UserRoleDirectory scope="super" />;
+	const location = useLocation();
+	const isList = location.pathname === "/dashboard/super-admin/users";
+
+	return isList ? <UserRoleDirectory scope="super" /> : <Outlet />;
 }

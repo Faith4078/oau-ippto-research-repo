@@ -1,6 +1,7 @@
 "use client";
 
-import { RefreshCw, Search, UsersRound } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Eye, RefreshCw, Search, UsersRound } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -24,6 +25,12 @@ type DirectoryUser = {
 	facultyId: string | null;
 	id: string;
 	name: string;
+	roleAssignments?: Array<{
+		assignedAt: string;
+		departmentId: string | null;
+		facultyId: string | null;
+		role: RoleKey;
+	}>;
 	roles: RoleKey[];
 	staffId: string;
 	status: UserStatus;
@@ -182,6 +189,10 @@ export function UserRoleDirectory({ scope }: { scope: UserDirectoryScope }) {
 		scope === "super"
 			? "Filter all staff by active responsibility across the platform."
 			: "View users in your faculty by lecturer and administrator role.";
+	const userDetailBasePath =
+		scope === "super"
+			? "/dashboard/super-admin/users"
+			: "/dashboard/faculty-admin/users";
 
 	return (
 		<div className="space-y-6">
@@ -289,6 +300,7 @@ export function UserRoleDirectory({ scope }: { scope: UserDirectoryScope }) {
 											? (facultyById.get(user.facultyId) ?? null)
 											: null
 									}
+									detailHref={`${userDetailBasePath}/${user.id}`}
 									key={user.id}
 									user={user}
 								/>
@@ -303,10 +315,12 @@ export function UserRoleDirectory({ scope }: { scope: UserDirectoryScope }) {
 
 function UserRow({
 	departmentName,
+	detailHref,
 	facultyName,
 	user,
 }: {
 	departmentName: string | null;
+	detailHref: string;
 	facultyName: string | null;
 	user: DirectoryUser;
 }) {
@@ -326,6 +340,12 @@ function UserRow({
 				) : null}
 			</div>
 			<div className="flex flex-wrap items-center gap-2 md:justify-end">
+				<Button asChild size="sm" variant="outline">
+					<Link to={detailHref}>
+						<Eye className="h-4 w-4" />
+						View
+					</Link>
+				</Button>
 				<span className="inline-flex items-center gap-1 rounded-full border border-[#d8d8d8] px-2.5 py-1 text-xs font-semibold capitalize">
 					<UsersRound className="h-3.5 w-3.5" />
 					{user.status}

@@ -1,6 +1,6 @@
 "use client";
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 
 import { OrganizationManagementPage } from "#/components/dashboard/organization-management-page.tsx";
 import { requireDashboardRouteAuth } from "#/lib/auth-functions.ts";
@@ -23,5 +23,12 @@ export const Route = createFileRoute("/dashboard/faculty-admin/departments")({
 });
 
 function FacultyDepartmentsRoute() {
-	return <OrganizationManagementPage resource="departments" scope="faculty" />;
+	const location = useLocation();
+	const isList = location.pathname === "/dashboard/faculty-admin/departments";
+
+	return isList ? (
+		<OrganizationManagementPage resource="departments" scope="faculty" />
+	) : (
+		<Outlet />
+	);
 }

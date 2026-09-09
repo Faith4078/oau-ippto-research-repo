@@ -25,6 +25,14 @@ const activeLecturer = {
 	facultyId,
 	id: targetUserId,
 	name: "Dr Lecturer",
+	roleAssignments: [
+		{
+			assignedAt: new Date("2025-01-01T00:00:00.000Z"),
+			departmentId,
+			facultyId,
+			role: "lecturer",
+		},
+	],
 	roles: ["lecturer"],
 	staffId: "AC/1234",
 	status: "active",

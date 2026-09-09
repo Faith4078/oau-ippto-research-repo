@@ -1,9 +1,11 @@
 "use client";
 
+import { Link } from "@tanstack/react-router";
 import {
 	Building2,
 	ChevronDown,
 	Edit2,
+	Eye,
 	Plus,
 	RefreshCw,
 	Search,
@@ -246,6 +248,10 @@ export function OrganizationManagementPage({
 
 	const showDepartments = resource !== "faculties";
 	const showFaculties = scope === "super" && resource !== "departments";
+	const departmentDetailBasePath =
+		scope === "super"
+			? "/dashboard/super-admin/departments"
+			: "/dashboard/faculty-admin/departments";
 	const pageCopy = organizationPageCopy(scope, resource);
 	const formGridClass =
 		showDepartments && showFaculties
@@ -276,6 +282,9 @@ export function OrganizationManagementPage({
 				<FacultiesList
 					faculties={visibleFaculties}
 					filter={facultyFilter}
+					getDetailHref={(facultyId) =>
+						`/dashboard/super-admin/faculties/${facultyId}`
+					}
 					loading={loading}
 					onEdit={editFaculty}
 					onFilterChange={setFacultyFilter}
@@ -287,6 +296,9 @@ export function OrganizationManagementPage({
 					departments={visibleDepartments}
 					faculties={faculties}
 					filter={departmentFilter}
+					getDetailHref={(departmentId) =>
+						`${departmentDetailBasePath}/${departmentId}`
+					}
 					loading={loading}
 					onEdit={editDepartment}
 					onFacultyFilterChange={setDepartmentFacultyFilter}
@@ -459,6 +471,7 @@ function DepartmentsList({
 	departments,
 	faculties,
 	filter,
+	getDetailHref,
 	loading,
 	onEdit,
 	onFacultyFilterChange,
@@ -469,6 +482,7 @@ function DepartmentsList({
 	departments: DepartmentRecord[];
 	faculties: FacultyRecord[];
 	filter: string;
+	getDetailHref: (departmentId: string) => string;
 	loading: boolean;
 	onEdit: (department: DepartmentRecord) => void;
 	onFacultyFilterChange: (value: string) => void;
@@ -537,14 +551,22 @@ function DepartmentsList({
 										</p>
 									) : null}
 								</div>
-								<Button
-									onClick={() => onEdit(department)}
-									size="sm"
-									variant="outline"
-								>
-									<Edit2 className="h-4 w-4" />
-									Edit
-								</Button>
+								<div className="flex flex-wrap gap-2 md:justify-end">
+									<Button asChild size="sm" variant="outline">
+										<Link to={getDetailHref(department.id)}>
+											<Eye className="h-4 w-4" />
+											View
+										</Link>
+									</Button>
+									<Button
+										onClick={() => onEdit(department)}
+										size="sm"
+										variant="outline"
+									>
+										<Edit2 className="h-4 w-4" />
+										Edit
+									</Button>
+								</div>
 							</div>
 						))}
 					</div>
@@ -565,12 +587,14 @@ function EmptyState({ label }: { label: string }) {
 function FacultiesList({
 	faculties,
 	filter,
+	getDetailHref,
 	loading,
 	onEdit,
 	onFilterChange,
 }: {
 	faculties: FacultyRecord[];
 	filter: string;
+	getDetailHref: (facultyId: string) => string;
 	loading: boolean;
 	onEdit: (faculty: FacultyRecord) => void;
 	onFilterChange: (value: string) => void;
@@ -621,14 +645,22 @@ function FacultiesList({
 										</p>
 									) : null}
 								</div>
-								<Button
-									onClick={() => onEdit(faculty)}
-									size="sm"
-									variant="outline"
-								>
-									<Edit2 className="h-4 w-4" />
-									Edit
-								</Button>
+								<div className="flex flex-wrap gap-2 md:justify-end">
+									<Button asChild size="sm" variant="outline">
+										<Link to={getDetailHref(faculty.id)}>
+											<Eye className="h-4 w-4" />
+											View
+										</Link>
+									</Button>
+									<Button
+										onClick={() => onEdit(faculty)}
+										size="sm"
+										variant="outline"
+									>
+										<Edit2 className="h-4 w-4" />
+										Edit
+									</Button>
+								</div>
 							</div>
 						))}
 					</div>
