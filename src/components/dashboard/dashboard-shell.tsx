@@ -136,12 +136,10 @@ const workspaceNavByRole: Record<
 	},
 	"department-admin": {
 		primary: [
-			{ label: "Needs Review", icon: FileClock, href: "#review-queue" },
-			{ label: "Review Guide", icon: CheckCircle2, href: "#review-guide" },
 			{
-				label: "Department Report",
-				icon: CalendarDays,
-				href: "#dashboard-report",
+				label: "Home",
+				icon: House,
+				href: "/dashboard/department-admin",
 			},
 		],
 		secondary: [],
@@ -149,9 +147,9 @@ const workspaceNavByRole: Record<
 	"faculty-admin": {
 		primary: [
 			{
-				label: "Needs Review",
-				icon: FileClock,
-				href: "/dashboard/faculty-admin#review-queue",
+				label: "Home",
+				icon: House,
+				href: "/dashboard/faculty-admin",
 			},
 			{
 				label: "Departments",
@@ -164,18 +162,7 @@ const workspaceNavByRole: Record<
 				href: "/dashboard/faculty-admin/users",
 			},
 		],
-		secondary: [
-			{
-				label: "Department Summary",
-				icon: SlidersHorizontal,
-				href: "/dashboard/faculty-admin#department-summary",
-			},
-			{
-				label: "Faculty Report",
-				icon: CalendarDays,
-				href: "/dashboard/faculty-admin#dashboard-report",
-			},
-		],
+		secondary: [],
 	},
 	"iptto-officer": {
 		primary: [

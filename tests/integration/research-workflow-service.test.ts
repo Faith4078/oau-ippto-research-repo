@@ -39,12 +39,6 @@ const departmentReviewer: AuthenticatedActor = {
 	roles: [{ role: "department_administrator", facultyId, departmentId }],
 };
 
-const facultyReviewer: AuthenticatedActor = {
-	status: "active",
-	userId: reviewerId,
-	roles: [{ role: "faculty_administrator", facultyId }],
-};
-
 const outsiderLecturer: AuthenticatedActor = {
 	status: "active",
 	userId: outsiderId,
@@ -151,18 +145,18 @@ describe("research workflow integration with service doubles", () => {
 			decision: "approve",
 			fromStatus: "department_review",
 			researchRecordId,
-			toStatus: "faculty_review",
+			toStatus: "approved",
 			requiresIpttoReview: false,
 		});
 
 		expect(result.ok).toBe(true);
-		expect(result.ok ? result.value.status : null).toBe("faculty_review");
+		expect(result.ok ? result.value.status : null).toBe("approved");
 		expect(auditRepository.approvalHistory).toContainEqual(
 			expect.objectContaining({
 				action: "approved",
 				actorId: reviewerId,
 				fromStatus: "department_review",
-				toStatus: "faculty_review",
+				toStatus: "approved",
 			}),
 		);
 	});
@@ -171,7 +165,7 @@ describe("research workflow integration with service doubles", () => {
 		const repository = new InMemoryResearchWorkflowRepository([
 			researchRecord({
 				metadata: { requiresIpttoReview: true },
-				status: "faculty_review",
+				status: "department_review",
 			}),
 		]);
 		const service = createResearchWorkflowService({
@@ -180,9 +174,9 @@ describe("research workflow integration with service doubles", () => {
 			storageSigner: new InMemoryStorageSigner(),
 		});
 
-		const result = await service.transitionApproval(facultyReviewer, {
+		const result = await service.transitionApproval(departmentReviewer, {
 			decision: "approve",
-			fromStatus: "faculty_review",
+			fromStatus: "department_review",
 			researchRecordId,
 			toStatus: "approved",
 			requiresIpttoReview: false,
@@ -192,7 +186,7 @@ describe("research workflow integration with service doubles", () => {
 			ok: false,
 			error: { code: "INVALID_APPROVAL_TRANSITION" },
 		});
-		expect(repository.records[0]?.status).toBe("faculty_review");
+		expect(repository.records[0]?.status).toBe("department_review");
 	});
 
 	it("blocks private signed downloads for actors outside the research scope", async () => {

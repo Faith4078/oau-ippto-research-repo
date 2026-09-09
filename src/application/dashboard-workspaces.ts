@@ -32,12 +32,9 @@ export function dashboardDestinationForRoles(
 	);
 }
 
-export type ResearchReviewStage = "department" | "faculty" | "iptto";
+export type ResearchReviewStage = "department" | "iptto";
 export type ResearchReviewDecision = "approve" | "request_changes" | "reject";
-export type ResearchReviewStatus =
-	| "department_review"
-	| "faculty_review"
-	| "iptto_review";
+export type ResearchReviewStatus = "department_review" | "iptto_review";
 
 export type ResearchReviewAccess = {
 	departmentId: string | null;
@@ -107,7 +104,6 @@ export function researchReviewAccessForUser(input: {
 	) {
 		const statusByStage = {
 			department: "department_review",
-			faculty: "faculty_review",
 			iptto: "iptto_review",
 		} as const;
 		return {
@@ -129,20 +125,6 @@ export function researchReviewAccessForUser(input: {
 			status: "department_review" as const,
 		};
 	}
-	const facultyAssignment = roleAssignments.find(
-		(assignment) =>
-			assignment.role === "faculty_administrator" &&
-			Boolean(assignment.facultyId),
-	);
-
-	if (input.stage === "faculty" && facultyAssignment?.facultyId) {
-		return {
-			departmentId: null,
-			facultyId: facultyAssignment.facultyId,
-			status: "faculty_review" as const,
-		};
-	}
-
 	if (
 		input.stage === "iptto" &&
 		roleAssignments.some((assignment) => assignment.role === "iptto_officer")
@@ -182,18 +164,15 @@ export function buildResearchReviewDecision(input: {
 }) {
 	const stageStatus = {
 		department: "department_review",
-		faculty: "faculty_review",
 		iptto: "iptto_review",
 	} as const;
 	const fromStatus = input.currentStatus ?? stageStatus[input.stage];
 	const changeTarget = {
 		department: "draft",
-		faculty: "department_review",
 		iptto: "draft",
 	} as const;
 	const approvalTarget = {
-		department: "faculty_review",
-		faculty: input.requiresIpttoReview ? "iptto_review" : "approved",
+		department: input.requiresIpttoReview ? "iptto_review" : "approved",
 		iptto: "approved",
 	} as const;
 	const toStatus =

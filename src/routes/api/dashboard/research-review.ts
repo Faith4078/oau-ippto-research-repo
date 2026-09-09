@@ -9,7 +9,7 @@ import { readAuthSession } from "#/lib/auth-server.ts";
 
 import { jsonResult } from "../-helpers.ts";
 
-const stageSchema = z.enum(["department", "faculty", "iptto"]);
+const stageSchema = z.enum(["department", "iptto"]);
 
 export const Route = createFileRoute("/api/dashboard/research-review")({
 	server: {

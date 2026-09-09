@@ -37,11 +37,6 @@ describe("review queue access", () => {
 
 	it.each([
 		[
-			"faculty",
-			["faculty_administrator"],
-			{ departmentId: null, facultyId: "faculty-1", status: "faculty_review" },
-		],
-		[
 			"iptto",
 			["iptto_officer"],
 			{ departmentId: null, facultyId: null, status: "iptto_review" },
@@ -62,13 +57,13 @@ describe("review queue access", () => {
 		).toEqual(expected);
 	});
 
-	it("does not expose a review queue to the wrong role", () => {
+	it("does not expose a review queue to faculty administrators", () => {
 		expect(
 			researchReviewAccessForUser({
 				departmentId: "department-1",
 				facultyId: "faculty-1",
-				roles: ["lecturer"],
-				stage: "faculty",
+				roles: ["faculty_administrator"],
+				stage: "department",
 			}),
 		).toBeNull();
 	});
@@ -130,7 +125,7 @@ describe("dashboard research decisions", () => {
 		});
 	});
 
-	it("moves a department approval to faculty review", () => {
+	it("moves a department approval to approved", () => {
 		expect(
 			buildResearchReviewDecision({
 				comment: null,
@@ -145,23 +140,15 @@ describe("dashboard research decisions", () => {
 			fromStatus: "department_review",
 			requiresIpttoReview: false,
 			researchRecordId: "00000000-0000-4000-8000-000000000001",
-			toStatus: "faculty_review",
+			toStatus: "approved",
 		});
 	});
 
 	it.each([
+		["department", "approve", false, "department_review", "approved"],
+		["department", "approve", true, "department_review", "iptto_review"],
 		["department", "request_changes", false, "department_review", "draft"],
 		["department", "reject", false, "department_review", "rejected"],
-		["faculty", "approve", false, "faculty_review", "approved"],
-		["faculty", "approve", true, "faculty_review", "iptto_review"],
-		[
-			"faculty",
-			"request_changes",
-			false,
-			"faculty_review",
-			"department_review",
-		],
-		["faculty", "reject", false, "faculty_review", "rejected"],
 		["iptto", "approve", true, "iptto_review", "approved"],
 		["iptto", "request_changes", true, "iptto_review", "draft"],
 		["iptto", "reject", true, "iptto_review", "rejected"],

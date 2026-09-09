@@ -39,24 +39,17 @@ type ReviewItem = {
 	id: string;
 	owner: string;
 	requiresIpttoReview: boolean;
-	status: "submitted" | "department_review" | "faculty_review" | "iptto_review";
+	status: "submitted" | "department_review" | "iptto_review";
 	title: string;
 };
 
 const stageCopy = {
 	department: {
 		description:
-			"Check research from your department, explain any changes clearly, and send ready work to Faculty review.",
+			"Check research from your department, explain any changes clearly, and approve ready work or send IPTTO-bound work forward.",
 		empty: "No department research is waiting for you.",
 		role: "department-admin" as const,
 		title: "Department Review Queue",
-	},
-	faculty: {
-		description:
-			"Review work approved by departments and send it to IPTTO when intellectual-property review is required.",
-		empty: "No faculty research is waiting for you.",
-		role: "faculty-admin" as const,
-		title: "Faculty Review Queue",
 	},
 	iptto: {
 		description:
@@ -272,26 +265,13 @@ function ResearchReviewContent({
 				/>
 			</section>
 
-			{stage === "faculty" && (
-				<Card id="department-summary">
-					<CardHeader>
-						<CardTitle>Department summary</CardTitle>
-						<CardDescription>
-							{departments} departments currently have work at Faculty review.
-						</CardDescription>
-					</CardHeader>
-				</Card>
-			)}
-
 			<Card id="dashboard-report">
 				<CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
 					<div>
 						<CardTitle>
-							{stage === "faculty"
-								? "Faculty research report"
-								: stage === "department"
-									? "Department research report"
-									: "IPTTO research report"}
+							{stage === "department"
+								? "Department research report"
+								: "IPTTO research report"}
 						</CardTitle>
 						<CardDescription>
 							Download current research totals and workflow status as a

@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { DashboardShell } from "#/components/dashboard/dashboard-shell.tsx";
-import { ResearchReviewWorkspace } from "#/components/dashboard/research-review-workspace.tsx";
 import { Button } from "#/components/ui/button.tsx";
 import {
 	Card,
@@ -36,7 +35,7 @@ export const Route = createFileRoute("/dashboard/faculty-admin")({
 			{
 				name: "description",
 				content:
-					"Review faculty research, compare departments, and create clear reports.",
+					"Manage faculty departments and assign department administrators.",
 			},
 		],
 	}),
@@ -51,7 +50,18 @@ function FacultyAdminDashboard() {
 		<DashboardShell workspace={workspaces["faculty-admin"]}>
 			{isOverview ? (
 				<div className="space-y-6">
-					<ResearchReviewWorkspace embedded stage="faculty" />
+					<header>
+						<p className="text-sm font-semibold text-[#146ef5]">
+							Faculty Administrator
+						</p>
+						<h1 className="mt-2 text-4xl font-semibold tracking-normal">
+							Faculty administration
+						</h1>
+						<p className="mt-3 max-w-3xl text-[#6b7280]">
+							Manage departments and assign department administrators. Research
+							review decisions are handled by department administrators.
+						</p>
+					</header>
 					<DepartmentAdministratorAccessPanel />
 				</div>
 			) : (

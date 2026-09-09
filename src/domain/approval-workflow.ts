@@ -28,7 +28,8 @@ const baseTransitions = [
 	transition("draft", "submitted", "submit", "submitted"),
 	transition("submitted", "department_review", "approve", "approved"),
 	transition("submitted", "rejected", "reject", "rejected", true),
-	transition("department_review", "faculty_review", "approve", "approved"),
+	transition("department_review", "approved", "approve", "approved"),
+	transition("department_review", "iptto_review", "approve", "approved"),
 	transition("department_review", "rejected", "reject", "rejected", true),
 	transition(
 		"department_review",
@@ -150,6 +151,22 @@ function isTransitionAllowedForIpttoRequirement(
 	transition: ApprovalTransition,
 	requiresIpttoReview: boolean,
 ) {
+	if (
+		transition.from === "department_review" &&
+		transition.decision === "approve" &&
+		transition.to === "approved"
+	) {
+		return !requiresIpttoReview;
+	}
+
+	if (
+		transition.from === "department_review" &&
+		transition.decision === "approve" &&
+		transition.to === "iptto_review"
+	) {
+		return requiresIpttoReview;
+	}
+
 	if (
 		transition.from === "faculty_review" &&
 		transition.decision === "approve" &&

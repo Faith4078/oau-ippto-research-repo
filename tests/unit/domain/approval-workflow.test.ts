@@ -5,9 +5,9 @@ import {
 } from "../../../src/domain/approval-workflow.ts";
 
 describe("research approval workflow", () => {
-	it("requires IPTTO review when faculty approval marks the record as IPTTO-bound", () => {
+	it("requires IPTTO review when department approval marks the record as IPTTO-bound", () => {
 		const result = resolveResearchTransition({
-			from: "faculty_review",
+			from: "department_review",
 			to: "approved",
 			decision: "approve",
 			requiresIpttoReview: true,
@@ -17,9 +17,9 @@ describe("research approval workflow", () => {
 		expect(result.ok ? null : result.error.code).toBe("INVALID_APPROVAL_TRANSITION");
 	});
 
-	it("allows faculty approval to move IPTTO-bound records to IPTTO review", () => {
+	it("allows department approval to move IPTTO-bound records to IPTTO review", () => {
 		const result = resolveResearchTransition({
-			from: "faculty_review",
+			from: "department_review",
 			to: "iptto_review",
 			decision: "approve",
 			requiresIpttoReview: true,
@@ -52,8 +52,8 @@ describe("research approval workflow", () => {
 		expect(result.ok ? result.value.to : null).toBe("draft");
 	});
 
-	it("lists only applicable faculty transitions for IPTTO-bound records", () => {
-		const transitions = getAllowedResearchTransitions("faculty_review", true);
+	it("lists only applicable department transitions for IPTTO-bound records", () => {
+		const transitions = getAllowedResearchTransitions("department_review", true);
 
 		expect(transitions.map((transition) => transition.to)).toContain("iptto_review");
 		expect(transitions.map((transition) => transition.to)).not.toContain("approved");
