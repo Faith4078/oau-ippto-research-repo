@@ -1,29 +1,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { eq } from "drizzle-orm";
 
+import { authorizeSession } from "#/application/auth/guards.ts";
 import { requireDatabaseUrl } from "#/db/env.ts";
 import { createDatabase, schema } from "#/infrastructure/db/index.ts";
 import { readAuthSession } from "#/lib/auth-server.ts";
+
+import { jsonError } from "../-helpers.ts";
 
 export const Route = createFileRoute("/api/dashboard/me")({
 	server: {
 		handlers: {
 			GET: async ({ request }: { request: Request }) => {
 				const session = await readAuthSession(request);
+				const authorization = authorizeSession(session, {
+					permissions: ["dashboard:access"],
+					match: "every",
+				});
 
-				if (session.status !== "authenticated") {
-					return Response.json(
-						{
-							error: {
-								code: "AUTHENTICATION_REQUIRED",
-								message: "Sign in to view dashboard identity.",
-							},
-						},
-						{ status: 401 },
-					);
+				if (!authorization.ok) {
+					return jsonError(authorization.error);
 				}
 
-				const user = session.session.user;
+				const user = authorization.value.session.user;
 				const organizationNames = await readOrganizationNames({
 					departmentId: user.departmentId,
 					facultyId: user.facultyId,

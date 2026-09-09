@@ -122,7 +122,15 @@ function statusForError(code: string): number {
 		return 401;
 	}
 
+	if (code === "AUTH_UNAUTHENTICATED" || code === "AUTH_SESSION_EXPIRED") {
+		return 401;
+	}
+
 	if (code === "FORBIDDEN") {
+		return 403;
+	}
+
+	if (code === "AUTH_FORBIDDEN" || code === "AUTH_USER_INACTIVE") {
 		return 403;
 	}
 
