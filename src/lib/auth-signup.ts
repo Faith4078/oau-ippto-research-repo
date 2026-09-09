@@ -19,7 +19,7 @@ import { isValidPassword, passwordPolicyText } from "./password-policy.ts";
 
 const passwordSchema = z
 	.string()
-	.length(8, "Password must be exactly 8 characters.")
+	.min(8, "Password must be at least 8 characters.")
 	.refine(isValidPassword, passwordPolicyText);
 
 const entityIdRegex =
@@ -32,7 +32,10 @@ const lecturerSignUpSchema = z
 		lastName: z.string().trim().min(1, "Last name is required."),
 		staffId: z.string().trim().min(1, "Staff ID is required."),
 		email: z.email("Enter a valid institutional email address."),
-		facultyId: z.string().trim().regex(entityIdRegex, "Select a valid faculty."),
+		facultyId: z
+			.string()
+			.trim()
+			.regex(entityIdRegex, "Select a valid faculty."),
 		departmentId: z
 			.string()
 			.trim()

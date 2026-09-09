@@ -1,8 +1,8 @@
 "use client";
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { CheckCircle2, RefreshCw, XCircle } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AccountRejectionDialog } from "#/components/dashboard/account-rejection-dialog.tsx";
@@ -42,25 +42,32 @@ export const Route = createFileRoute("/dashboard/super-admin")({
 });
 
 function SuperAdminDashboard() {
+	const location = useLocation();
+	const isOverview = location.pathname === "/dashboard/super-admin";
+
 	return (
 		<DashboardShell workspace={workspaces["super-admin"]}>
-			<div className="space-y-6">
-				<header>
-					<p className="text-sm font-semibold text-[#146ef5]">
-						Super Administrator
-					</p>
-					<h1 className="mt-2 text-4xl font-semibold tracking-normal">
-						Platform access and operations
-					</h1>
-					<p className="mt-3 max-w-3xl text-[#6b7280]">
-						Approve real account requests and inspect automatic work that needs
-						attention.
-					</p>
-				</header>
-				<AccountApprovalQueue />
-				<UserAccessPanel />
-				<FailedJobsPanel />
-			</div>
+			{isOverview ? (
+				<div className="space-y-6">
+					<header>
+						<p className="text-sm font-semibold text-[#146ef5]">
+							Super Administrator
+						</p>
+						<h1 className="mt-2 text-4xl font-semibold tracking-normal">
+							Platform access and operations
+						</h1>
+						<p className="mt-3 max-w-3xl text-[#6b7280]">
+							Approve real account requests and inspect automatic work that
+							needs attention.
+						</p>
+					</header>
+					<AccountApprovalQueue />
+					<UserAccessPanel />
+					<FailedJobsPanel />
+				</div>
+			) : (
+				<Outlet />
+			)}
 		</DashboardShell>
 	);
 }
@@ -218,16 +225,20 @@ function AccountApprovalQueue() {
 }
 
 type AccessUser = {
+	facultyId: string | null;
 	id: string;
 	name: string;
 	roles: string[];
 	staffId: string;
+	status: string;
 };
 
 type OrganizationOptions = {
 	departments: Array<{ facultyId: string; id: string; name: string }>;
 	faculties: Array<{ id: string; name: string }>;
 };
+
+type AccessRole = "department_administrator" | "faculty_administrator";
 
 function UserAccessPanel() {
 	const [users, setUsers] = useState<AccessUser[]>([]);
@@ -236,7 +247,7 @@ function UserAccessPanel() {
 		faculties: [],
 	});
 	const [saving, setSaving] = useState(false);
-	const [role, setRole] = useState("department_administrator");
+	const [role, setRole] = useState<AccessRole>("faculty_administrator");
 	const [facultyId, setFacultyId] = useState("");
 	const [departmentId, setDepartmentId] = useState("");
 	const [userId, setUserId] = useState("");
@@ -257,10 +268,14 @@ function UserAccessPanel() {
 			setUsers(
 				(usersPayload.data ?? []).filter(
 					(user: AccessUser) =>
+						user.status === "active" &&
 						!user.roles.some((role) =>
-							["lecturer", "iptto_officer", "super_administrator"].includes(
-								role,
-							),
+							[
+								"department_administrator",
+								"faculty_administrator",
+								"iptto_officer",
+								"super_administrator",
+							].includes(role),
 						),
 				),
 			);
@@ -286,12 +301,7 @@ function UserAccessPanel() {
 				body: JSON.stringify({
 					departmentId:
 						role === "department_administrator" ? departmentId || null : null,
-					facultyId: [
-						"faculty_administrator",
-						"department_administrator",
-					].includes(role)
-						? facultyId || null
-						: null,
+					facultyId: facultyId || null,
 					role,
 					userId,
 				}),
@@ -302,7 +312,14 @@ function UserAccessPanel() {
 			if (!response.ok) {
 				throw new Error(payload.error?.message ?? "Access could not be saved.");
 			}
-			toast.success("User access updated");
+			toast.success(
+				role === "faculty_administrator"
+					? "Faculty administrator assigned"
+					: "Department administrator assigned",
+			);
+			setUserId("");
+			setFacultyId("");
+			setDepartmentId("");
 			await load();
 		} catch (error) {
 			toast.error("Access not updated", {
@@ -313,78 +330,79 @@ function UserAccessPanel() {
 		}
 	}
 
-	const departments = organization.departments.filter(
-		(item) => !facultyId || item.facultyId === facultyId,
+	const departments = useMemo(
+		() =>
+			organization.departments.filter(
+				(department) => !facultyId || department.facultyId === facultyId,
+			),
+		[facultyId, organization.departments],
 	);
+	const candidates = useMemo(
+		() =>
+			users.filter((user) => {
+				if (facultyId && user.facultyId !== facultyId) return false;
+				if (role === "faculty_administrator") {
+					return user.roles.includes("lecturer");
+				}
+				return true;
+			}),
+		[facultyId, role, users],
+	);
+	const submitLabel =
+		role === "faculty_administrator"
+			? "Assign faculty admin"
+			: "Assign department admin";
+
 	return (
 		<Card id="user-access">
 			<CardHeader>
-				<CardTitle>Set administrator responsibility</CardTitle>
+				<CardTitle>Assign administrator responsibility</CardTitle>
 				<CardDescription>
-					Assign a dedicated administrator to one department or faculty.
-					Lecturer accounts are kept separate.
+					Promote an active lecturer to Faculty Administrator or assign a
+					Department Administrator directly.
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<form className="grid gap-4 md:grid-cols-2" onSubmit={save}>
 					<label className="grid gap-2 text-sm font-semibold">
-						Staff member
-						<select
-							className="h-11 rounded border px-3"
-							onChange={(event) => setUserId(event.target.value)}
-							required
-							value={userId}
-						>
-							<option value="">Choose staff member</option>
-							{users.map((user) => (
-								<option key={user.id} value={user.id}>
-									{user.name} ({user.staffId})
-								</option>
-							))}
-						</select>
-					</label>
-					<label className="grid gap-2 text-sm font-semibold">
 						Access role
 						<select
 							className="h-11 rounded border px-3"
 							onChange={(event) => {
-								setRole(event.target.value);
-								setFacultyId("");
+								setRole(event.target.value as AccessRole);
 								setDepartmentId("");
+								setUserId("");
 							}}
 							value={role}
 						>
-							<option value="department_administrator">
-								Department Administrator
-							</option>
 							<option value="faculty_administrator">
 								Faculty Administrator
 							</option>
+							<option value="department_administrator">
+								Department Administrator
+							</option>
 						</select>
 					</label>
-					{["faculty_administrator", "department_administrator"].includes(
-						role,
-					) && (
-						<label className="grid gap-2 text-sm font-semibold">
-							Faculty
-							<select
-								className="h-11 rounded border px-3"
-								onChange={(event) => {
-									setFacultyId(event.target.value);
-									setDepartmentId("");
-								}}
-								required
-								value={facultyId}
-							>
-								<option value="">Choose faculty</option>
-								{organization.faculties.map((faculty) => (
-									<option key={faculty.id} value={faculty.id}>
-										{faculty.name}
-									</option>
-								))}
-							</select>
-						</label>
-					)}
+					<label className="grid gap-2 text-sm font-semibold">
+						Faculty
+						<select
+							className="h-11 rounded border px-3"
+							onChange={(event) => {
+								setFacultyId(event.target.value);
+								setDepartmentId("");
+								setUserId("");
+							}}
+							required
+							value={facultyId}
+						>
+							<option value="">Choose faculty</option>
+							{organization.faculties.map((faculty) => (
+								<option key={faculty.id} value={faculty.id}>
+									{faculty.name}
+								</option>
+							))}
+						</select>
+					</label>
 					{role === "department_administrator" && (
 						<label className="grid gap-2 text-sm font-semibold">
 							Department
@@ -403,12 +421,33 @@ function UserAccessPanel() {
 							</select>
 						</label>
 					)}
+					<label className="grid gap-2 text-sm font-semibold">
+						Staff member
+						<select
+							className="h-11 rounded border px-3"
+							onChange={(event) => setUserId(event.target.value)}
+							required
+							value={userId}
+						>
+							<option value="">Choose staff member</option>
+							{candidates.map((user) => (
+								<option key={user.id} value={user.id}>
+									{user.name} ({user.staffId})
+								</option>
+							))}
+						</select>
+					</label>
 					<Button
 						className="md:col-span-2 md:w-fit"
-						disabled={saving || !userId}
+						disabled={
+							saving ||
+							!userId ||
+							!facultyId ||
+							(role === "department_administrator" && !departmentId)
+						}
 						type="submit"
 					>
-						{saving ? "Saving…" : "Save user access"}
+						{saving ? "Saving…" : submitLabel}
 					</Button>
 				</form>
 			</CardContent>

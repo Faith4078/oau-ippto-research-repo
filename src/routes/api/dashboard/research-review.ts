@@ -51,6 +51,7 @@ export const Route = createFileRoute("/api/dashboard/research-review")({
 						{
 							departmentId: session.session.user.departmentId,
 							facultyId: session.session.user.facultyId,
+							roleAssignments: session.session.user.roleAssignments,
 							roles: session.session.user.roles,
 						},
 						stage.data,

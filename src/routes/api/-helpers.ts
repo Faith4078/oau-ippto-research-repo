@@ -13,15 +13,18 @@ export function actorFromSession(
 	}
 
 	const user = sessionState.session.user;
+	const roleAssignments = user.roleAssignments.length
+		? user.roleAssignments
+		: user.roles.map((role) => ({
+				role,
+				facultyId: user.facultyId,
+				departmentId: user.departmentId,
+			}));
 
 	return {
 		userId: user.id,
 		status: user.status,
-		roles: user.roles.map((role) => ({
-			role,
-			facultyId: user.facultyId,
-			departmentId: user.departmentId,
-		})),
+		roles: roleAssignments,
 	};
 }
 
@@ -119,7 +122,15 @@ function statusForError(code: string): number {
 		return 401;
 	}
 
+	if (code === "AUTH_UNAUTHENTICATED" || code === "AUTH_SESSION_EXPIRED") {
+		return 401;
+	}
+
 	if (code === "FORBIDDEN") {
+		return 403;
+	}
+
+	if (code === "AUTH_FORBIDDEN" || code === "AUTH_USER_INACTIVE") {
 		return 403;
 	}
 
@@ -128,6 +139,10 @@ function statusForError(code: string): number {
 	}
 
 	if (code === "ACCOUNT_STATUS_CONFLICT") {
+		return 409;
+	}
+
+	if (code.endsWith("_CONFLICT")) {
 		return 409;
 	}
 

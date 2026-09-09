@@ -45,6 +45,12 @@ export type ResearchReviewAccess = {
 	status: ResearchReviewStatus;
 };
 
+export type DashboardRoleAssignment = {
+	role: RoleKey;
+	departmentId?: string | null;
+	facultyId?: string | null;
+};
+
 export type ResearchReviewQueueItem = {
 	abstract: string;
 	createdAt: Date;
@@ -67,6 +73,7 @@ export async function loadResearchReviewQueue(
 	user: {
 		departmentId: string | null;
 		facultyId: string | null;
+		roleAssignments?: readonly DashboardRoleAssignment[];
 		roles: readonly RoleKey[];
 	},
 	stage: ResearchReviewStage,
@@ -87,10 +94,17 @@ export async function loadResearchReviewQueue(
 export function researchReviewAccessForUser(input: {
 	departmentId: string | null;
 	facultyId: string | null;
+	roleAssignments?: readonly DashboardRoleAssignment[];
 	roles: readonly RoleKey[];
 	stage: ResearchReviewStage;
 }) {
-	if (input.roles.includes("super_administrator")) {
+	const roleAssignments = dashboardRoleAssignmentsForUser(input);
+
+	if (
+		roleAssignments.some(
+			(assignment) => assignment.role === "super_administrator",
+		)
+	) {
 		const statusByStage = {
 			department: "department_review",
 			faculty: "faculty_review",
@@ -102,32 +116,37 @@ export function researchReviewAccessForUser(input: {
 			status: statusByStage[input.stage],
 		};
 	}
+	const departmentAssignment = roleAssignments.find(
+		(assignment) =>
+			assignment.role === "department_administrator" &&
+			Boolean(assignment.departmentId),
+	);
 
-	if (
-		input.stage === "department" &&
-		input.roles.includes("department_administrator") &&
-		input.departmentId
-	) {
+	if (input.stage === "department" && departmentAssignment?.departmentId) {
 		return {
-			departmentId: input.departmentId,
+			departmentId: departmentAssignment.departmentId,
 			facultyId: null,
 			status: "department_review" as const,
 		};
 	}
+	const facultyAssignment = roleAssignments.find(
+		(assignment) =>
+			assignment.role === "faculty_administrator" &&
+			Boolean(assignment.facultyId),
+	);
 
-	if (
-		input.stage === "faculty" &&
-		input.roles.includes("faculty_administrator") &&
-		input.facultyId
-	) {
+	if (input.stage === "faculty" && facultyAssignment?.facultyId) {
 		return {
 			departmentId: null,
-			facultyId: input.facultyId,
+			facultyId: facultyAssignment.facultyId,
 			status: "faculty_review" as const,
 		};
 	}
 
-	if (input.stage === "iptto" && input.roles.includes("iptto_officer")) {
+	if (
+		input.stage === "iptto" &&
+		roleAssignments.some((assignment) => assignment.role === "iptto_officer")
+	) {
 		return {
 			departmentId: null,
 			facultyId: null,
@@ -136,6 +155,21 @@ export function researchReviewAccessForUser(input: {
 	}
 
 	return null;
+}
+
+export function dashboardRoleAssignmentsForUser(input: {
+	departmentId: string | null;
+	facultyId: string | null;
+	roleAssignments?: readonly DashboardRoleAssignment[];
+	roles: readonly RoleKey[];
+}): readonly DashboardRoleAssignment[] {
+	return input.roleAssignments?.length
+		? input.roleAssignments
+		: input.roles.map((role) => ({
+				role,
+				departmentId: input.departmentId,
+				facultyId: input.facultyId,
+			}));
 }
 
 export function buildResearchReviewDecision(input: {

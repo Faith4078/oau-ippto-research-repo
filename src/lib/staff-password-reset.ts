@@ -39,7 +39,7 @@ const resetCompleteSchema = z.object({
 	token: z.string().trim().min(1, "Reset token is required."),
 	password: z
 		.string()
-		.length(8, "Password must be exactly 8 characters.")
+		.min(8, "Password must be at least 8 characters.")
 		.refine(isValidPassword, passwordPolicyText),
 });
 

@@ -3,6 +3,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Eye, EyeOff, LockKeyhole, LogIn } from "lucide-react";
 import { useEffect, useId, useState } from "react";
+import { toast } from "sonner";
 
 import { Button } from "#/components/ui/button.tsx";
 import {
@@ -78,15 +79,43 @@ function SignInPage() {
 			});
 
 			if (!response.ok) {
-				setError("Check your Staff ID and password, then try again.");
+				const message = await readAuthErrorMessage(
+					response,
+					"Check your Staff ID and password, then try again.",
+				);
+				setError(message);
+				toast.error("Sign in failed", { description: message });
+				return;
+			}
+
+			const accessResponse = await fetch("/api/dashboard/me", {
+				cache: "no-store",
+			});
+
+			if (!accessResponse.ok) {
+				const message = await readAuthErrorMessage(
+					accessResponse,
+					"Your account cannot access the dashboard yet.",
+				);
+				await clearRejectedSignInSession();
+				setError(message);
+				toast.error("Sign in failed", { description: message, duration: 8000 });
 				return;
 			}
 
 			window.location.assign("/dashboard");
-		} catch {
+		} catch (error) {
 			setError(
-				"We could not sign you in. Check your connection and try again.",
+				error instanceof Error
+					? error.message
+					: "We could not sign you in. Check your connection and try again.",
 			);
+			toast.error("Sign in failed", {
+				description:
+					error instanceof Error
+						? error.message
+						: "We could not sign you in. Check your connection and try again.",
+			});
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -224,4 +253,50 @@ function SignInPage() {
 			</section>
 		</main>
 	);
+}
+
+async function readAuthErrorMessage(response: Response, fallback: string) {
+	const payload = await response.json().catch(() => null);
+
+	return errorMessageFromPayload(payload) ?? fallback;
+}
+
+function errorMessageFromPayload(payload: unknown): string | null {
+	if (!payload || typeof payload !== "object") {
+		return null;
+	}
+
+	if (
+		"error" in payload &&
+		payload.error &&
+		typeof payload.error === "object"
+	) {
+		const error = payload.error;
+		if ("fieldErrors" in error && error.fieldErrors) {
+			const firstFieldError = Object.values(error.fieldErrors).flat()[0];
+			if (typeof firstFieldError === "string") {
+				return firstFieldError;
+			}
+		}
+		if ("message" in error && typeof error.message === "string") {
+			return error.message;
+		}
+	}
+
+	if ("message" in payload && typeof payload.message === "string") {
+		return payload.message;
+	}
+
+	return null;
+}
+
+async function clearRejectedSignInSession() {
+	await fetch("/api/auth/sign-out", {
+		body: JSON.stringify({}),
+		credentials: "include",
+		headers: {
+			"content-type": "application/json",
+		},
+		method: "POST",
+	}).catch(() => null);
 }

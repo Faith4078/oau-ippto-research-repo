@@ -54,6 +54,7 @@ export async function readAuthSession(request: Request): Promise<SessionState> {
 				name: betterAuthSession.user.name ?? "Staff user",
 				status: "invited",
 				roles: [],
+				roleAssignments: [],
 				departmentId: null,
 				facultyId: null,
 			},
@@ -120,9 +121,11 @@ async function readApplicationUserByStaffId(staffId: string) {
 			email: schema.users.email,
 			name: schema.users.name,
 			status: schema.users.status,
-			facultyId: schema.userProfiles.facultyId,
-			departmentId: schema.userProfiles.departmentId,
+			profileFacultyId: schema.userProfiles.facultyId,
+			profileDepartmentId: schema.userProfiles.departmentId,
 			role: schema.roles.key,
+			roleFacultyId: schema.userRoles.facultyId,
+			roleDepartmentId: schema.userRoles.departmentId,
 		})
 		.from(schema.users)
 		.leftJoin(
@@ -142,6 +145,17 @@ async function readApplicationUserByStaffId(staffId: string) {
 	if (!first) {
 		return null;
 	}
+	const roleAssignments = rows.flatMap((row) =>
+		isRoleKey(row.role)
+			? [
+					{
+						role: row.role,
+						departmentId: (row.roleDepartmentId ?? null) as EntityId | null,
+						facultyId: (row.roleFacultyId ?? null) as EntityId | null,
+					},
+				]
+			: [],
+	);
 
 	return {
 		id: first.id as EntityId,
@@ -150,14 +164,11 @@ async function readApplicationUserByStaffId(staffId: string) {
 		name: first.name,
 		status: first.status as UserStatus,
 		roles: Array.from(
-			new Set(
-				rows
-					.map((row) => row.role)
-					.filter((role): role is RoleKey => isRoleKey(role)),
-			),
+			new Set(roleAssignments.map((assignment) => assignment.role)),
 		),
-		departmentId: (first.departmentId ?? null) as EntityId | null,
-		facultyId: (first.facultyId ?? null) as EntityId | null,
+		roleAssignments,
+		departmentId: (first.profileDepartmentId ?? null) as EntityId | null,
+		facultyId: (first.profileFacultyId ?? null) as EntityId | null,
 	};
 }
 

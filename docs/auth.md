@@ -97,6 +97,7 @@ Signup is role-constrained and uses the same Better Auth username strategy:
 - `/api/admin/accounts` requires `users:manage`. It lists pending requests and applies validated approval, rejection, suspension, deactivation, or reactivation transitions.
 - Every account-status change records the actor, previous status, new status, reason, IP address, and user agent in `audit_logs`.
 - The super administrator dashboard contains the approval queue. Adverse decisions require a reason.
+- Super administrators promote active lecturers to `faculty_administrator` for a specific faculty and may also assign `department_administrator` access directly. Faculty administrators can assign active staff in their faculty to `department_administrator` for a department in that faculty.
 
 ## Session and Route Protection
 
@@ -142,11 +143,10 @@ The initial permission matrix is intentionally conservative:
 - IPTTO officers can manage innovations, patents, commercialization work, and private supporting records relevant to IPTTO review.
 - Super administrators receive every defined permission, including user, role, organization, audit, and failed-job visibility.
 
-Record ownership and department/faculty scoping still need to be enforced inside application services and repositories once those flows are implemented. The central permission matrix answers whether a role may attempt an action; resource-level policy must still decide whether that user may act on the specific record.
+Record ownership and department/faculty scoping are enforced by application services and repositories. The central permission matrix answers whether a role may attempt an action; resource-level policy still decides whether that user may act on the specific record.
 
 ## Account Policy Still Requiring Institutional Decisions
 
-- Who approves department administrator, faculty administrator, and super administrator accounts?
 - What happens when a staff member transfers departments?
 - Which institutional email domains are permitted?
 

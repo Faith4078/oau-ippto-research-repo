@@ -238,7 +238,6 @@ function IpttoSignUpPage() {
 											className="h-12 rounded border-[#d8d8d8] bg-white pr-12 text-base md:text-base"
 											aria-invalid={password.length > 0 && !passwordIsValid}
 											id={passwordInputId}
-											maxLength={8}
 											minLength={8}
 											name="password"
 											onChange={(event) => setPassword(event.target.value)}

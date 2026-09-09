@@ -1,5 +1,5 @@
 import { fail, ok, type Result } from "#/application/result.ts";
-import type { RoleKey } from "#/domain/organization.ts";
+import type { RoleKey, UserStatus } from "#/domain/organization.ts";
 
 import {
 	hasAnyPermission,
@@ -37,7 +37,8 @@ export class AuthorizationError extends Error {
 		super(message);
 		this.name = "AuthorizationError";
 		this.code = code;
-		this.statusCode = code === "AUTH_FORBIDDEN" ? 403 : 401;
+		this.statusCode =
+			code === "AUTH_FORBIDDEN" || code === "AUTH_USER_INACTIVE" ? 403 : 401;
 	}
 }
 
@@ -53,7 +54,10 @@ export function authorizeSession(
 	const { session } = sessionState;
 
 	if (session.user.status !== "active") {
-		return fail("AUTH_USER_INACTIVE", "The signed-in account is not active.");
+		return fail(
+			"AUTH_USER_INACTIVE",
+			inactiveAccountMessage(session.user.status),
+		);
 	}
 
 	if (!isActiveSession(session, now)) {
@@ -90,6 +94,26 @@ export function authorizeSession(
 	}
 
 	return ok({ session });
+}
+
+function inactiveAccountMessage(status: UserStatus): string {
+	if (status === "pending") {
+		return "Your account has not been approved yet. A super administrator must approve it before you can sign in.";
+	}
+
+	if (status === "rejected") {
+		return "Your account request was rejected. Contact a super administrator for help.";
+	}
+
+	if (status === "suspended") {
+		return "Your account is suspended. Contact a super administrator for help.";
+	}
+
+	if (status === "deactivated") {
+		return "Your account is deactivated. Contact a super administrator for help.";
+	}
+
+	return "The signed-in account is not active.";
 }
 
 export function assertAuthorizedSession(

@@ -5,6 +5,7 @@ import type { LucideIcon } from "lucide-react";
 import {
 	BadgeCheck,
 	BookOpenCheck,
+	Building2,
 	CalendarDays,
 	CheckCircle2,
 	ChevronDown,
@@ -12,16 +13,17 @@ import {
 	FileClock,
 	Filter,
 	Gavel,
+	House,
 	Lightbulb,
 	LockKeyhole,
 	LogOut,
 	Menu,
 	MoreHorizontal,
 	Plus,
-	Settings,
 	ShieldCheck,
 	SlidersHorizontal,
 	UserCircle2,
+	UsersRound,
 	X,
 	XCircle,
 } from "lucide-react";
@@ -42,6 +44,7 @@ import {
 	FieldLabel,
 } from "#/components/ui/field.tsx";
 import { Input } from "#/components/ui/input.tsx";
+import { LoadingSkeletonFrame } from "#/components/ui/loading-skeleton.tsx";
 import { signOutAndRedirectHome } from "#/lib/sign-out.ts";
 import { cn } from "#/lib/utils.ts";
 import {
@@ -107,7 +110,16 @@ const workspaceNavByRole: Record<
 > = {
 	lecturer: {
 		primary: [
-			{ label: "My Research", icon: FileClock, href: "/dashboard/lecturer" },
+			{
+				label: "Home",
+				icon: House,
+				href: "/dashboard/lecturer",
+			},
+			{
+				label: "Profile",
+				icon: UserCircle2,
+				href: "/dashboard/lecturer/profile",
+			},
 			{
 				label: "Add Research",
 				icon: SlidersHorizontal,
@@ -119,11 +131,6 @@ const workspaceNavByRole: Record<
 				label: "Request IPTTO Services",
 				icon: Lightbulb,
 				href: "/dashboard/lecturer/request-service",
-			},
-			{
-				label: "My Profile",
-				icon: UserCircle2,
-				href: "/dashboard/lecturer/profile",
 			},
 		],
 	},
@@ -141,19 +148,34 @@ const workspaceNavByRole: Record<
 	},
 	"faculty-admin": {
 		primary: [
-			{ label: "Needs Review", icon: FileClock, href: "#review-queue" },
+			{
+				label: "Needs Review",
+				icon: FileClock,
+				href: "/dashboard/faculty-admin#review-queue",
+			},
+			{
+				label: "Departments",
+				icon: Building2,
+				href: "/dashboard/faculty-admin/departments",
+			},
+			{
+				label: "Users by Role",
+				icon: UsersRound,
+				href: "/dashboard/faculty-admin/users",
+			},
+		],
+		secondary: [
 			{
 				label: "Department Summary",
 				icon: SlidersHorizontal,
-				href: "#department-summary",
+				href: "/dashboard/faculty-admin#department-summary",
 			},
 			{
 				label: "Faculty Report",
 				icon: CalendarDays,
-				href: "#dashboard-report",
+				href: "/dashboard/faculty-admin#dashboard-report",
 			},
 		],
-		secondary: [],
 	},
 	"iptto-officer": {
 		primary: [
@@ -173,12 +195,25 @@ const workspaceNavByRole: Record<
 	"super-admin": {
 		primary: [
 			{
-				label: "Account Requests",
-				icon: UserCircle2,
-				href: "#account-requests",
+				label: "Home",
+				icon: House,
+				href: "/dashboard/super-admin",
 			},
-			{ label: "User Access", icon: ShieldCheck, href: "#user-access" },
-			{ label: "Needs Attention", icon: Settings, href: "#platform-attention" },
+			{
+				label: "Faculties",
+				icon: BookOpenCheck,
+				href: "/dashboard/super-admin/faculties",
+			},
+			{
+				label: "Departments",
+				icon: Building2,
+				href: "/dashboard/super-admin/departments",
+			},
+			{
+				label: "Users by Role",
+				icon: UsersRound,
+				href: "/dashboard/super-admin/users",
+			},
 		],
 		secondary: [],
 	},
@@ -249,6 +284,7 @@ export function DashboardShell({
 	const workspaceNav = getWorkspaceNav(workspace.role);
 	const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 	const [isDesktop, setIsDesktop] = useState(false);
+	const [isIdentityLoading, setIsIdentityLoading] = useState(true);
 	const [signedInName, setSignedInName] = useState<string | null>(null);
 	const [lecturerIdentity, setLecturerIdentity] =
 		useState<LecturerTopBarIdentity | null>(null);
@@ -271,11 +307,10 @@ export function DashboardShell({
 	});
 
 	useEffect(() => {
-		if (workspace.role !== "lecturer" && workspace.role !== "iptto-officer") {
-			return;
-		}
-
 		let cancelled = false;
+		setIsIdentityLoading(true);
+		setSignedInName(null);
+		setLecturerIdentity(null);
 
 		void fetch("/api/dashboard/me", { cache: "no-store" })
 			.then((response) => (response.ok ? response.json() : null))
@@ -301,9 +336,13 @@ export function DashboardShell({
 							typeof data?.facultyName === "string" ? data.facultyName : null,
 					});
 				}
+
+				setIsIdentityLoading(false);
 			})
 			.catch(() => {
-				// Keep the workspace fallback when identity cannot be loaded.
+				if (!cancelled) {
+					setIsIdentityLoading(false);
+				}
 			});
 
 		return () => {
@@ -330,7 +369,7 @@ export function DashboardShell({
 
 	return (
 		<main className="min-h-screen bg-[#f0f0f0] text-[#080808]">
-			<div className="mx-auto flex min-h-screen w-full max-w-[1440px] bg-white">
+			<div className="mx-auto flex min-h-screen w-full max-w-360 bg-white">
 				{isResponsiveWorkspace && isMobileSidebarOpen ? (
 					<button
 						aria-label="Close dashboard navigation"
@@ -347,7 +386,7 @@ export function DashboardShell({
 					}
 					aria-label="Dashboard navigation"
 					className={cn(
-						"w-[268px] shrink-0 flex-col border-[#d8d8d8] border-r bg-[#f7f7f7]",
+						"w-67 shrink-0 flex-col border-[#d8d8d8] border-r bg-[#f7f7f7]",
 						isResponsiveWorkspace
 							? cn(
 									"fixed inset-y-0 left-0 z-50 flex shadow-xl transition-transform duration-200 lg:static lg:z-auto lg:translate-x-0 lg:shadow-none",
@@ -381,27 +420,6 @@ export function DashboardShell({
 						) : null}
 					</div>
 
-					<div className="border-[#d8d8d8] border-b p-4">
-						<p className="mb-2 text-xs font-medium text-[#6b7280]">
-							Signed in as
-						</p>
-						<div className="flex w-full items-center justify-between gap-3 rounded-lg border border-[#d8d8d8] bg-white p-3 text-left">
-							<span className="flex min-w-0 items-center gap-3">
-								<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-[#080808] text-white">
-									<UserCircle2 className="h-5 w-5" />
-								</span>
-								<span className="min-w-0">
-									<strong className="block truncate text-sm font-semibold">
-										{displayName}
-									</strong>
-									<span className="block truncate text-xs text-[#6b7280]">
-										{roleLabels[workspace.role]}
-									</span>
-								</span>
-							</span>
-						</div>
-					</div>
-
 					<nav className="flex-1 space-y-6 p-4">
 						<SidebarGroup label="Workspace">
 							{workspaceNav.primary.map((item) => (
@@ -415,27 +433,34 @@ export function DashboardShell({
 								/>
 							))}
 						</SidebarGroup>
-						<SidebarGroup label="Tools">
-							{workspaceNav.secondary.map((item) => (
-								<SidebarButton
-									active={navItemStates.secondary.get(item.href) ?? false}
-									href={item.href}
-									icon={item.icon}
-									key={item.label}
-									label={item.label}
-									onClick={() => setIsMobileSidebarOpen(false)}
-								/>
-							))}
-						</SidebarGroup>
+						{workspaceNav.secondary.length > 0 ? (
+							<SidebarGroup label="Tools">
+								{workspaceNav.secondary.map((item) => (
+									<SidebarButton
+										active={navItemStates.secondary.get(item.href) ?? false}
+										href={item.href}
+										icon={item.icon}
+										key={item.label}
+										label={item.label}
+										onClick={() => setIsMobileSidebarOpen(false)}
+									/>
+								))}
+							</SidebarGroup>
+						) : null}
 					</nav>
 
-					<SidebarFooter displayName={displayName} workspace={workspace} />
+					<SidebarFooter
+						displayName={displayName}
+						isIdentityLoading={isIdentityLoading}
+						workspace={workspace}
+					/>
 				</aside>
 
 				<section className="min-w-0 flex-1">
 					<TopBar
 						displayName={displayName}
 						identity={workspace.role === "lecturer" ? lecturerIdentity : null}
+						isIdentityLoading={isIdentityLoading}
 						onMenuClick={() => setIsMobileSidebarOpen(true)}
 						showMenu={isResponsiveWorkspace}
 					/>
@@ -463,11 +488,13 @@ function shouldShowConfirmationPreview(role: DashboardRole) {
 function TopBar({
 	displayName,
 	identity,
+	isIdentityLoading,
 	onMenuClick,
 	showMenu,
 }: {
 	displayName: string;
 	identity: LecturerTopBarIdentity | null;
+	isIdentityLoading: boolean;
 	onMenuClick: () => void;
 	showMenu: boolean;
 }) {
@@ -491,7 +518,11 @@ function TopBar({
 					</button>
 				) : null}
 				<div className="min-w-0 flex-1">
-					<p className="truncate text-sm font-semibold">{displayName}</p>
+					{isIdentityLoading ? (
+						<IdentityLoadingSkeleton label="Loading signed-in user" />
+					) : (
+						<p className="truncate text-sm font-semibold">{displayName}</p>
+					)}
 					{identityDetails.length > 0 ? (
 						<p className="mt-0.5 truncate text-xs text-[#6b7280]">
 							{identityDetails.join(" · ")}
@@ -530,22 +561,39 @@ function SidebarGroup({
 
 function SidebarFooter({
 	displayName,
+	isIdentityLoading,
 	workspace,
 }: {
 	displayName: string;
+	isIdentityLoading: boolean;
 	workspace: DashboardWorkspace;
 }) {
 	return (
-		<div className="border-[#d8d8d8] border-t p-4">
-			<p className="mb-2 text-xs font-medium text-[#6b7280]">
-				Current workspace
-			</p>
-			<div className="rounded border border-[#d8d8d8] bg-white p-3">
-				<p className="text-sm font-semibold">{roleLabels[workspace.role]}</p>
-				<p className="mt-1 text-xs leading-5 text-[#6b7280]">{displayName}</p>
+		<div className="space-y-3 border-[#d8d8d8] border-t p-4">
+			<div>
+				<p className="mb-2 text-xs font-medium text-[#6b7280]">Signed in as</p>
+				<div className="flex w-full items-center justify-between gap-3 rounded-lg border border-[#d8d8d8] bg-white p-3 text-left">
+					<span className="flex min-w-0 items-center gap-3">
+						<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-[#080808] text-white">
+							<UserCircle2 className="h-5 w-5" />
+						</span>
+						<span className="min-w-0">
+							{isIdentityLoading ? (
+								<IdentityLoadingSkeleton label="Loading signed-in user" />
+							) : (
+								<strong className="block truncate text-sm font-semibold">
+									{displayName}
+								</strong>
+							)}
+							<span className="block truncate text-xs text-[#6b7280]">
+								{roleLabels[workspace.role]}
+							</span>
+						</span>
+					</span>
+				</div>
 			</div>
 			<button
-				className="mt-3 flex w-full items-center justify-center gap-2 rounded border border-[#d8d8d8] bg-white px-3 py-2.5 text-sm font-medium text-[#080808] hover:border-[#146ef5]"
+				className="flex w-full items-center justify-center gap-2 rounded border border-[#d8d8d8] bg-white px-3 py-2.5 text-sm font-medium text-[#080808] hover:border-[#146ef5]"
 				onClick={() => void signOutAndRedirectHome()}
 				type="button"
 			>
@@ -553,6 +601,14 @@ function SidebarFooter({
 				Logout
 			</button>
 		</div>
+	);
+}
+
+function IdentityLoadingSkeleton({ label }: { label: string }) {
+	return (
+		<LoadingSkeletonFrame label={label}>
+			<span className="block h-4 w-28 rounded-full bg-[#d8d8d8]" />
+		</LoadingSkeletonFrame>
 	);
 }
 
@@ -574,9 +630,9 @@ function SidebarButton({
 		active && "bg-white text-[#080808]",
 	);
 
-	// In-page anchors (e.g. "#my-research") scroll to a section on the
-	// current page and must stay plain <a> tags; everything else is a real
-	// route and should use client-side navigation.
+	// In-page anchors (e.g. "#dashboard-report") scroll on the current page.
+	// Route links, including route links with hashes, should use client-side
+	// navigation so they can leave nested dashboard sections first.
 	if (href.startsWith("#")) {
 		return (
 			<a className={className} href={href} onClick={onClick}>
@@ -1096,8 +1152,8 @@ function InsightGrid({
 				>
 					<div
 						className={cn(
-							"grid h-[220px] grid-cols-8 items-end gap-3 border-[#d8d8d8] border-b bg-[linear-gradient(to_top,#f0f0f0_1px,transparent_1px)] bg-[length:100%_44px] px-1 pb-6",
-							isResponsiveWorkspace && "min-w-[520px] sm:min-w-0",
+							"grid h-55 grid-cols-8 items-end gap-3 border-[#d8d8d8] border-b bg-[linear-gradient(to_top,#f0f0f0_1px,transparent_1px)] bg-size-[100%_44px] px-1 pb-6",
+							isResponsiveWorkspace && "min-w-130 sm:min-w-0",
 						)}
 					>
 						{throughputBars.map((bar) => (
@@ -1132,10 +1188,7 @@ function InsightGrid({
 				>
 					<svg
 						aria-label="Review progress line chart"
-						className={cn(
-							"h-[220px] w-full",
-							isResponsiveWorkspace && "min-w-[300px]",
-						)}
+						className={cn("h-55 w-full", isResponsiveWorkspace && "min-w-75")}
 						role="img"
 						viewBox="0 0 320 220"
 					>
@@ -1356,9 +1409,7 @@ function DataTable({
 			<table
 				className={cn(
 					"w-full border-collapse text-left",
-					isResponsiveWorkspace
-						? "min-w-[760px] md:min-w-[860px]"
-						: "min-w-[860px]",
+					isResponsiveWorkspace ? "min-w-190 md:min-w-215" : "min-w-215",
 				)}
 			>
 				<thead className="bg-[#f7f7f7] text-xs font-semibold text-[#6b7280]">
@@ -1385,7 +1436,7 @@ function DataTable({
 									<input aria-label={`Select ${row.id}`} type="checkbox" />
 								</td>
 							)}
-							<td className="max-w-[280px] px-4 py-4">
+							<td className="max-w-70 px-4 py-4">
 								<strong className="block truncate font-semibold text-[#080808]">
 									{row.title}
 								</strong>

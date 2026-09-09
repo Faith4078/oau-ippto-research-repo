@@ -44,7 +44,7 @@ test("forgot password page captures exact AC or AT staff ID format", async ({
 	).toBeVisible();
 });
 
-test("reset password page explains the exact password policy", async ({
+test("reset password page explains the password policy", async ({
 	page,
 }) => {
 	await page.goto("/reset-password?token=test-token");
@@ -53,11 +53,11 @@ test("reset password page explains the exact password policy", async ({
 		page.getByRole("heading", { name: /Reset Password/i }),
 	).toBeVisible();
 	await expect(page.locator('input[name="token"]')).toHaveValue("test-token");
-	await expect(page.getByLabel(/New password/i)).toHaveAttribute(
+	await expect(page.getByLabel(/New password/i)).not.toHaveAttribute(
 		"maxlength",
 		"8",
 	);
-	await expect(page.getByText("Exactly 8 characters", { exact: true })).toBeVisible();
+	await expect(page.getByText("At least 8 characters", { exact: true })).toBeVisible();
 	await expect(
 		page.getByText("At least one uppercase letter", { exact: true }),
 	).toBeVisible();
@@ -129,9 +129,9 @@ test("lecturer signup submits once and clears the form after success", async ({
 	);
 	await expect(page.getByLabel(/Faculty/i)).toBeVisible();
 	await expect(page.getByLabel(/Department/i)).toBeVisible();
-	await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute("minlength", "8");
-	await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute("maxlength", "8");
-	await expect(page.getByText("Exactly 8 characters", { exact: true })).toBeVisible();
+	await expect(page.getByLabel(/Password/i)).toHaveAttribute("minlength", "8");
+	await expect(page.getByLabel(/Password/i)).not.toHaveAttribute("maxlength", "8");
+	await expect(page.getByText("At least 8 characters", { exact: true })).toBeVisible();
 	await expect(
 		page.getByText("At least one special symbol", { exact: true }),
 	).toBeVisible();
@@ -193,9 +193,9 @@ test("IPTTO signup page captures required AT staff fields", async ({ page }) => 
 		"pattern",
 		"AT/[0-9]{4}",
 	);
-	await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute("minlength", "8");
-	await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute("maxlength", "8");
-	await expect(page.getByText("Exactly 8 characters", { exact: true })).toBeVisible();
+	await expect(page.getByLabel(/Password/i)).toHaveAttribute("minlength", "8");
+	await expect(page.getByLabel(/Password/i)).not.toHaveAttribute("maxlength", "8");
+	await expect(page.getByText("At least 8 characters", { exact: true })).toBeVisible();
 	await expect(
 		page.getByText("At least one special symbol", { exact: true }),
 	).toBeVisible();

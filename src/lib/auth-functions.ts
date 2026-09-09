@@ -3,6 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 
 import { authorizeSession } from "#/application/auth/guards.ts";
+import type { AuthRoleAssignment } from "#/application/auth/session.ts";
 import type { RoleKey, UserStatus } from "#/domain/organization.ts";
 
 import { readAuthSession } from "./auth-server.ts";
@@ -14,6 +15,7 @@ export type DashboardAuthUser = {
 	email: string | null;
 	status: UserStatus;
 	roles: readonly RoleKey[];
+	roleAssignments: readonly AuthRoleAssignment[];
 	departmentId: string | null;
 	facultyId: string | null;
 };

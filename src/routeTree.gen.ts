@@ -73,16 +73,29 @@ import { Route as ApiJobsFailedRouteImport } from './routes/api/jobs/failed'
 import { Route as ApiPatentsPatentIdRouteImport } from './routes/api/patents.$patentId'
 import { Route as ApiResearchApprovalTransitionsRouteImport } from './routes/api/research/approval-transitions'
 import { Route as ApiResearchSubmissionsRouteImport } from './routes/api/research/submissions'
+import { Route as DashboardFacultyAdminDepartmentsRouteImport } from './routes/dashboard.faculty-admin.departments'
+import { Route as DashboardFacultyAdminUsersRouteImport } from './routes/dashboard.faculty-admin.users'
 import { Route as DashboardLecturerProfileRouteImport } from './routes/dashboard.lecturer.profile'
 import { Route as DashboardLecturerRequestServiceRouteImport } from './routes/dashboard.lecturer.request-service'
 import { Route as DashboardLecturerSubmitRouteImport } from './routes/dashboard.lecturer.submit'
+import { Route as DashboardSuperAdminDepartmentsRouteImport } from './routes/dashboard.super-admin.departments'
+import { Route as DashboardSuperAdminFacultiesRouteImport } from './routes/dashboard.super-admin.faculties'
+import { Route as DashboardSuperAdminOrganizationRouteImport } from './routes/dashboard.super-admin.organization'
+import { Route as DashboardSuperAdminUsersRouteImport } from './routes/dashboard.super-admin.users'
+import { Route as ApiAdminOrganizationDepartmentsRouteImport } from './routes/api/admin/organization/departments'
+import { Route as ApiAdminOrganizationFacultiesRouteImport } from './routes/api/admin/organization/faculties'
 import { Route as ApiAuthStaffPasswordResetCompleteRouteImport } from './routes/api/auth/staff-password-reset/complete'
 import { Route as ApiAuthStaffPasswordResetRequestRouteImport } from './routes/api/auth/staff-password-reset/request'
 import { Route as ApiInnovationsInnovationIdArchiveRouteImport } from './routes/api/innovations.$innovationId.archive'
 import { Route as ApiInnovationsInnovationIdPublishRouteImport } from './routes/api/innovations.$innovationId.publish'
 import { Route as ApiInnovationsInnovationIdReviewRouteImport } from './routes/api/innovations.$innovationId.review'
 import { Route as ApiResearchSubmissionsResearchRecordIdRouteImport } from './routes/api/research/submissions.$researchRecordId'
+import { Route as DashboardFacultyAdminDepartmentsDepartmentIdRouteImport } from './routes/dashboard.faculty-admin.departments.$departmentId'
+import { Route as DashboardFacultyAdminUsersUserIdRouteImport } from './routes/dashboard.faculty-admin.users.$userId'
 import { Route as DashboardLecturerEditResearchRecordIdRouteImport } from './routes/dashboard.lecturer.edit.$researchRecordId'
+import { Route as DashboardSuperAdminDepartmentsDepartmentIdRouteImport } from './routes/dashboard.super-admin.departments.$departmentId'
+import { Route as DashboardSuperAdminFacultiesFacultyIdRouteImport } from './routes/dashboard.super-admin.faculties.$facultyId'
+import { Route as DashboardSuperAdminUsersUserIdRouteImport } from './routes/dashboard.super-admin.users.$userId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -410,6 +423,18 @@ const ApiResearchSubmissionsRoute = ApiResearchSubmissionsRouteImport.update({
   path: '/api/research/submissions',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardFacultyAdminDepartmentsRoute =
+  DashboardFacultyAdminDepartmentsRouteImport.update({
+    id: '/departments',
+    path: '/departments',
+    getParentRoute: () => DashboardFacultyAdminRoute,
+  } as any)
+const DashboardFacultyAdminUsersRoute =
+  DashboardFacultyAdminUsersRouteImport.update({
+    id: '/users',
+    path: '/users',
+    getParentRoute: () => DashboardFacultyAdminRoute,
+  } as any)
 const DashboardLecturerProfileRoute =
   DashboardLecturerProfileRouteImport.update({
     id: '/profile',
@@ -427,6 +452,42 @@ const DashboardLecturerSubmitRoute = DashboardLecturerSubmitRouteImport.update({
   path: '/submit',
   getParentRoute: () => DashboardLecturerRoute,
 } as any)
+const DashboardSuperAdminDepartmentsRoute =
+  DashboardSuperAdminDepartmentsRouteImport.update({
+    id: '/departments',
+    path: '/departments',
+    getParentRoute: () => DashboardSuperAdminRoute,
+  } as any)
+const DashboardSuperAdminFacultiesRoute =
+  DashboardSuperAdminFacultiesRouteImport.update({
+    id: '/faculties',
+    path: '/faculties',
+    getParentRoute: () => DashboardSuperAdminRoute,
+  } as any)
+const DashboardSuperAdminOrganizationRoute =
+  DashboardSuperAdminOrganizationRouteImport.update({
+    id: '/organization',
+    path: '/organization',
+    getParentRoute: () => DashboardSuperAdminRoute,
+  } as any)
+const DashboardSuperAdminUsersRoute =
+  DashboardSuperAdminUsersRouteImport.update({
+    id: '/users',
+    path: '/users',
+    getParentRoute: () => DashboardSuperAdminRoute,
+  } as any)
+const ApiAdminOrganizationDepartmentsRoute =
+  ApiAdminOrganizationDepartmentsRouteImport.update({
+    id: '/api/admin/organization/departments',
+    path: '/api/admin/organization/departments',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminOrganizationFacultiesRoute =
+  ApiAdminOrganizationFacultiesRouteImport.update({
+    id: '/api/admin/organization/faculties',
+    path: '/api/admin/organization/faculties',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAuthStaffPasswordResetCompleteRoute =
   ApiAuthStaffPasswordResetCompleteRouteImport.update({
     id: '/api/auth/staff-password-reset/complete',
@@ -463,11 +524,41 @@ const ApiResearchSubmissionsResearchRecordIdRoute =
     path: '/$researchRecordId',
     getParentRoute: () => ApiResearchSubmissionsRoute,
   } as any)
+const DashboardFacultyAdminDepartmentsDepartmentIdRoute =
+  DashboardFacultyAdminDepartmentsDepartmentIdRouteImport.update({
+    id: '/$departmentId',
+    path: '/$departmentId',
+    getParentRoute: () => DashboardFacultyAdminDepartmentsRoute,
+  } as any)
+const DashboardFacultyAdminUsersUserIdRoute =
+  DashboardFacultyAdminUsersUserIdRouteImport.update({
+    id: '/$userId',
+    path: '/$userId',
+    getParentRoute: () => DashboardFacultyAdminUsersRoute,
+  } as any)
 const DashboardLecturerEditResearchRecordIdRoute =
   DashboardLecturerEditResearchRecordIdRouteImport.update({
     id: '/edit/$researchRecordId',
     path: '/edit/$researchRecordId',
     getParentRoute: () => DashboardLecturerRoute,
+  } as any)
+const DashboardSuperAdminDepartmentsDepartmentIdRoute =
+  DashboardSuperAdminDepartmentsDepartmentIdRouteImport.update({
+    id: '/$departmentId',
+    path: '/$departmentId',
+    getParentRoute: () => DashboardSuperAdminDepartmentsRoute,
+  } as any)
+const DashboardSuperAdminFacultiesFacultyIdRoute =
+  DashboardSuperAdminFacultiesFacultyIdRouteImport.update({
+    id: '/$facultyId',
+    path: '/$facultyId',
+    getParentRoute: () => DashboardSuperAdminFacultiesRoute,
+  } as any)
+const DashboardSuperAdminUsersUserIdRoute =
+  DashboardSuperAdminUsersUserIdRouteImport.update({
+    id: '/$userId',
+    path: '/$userId',
+    getParentRoute: () => DashboardSuperAdminUsersRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -500,10 +591,10 @@ export interface FileRoutesByFullPath {
   '/api/related-records': typeof ApiRelatedRecordsRoute
   '/api/search': typeof ApiSearchRoute
   '/dashboard/department-admin': typeof DashboardDepartmentAdminRoute
-  '/dashboard/faculty-admin': typeof DashboardFacultyAdminRoute
+  '/dashboard/faculty-admin': typeof DashboardFacultyAdminRouteWithChildren
   '/dashboard/iptto-officer': typeof DashboardIpttoOfficerRoute
   '/dashboard/lecturer': typeof DashboardLecturerRouteWithChildren
-  '/dashboard/super-admin': typeof DashboardSuperAdminRoute
+  '/dashboard/super-admin': typeof DashboardSuperAdminRouteWithChildren
   '/departments/$departmentId': typeof DepartmentsDepartmentIdRoute
   '/faculties/$facultyId': typeof FacultiesFacultyIdRoute
   '/innovations/$innovationId': typeof InnovationsInnovationIdRoute
@@ -535,16 +626,29 @@ export interface FileRoutesByFullPath {
   '/api/patents/$patentId': typeof ApiPatentsPatentIdRoute
   '/api/research/approval-transitions': typeof ApiResearchApprovalTransitionsRoute
   '/api/research/submissions': typeof ApiResearchSubmissionsRouteWithChildren
+  '/dashboard/faculty-admin/departments': typeof DashboardFacultyAdminDepartmentsRouteWithChildren
+  '/dashboard/faculty-admin/users': typeof DashboardFacultyAdminUsersRouteWithChildren
   '/dashboard/lecturer/profile': typeof DashboardLecturerProfileRoute
   '/dashboard/lecturer/request-service': typeof DashboardLecturerRequestServiceRoute
   '/dashboard/lecturer/submit': typeof DashboardLecturerSubmitRoute
+  '/dashboard/super-admin/departments': typeof DashboardSuperAdminDepartmentsRouteWithChildren
+  '/dashboard/super-admin/faculties': typeof DashboardSuperAdminFacultiesRouteWithChildren
+  '/dashboard/super-admin/organization': typeof DashboardSuperAdminOrganizationRoute
+  '/dashboard/super-admin/users': typeof DashboardSuperAdminUsersRouteWithChildren
+  '/api/admin/organization/departments': typeof ApiAdminOrganizationDepartmentsRoute
+  '/api/admin/organization/faculties': typeof ApiAdminOrganizationFacultiesRoute
   '/api/auth/staff-password-reset/complete': typeof ApiAuthStaffPasswordResetCompleteRoute
   '/api/auth/staff-password-reset/request': typeof ApiAuthStaffPasswordResetRequestRoute
   '/api/innovations/$innovationId/archive': typeof ApiInnovationsInnovationIdArchiveRoute
   '/api/innovations/$innovationId/publish': typeof ApiInnovationsInnovationIdPublishRoute
   '/api/innovations/$innovationId/review': typeof ApiInnovationsInnovationIdReviewRoute
   '/api/research/submissions/$researchRecordId': typeof ApiResearchSubmissionsResearchRecordIdRoute
+  '/dashboard/faculty-admin/departments/$departmentId': typeof DashboardFacultyAdminDepartmentsDepartmentIdRoute
+  '/dashboard/faculty-admin/users/$userId': typeof DashboardFacultyAdminUsersUserIdRoute
   '/dashboard/lecturer/edit/$researchRecordId': typeof DashboardLecturerEditResearchRecordIdRoute
+  '/dashboard/super-admin/departments/$departmentId': typeof DashboardSuperAdminDepartmentsDepartmentIdRoute
+  '/dashboard/super-admin/faculties/$facultyId': typeof DashboardSuperAdminFacultiesFacultyIdRoute
+  '/dashboard/super-admin/users/$userId': typeof DashboardSuperAdminUsersUserIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -570,10 +674,10 @@ export interface FileRoutesByTo {
   '/api/related-records': typeof ApiRelatedRecordsRoute
   '/api/search': typeof ApiSearchRoute
   '/dashboard/department-admin': typeof DashboardDepartmentAdminRoute
-  '/dashboard/faculty-admin': typeof DashboardFacultyAdminRoute
+  '/dashboard/faculty-admin': typeof DashboardFacultyAdminRouteWithChildren
   '/dashboard/iptto-officer': typeof DashboardIpttoOfficerRoute
   '/dashboard/lecturer': typeof DashboardLecturerRouteWithChildren
-  '/dashboard/super-admin': typeof DashboardSuperAdminRoute
+  '/dashboard/super-admin': typeof DashboardSuperAdminRouteWithChildren
   '/departments/$departmentId': typeof DepartmentsDepartmentIdRoute
   '/faculties/$facultyId': typeof FacultiesFacultyIdRoute
   '/innovations/$innovationId': typeof InnovationsInnovationIdRoute
@@ -605,16 +709,29 @@ export interface FileRoutesByTo {
   '/api/patents/$patentId': typeof ApiPatentsPatentIdRoute
   '/api/research/approval-transitions': typeof ApiResearchApprovalTransitionsRoute
   '/api/research/submissions': typeof ApiResearchSubmissionsRouteWithChildren
+  '/dashboard/faculty-admin/departments': typeof DashboardFacultyAdminDepartmentsRouteWithChildren
+  '/dashboard/faculty-admin/users': typeof DashboardFacultyAdminUsersRouteWithChildren
   '/dashboard/lecturer/profile': typeof DashboardLecturerProfileRoute
   '/dashboard/lecturer/request-service': typeof DashboardLecturerRequestServiceRoute
   '/dashboard/lecturer/submit': typeof DashboardLecturerSubmitRoute
+  '/dashboard/super-admin/departments': typeof DashboardSuperAdminDepartmentsRouteWithChildren
+  '/dashboard/super-admin/faculties': typeof DashboardSuperAdminFacultiesRouteWithChildren
+  '/dashboard/super-admin/organization': typeof DashboardSuperAdminOrganizationRoute
+  '/dashboard/super-admin/users': typeof DashboardSuperAdminUsersRouteWithChildren
+  '/api/admin/organization/departments': typeof ApiAdminOrganizationDepartmentsRoute
+  '/api/admin/organization/faculties': typeof ApiAdminOrganizationFacultiesRoute
   '/api/auth/staff-password-reset/complete': typeof ApiAuthStaffPasswordResetCompleteRoute
   '/api/auth/staff-password-reset/request': typeof ApiAuthStaffPasswordResetRequestRoute
   '/api/innovations/$innovationId/archive': typeof ApiInnovationsInnovationIdArchiveRoute
   '/api/innovations/$innovationId/publish': typeof ApiInnovationsInnovationIdPublishRoute
   '/api/innovations/$innovationId/review': typeof ApiInnovationsInnovationIdReviewRoute
   '/api/research/submissions/$researchRecordId': typeof ApiResearchSubmissionsResearchRecordIdRoute
+  '/dashboard/faculty-admin/departments/$departmentId': typeof DashboardFacultyAdminDepartmentsDepartmentIdRoute
+  '/dashboard/faculty-admin/users/$userId': typeof DashboardFacultyAdminUsersUserIdRoute
   '/dashboard/lecturer/edit/$researchRecordId': typeof DashboardLecturerEditResearchRecordIdRoute
+  '/dashboard/super-admin/departments/$departmentId': typeof DashboardSuperAdminDepartmentsDepartmentIdRoute
+  '/dashboard/super-admin/faculties/$facultyId': typeof DashboardSuperAdminFacultiesFacultyIdRoute
+  '/dashboard/super-admin/users/$userId': typeof DashboardSuperAdminUsersUserIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -647,10 +764,10 @@ export interface FileRoutesById {
   '/api/related-records': typeof ApiRelatedRecordsRoute
   '/api/search': typeof ApiSearchRoute
   '/dashboard/department-admin': typeof DashboardDepartmentAdminRoute
-  '/dashboard/faculty-admin': typeof DashboardFacultyAdminRoute
+  '/dashboard/faculty-admin': typeof DashboardFacultyAdminRouteWithChildren
   '/dashboard/iptto-officer': typeof DashboardIpttoOfficerRoute
   '/dashboard/lecturer': typeof DashboardLecturerRouteWithChildren
-  '/dashboard/super-admin': typeof DashboardSuperAdminRoute
+  '/dashboard/super-admin': typeof DashboardSuperAdminRouteWithChildren
   '/departments/$departmentId': typeof DepartmentsDepartmentIdRoute
   '/faculties/$facultyId': typeof FacultiesFacultyIdRoute
   '/innovations/$innovationId': typeof InnovationsInnovationIdRoute
@@ -682,16 +799,29 @@ export interface FileRoutesById {
   '/api/patents/$patentId': typeof ApiPatentsPatentIdRoute
   '/api/research/approval-transitions': typeof ApiResearchApprovalTransitionsRoute
   '/api/research/submissions': typeof ApiResearchSubmissionsRouteWithChildren
+  '/dashboard/faculty-admin/departments': typeof DashboardFacultyAdminDepartmentsRouteWithChildren
+  '/dashboard/faculty-admin/users': typeof DashboardFacultyAdminUsersRouteWithChildren
   '/dashboard/lecturer/profile': typeof DashboardLecturerProfileRoute
   '/dashboard/lecturer/request-service': typeof DashboardLecturerRequestServiceRoute
   '/dashboard/lecturer/submit': typeof DashboardLecturerSubmitRoute
+  '/dashboard/super-admin/departments': typeof DashboardSuperAdminDepartmentsRouteWithChildren
+  '/dashboard/super-admin/faculties': typeof DashboardSuperAdminFacultiesRouteWithChildren
+  '/dashboard/super-admin/organization': typeof DashboardSuperAdminOrganizationRoute
+  '/dashboard/super-admin/users': typeof DashboardSuperAdminUsersRouteWithChildren
+  '/api/admin/organization/departments': typeof ApiAdminOrganizationDepartmentsRoute
+  '/api/admin/organization/faculties': typeof ApiAdminOrganizationFacultiesRoute
   '/api/auth/staff-password-reset/complete': typeof ApiAuthStaffPasswordResetCompleteRoute
   '/api/auth/staff-password-reset/request': typeof ApiAuthStaffPasswordResetRequestRoute
   '/api/innovations/$innovationId/archive': typeof ApiInnovationsInnovationIdArchiveRoute
   '/api/innovations/$innovationId/publish': typeof ApiInnovationsInnovationIdPublishRoute
   '/api/innovations/$innovationId/review': typeof ApiInnovationsInnovationIdReviewRoute
   '/api/research/submissions/$researchRecordId': typeof ApiResearchSubmissionsResearchRecordIdRoute
+  '/dashboard/faculty-admin/departments/$departmentId': typeof DashboardFacultyAdminDepartmentsDepartmentIdRoute
+  '/dashboard/faculty-admin/users/$userId': typeof DashboardFacultyAdminUsersUserIdRoute
   '/dashboard/lecturer/edit/$researchRecordId': typeof DashboardLecturerEditResearchRecordIdRoute
+  '/dashboard/super-admin/departments/$departmentId': typeof DashboardSuperAdminDepartmentsDepartmentIdRoute
+  '/dashboard/super-admin/faculties/$facultyId': typeof DashboardSuperAdminFacultiesFacultyIdRoute
+  '/dashboard/super-admin/users/$userId': typeof DashboardSuperAdminUsersUserIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -760,16 +890,29 @@ export interface FileRouteTypes {
     | '/api/patents/$patentId'
     | '/api/research/approval-transitions'
     | '/api/research/submissions'
+    | '/dashboard/faculty-admin/departments'
+    | '/dashboard/faculty-admin/users'
     | '/dashboard/lecturer/profile'
     | '/dashboard/lecturer/request-service'
     | '/dashboard/lecturer/submit'
+    | '/dashboard/super-admin/departments'
+    | '/dashboard/super-admin/faculties'
+    | '/dashboard/super-admin/organization'
+    | '/dashboard/super-admin/users'
+    | '/api/admin/organization/departments'
+    | '/api/admin/organization/faculties'
     | '/api/auth/staff-password-reset/complete'
     | '/api/auth/staff-password-reset/request'
     | '/api/innovations/$innovationId/archive'
     | '/api/innovations/$innovationId/publish'
     | '/api/innovations/$innovationId/review'
     | '/api/research/submissions/$researchRecordId'
+    | '/dashboard/faculty-admin/departments/$departmentId'
+    | '/dashboard/faculty-admin/users/$userId'
     | '/dashboard/lecturer/edit/$researchRecordId'
+    | '/dashboard/super-admin/departments/$departmentId'
+    | '/dashboard/super-admin/faculties/$facultyId'
+    | '/dashboard/super-admin/users/$userId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -830,16 +973,29 @@ export interface FileRouteTypes {
     | '/api/patents/$patentId'
     | '/api/research/approval-transitions'
     | '/api/research/submissions'
+    | '/dashboard/faculty-admin/departments'
+    | '/dashboard/faculty-admin/users'
     | '/dashboard/lecturer/profile'
     | '/dashboard/lecturer/request-service'
     | '/dashboard/lecturer/submit'
+    | '/dashboard/super-admin/departments'
+    | '/dashboard/super-admin/faculties'
+    | '/dashboard/super-admin/organization'
+    | '/dashboard/super-admin/users'
+    | '/api/admin/organization/departments'
+    | '/api/admin/organization/faculties'
     | '/api/auth/staff-password-reset/complete'
     | '/api/auth/staff-password-reset/request'
     | '/api/innovations/$innovationId/archive'
     | '/api/innovations/$innovationId/publish'
     | '/api/innovations/$innovationId/review'
     | '/api/research/submissions/$researchRecordId'
+    | '/dashboard/faculty-admin/departments/$departmentId'
+    | '/dashboard/faculty-admin/users/$userId'
     | '/dashboard/lecturer/edit/$researchRecordId'
+    | '/dashboard/super-admin/departments/$departmentId'
+    | '/dashboard/super-admin/faculties/$facultyId'
+    | '/dashboard/super-admin/users/$userId'
   id:
     | '__root__'
     | '/'
@@ -906,16 +1062,29 @@ export interface FileRouteTypes {
     | '/api/patents/$patentId'
     | '/api/research/approval-transitions'
     | '/api/research/submissions'
+    | '/dashboard/faculty-admin/departments'
+    | '/dashboard/faculty-admin/users'
     | '/dashboard/lecturer/profile'
     | '/dashboard/lecturer/request-service'
     | '/dashboard/lecturer/submit'
+    | '/dashboard/super-admin/departments'
+    | '/dashboard/super-admin/faculties'
+    | '/dashboard/super-admin/organization'
+    | '/dashboard/super-admin/users'
+    | '/api/admin/organization/departments'
+    | '/api/admin/organization/faculties'
     | '/api/auth/staff-password-reset/complete'
     | '/api/auth/staff-password-reset/request'
     | '/api/innovations/$innovationId/archive'
     | '/api/innovations/$innovationId/publish'
     | '/api/innovations/$innovationId/review'
     | '/api/research/submissions/$researchRecordId'
+    | '/dashboard/faculty-admin/departments/$departmentId'
+    | '/dashboard/faculty-admin/users/$userId'
     | '/dashboard/lecturer/edit/$researchRecordId'
+    | '/dashboard/super-admin/departments/$departmentId'
+    | '/dashboard/super-admin/faculties/$facultyId'
+    | '/dashboard/super-admin/users/$userId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -962,6 +1131,8 @@ export interface RootRouteChildren {
   ApiJobsFailedRoute: typeof ApiJobsFailedRoute
   ApiResearchApprovalTransitionsRoute: typeof ApiResearchApprovalTransitionsRoute
   ApiResearchSubmissionsRoute: typeof ApiResearchSubmissionsRouteWithChildren
+  ApiAdminOrganizationDepartmentsRoute: typeof ApiAdminOrganizationDepartmentsRoute
+  ApiAdminOrganizationFacultiesRoute: typeof ApiAdminOrganizationFacultiesRoute
   ApiAuthStaffPasswordResetCompleteRoute: typeof ApiAuthStaffPasswordResetCompleteRoute
   ApiAuthStaffPasswordResetRequestRoute: typeof ApiAuthStaffPasswordResetRequestRoute
 }
@@ -1416,6 +1587,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiResearchSubmissionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/faculty-admin/departments': {
+      id: '/dashboard/faculty-admin/departments'
+      path: '/departments'
+      fullPath: '/dashboard/faculty-admin/departments'
+      preLoaderRoute: typeof DashboardFacultyAdminDepartmentsRouteImport
+      parentRoute: typeof DashboardFacultyAdminRoute
+    }
+    '/dashboard/faculty-admin/users': {
+      id: '/dashboard/faculty-admin/users'
+      path: '/users'
+      fullPath: '/dashboard/faculty-admin/users'
+      preLoaderRoute: typeof DashboardFacultyAdminUsersRouteImport
+      parentRoute: typeof DashboardFacultyAdminRoute
+    }
     '/dashboard/lecturer/profile': {
       id: '/dashboard/lecturer/profile'
       path: '/profile'
@@ -1436,6 +1621,48 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/lecturer/submit'
       preLoaderRoute: typeof DashboardLecturerSubmitRouteImport
       parentRoute: typeof DashboardLecturerRoute
+    }
+    '/dashboard/super-admin/departments': {
+      id: '/dashboard/super-admin/departments'
+      path: '/departments'
+      fullPath: '/dashboard/super-admin/departments'
+      preLoaderRoute: typeof DashboardSuperAdminDepartmentsRouteImport
+      parentRoute: typeof DashboardSuperAdminRoute
+    }
+    '/dashboard/super-admin/faculties': {
+      id: '/dashboard/super-admin/faculties'
+      path: '/faculties'
+      fullPath: '/dashboard/super-admin/faculties'
+      preLoaderRoute: typeof DashboardSuperAdminFacultiesRouteImport
+      parentRoute: typeof DashboardSuperAdminRoute
+    }
+    '/dashboard/super-admin/organization': {
+      id: '/dashboard/super-admin/organization'
+      path: '/organization'
+      fullPath: '/dashboard/super-admin/organization'
+      preLoaderRoute: typeof DashboardSuperAdminOrganizationRouteImport
+      parentRoute: typeof DashboardSuperAdminRoute
+    }
+    '/dashboard/super-admin/users': {
+      id: '/dashboard/super-admin/users'
+      path: '/users'
+      fullPath: '/dashboard/super-admin/users'
+      preLoaderRoute: typeof DashboardSuperAdminUsersRouteImport
+      parentRoute: typeof DashboardSuperAdminRoute
+    }
+    '/api/admin/organization/departments': {
+      id: '/api/admin/organization/departments'
+      path: '/api/admin/organization/departments'
+      fullPath: '/api/admin/organization/departments'
+      preLoaderRoute: typeof ApiAdminOrganizationDepartmentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/organization/faculties': {
+      id: '/api/admin/organization/faculties'
+      path: '/api/admin/organization/faculties'
+      fullPath: '/api/admin/organization/faculties'
+      preLoaderRoute: typeof ApiAdminOrganizationFacultiesRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/auth/staff-password-reset/complete': {
       id: '/api/auth/staff-password-reset/complete'
@@ -1479,6 +1706,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiResearchSubmissionsResearchRecordIdRouteImport
       parentRoute: typeof ApiResearchSubmissionsRoute
     }
+    '/dashboard/faculty-admin/departments/$departmentId': {
+      id: '/dashboard/faculty-admin/departments/$departmentId'
+      path: '/$departmentId'
+      fullPath: '/dashboard/faculty-admin/departments/$departmentId'
+      preLoaderRoute: typeof DashboardFacultyAdminDepartmentsDepartmentIdRouteImport
+      parentRoute: typeof DashboardFacultyAdminDepartmentsRoute
+    }
+    '/dashboard/faculty-admin/users/$userId': {
+      id: '/dashboard/faculty-admin/users/$userId'
+      path: '/$userId'
+      fullPath: '/dashboard/faculty-admin/users/$userId'
+      preLoaderRoute: typeof DashboardFacultyAdminUsersUserIdRouteImport
+      parentRoute: typeof DashboardFacultyAdminUsersRoute
+    }
     '/dashboard/lecturer/edit/$researchRecordId': {
       id: '/dashboard/lecturer/edit/$researchRecordId'
       path: '/edit/$researchRecordId'
@@ -1486,8 +1727,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardLecturerEditResearchRecordIdRouteImport
       parentRoute: typeof DashboardLecturerRoute
     }
+    '/dashboard/super-admin/departments/$departmentId': {
+      id: '/dashboard/super-admin/departments/$departmentId'
+      path: '/$departmentId'
+      fullPath: '/dashboard/super-admin/departments/$departmentId'
+      preLoaderRoute: typeof DashboardSuperAdminDepartmentsDepartmentIdRouteImport
+      parentRoute: typeof DashboardSuperAdminDepartmentsRoute
+    }
+    '/dashboard/super-admin/faculties/$facultyId': {
+      id: '/dashboard/super-admin/faculties/$facultyId'
+      path: '/$facultyId'
+      fullPath: '/dashboard/super-admin/faculties/$facultyId'
+      preLoaderRoute: typeof DashboardSuperAdminFacultiesFacultyIdRouteImport
+      parentRoute: typeof DashboardSuperAdminFacultiesRoute
+    }
+    '/dashboard/super-admin/users/$userId': {
+      id: '/dashboard/super-admin/users/$userId'
+      path: '/$userId'
+      fullPath: '/dashboard/super-admin/users/$userId'
+      preLoaderRoute: typeof DashboardSuperAdminUsersUserIdRouteImport
+      parentRoute: typeof DashboardSuperAdminUsersRoute
+    }
   }
 }
+
+interface DashboardFacultyAdminDepartmentsRouteChildren {
+  DashboardFacultyAdminDepartmentsDepartmentIdRoute: typeof DashboardFacultyAdminDepartmentsDepartmentIdRoute
+}
+
+const DashboardFacultyAdminDepartmentsRouteChildren: DashboardFacultyAdminDepartmentsRouteChildren =
+  {
+    DashboardFacultyAdminDepartmentsDepartmentIdRoute:
+      DashboardFacultyAdminDepartmentsDepartmentIdRoute,
+  }
+
+const DashboardFacultyAdminDepartmentsRouteWithChildren =
+  DashboardFacultyAdminDepartmentsRoute._addFileChildren(
+    DashboardFacultyAdminDepartmentsRouteChildren,
+  )
+
+interface DashboardFacultyAdminUsersRouteChildren {
+  DashboardFacultyAdminUsersUserIdRoute: typeof DashboardFacultyAdminUsersUserIdRoute
+}
+
+const DashboardFacultyAdminUsersRouteChildren: DashboardFacultyAdminUsersRouteChildren =
+  {
+    DashboardFacultyAdminUsersUserIdRoute:
+      DashboardFacultyAdminUsersUserIdRoute,
+  }
+
+const DashboardFacultyAdminUsersRouteWithChildren =
+  DashboardFacultyAdminUsersRoute._addFileChildren(
+    DashboardFacultyAdminUsersRouteChildren,
+  )
+
+interface DashboardFacultyAdminRouteChildren {
+  DashboardFacultyAdminDepartmentsRoute: typeof DashboardFacultyAdminDepartmentsRouteWithChildren
+  DashboardFacultyAdminUsersRoute: typeof DashboardFacultyAdminUsersRouteWithChildren
+}
+
+const DashboardFacultyAdminRouteChildren: DashboardFacultyAdminRouteChildren = {
+  DashboardFacultyAdminDepartmentsRoute:
+    DashboardFacultyAdminDepartmentsRouteWithChildren,
+  DashboardFacultyAdminUsersRoute: DashboardFacultyAdminUsersRouteWithChildren,
+}
+
+const DashboardFacultyAdminRouteWithChildren =
+  DashboardFacultyAdminRoute._addFileChildren(
+    DashboardFacultyAdminRouteChildren,
+  )
 
 interface DashboardLecturerRouteChildren {
   DashboardLecturerProfileRoute: typeof DashboardLecturerProfileRoute
@@ -1507,20 +1815,83 @@ const DashboardLecturerRouteChildren: DashboardLecturerRouteChildren = {
 const DashboardLecturerRouteWithChildren =
   DashboardLecturerRoute._addFileChildren(DashboardLecturerRouteChildren)
 
+interface DashboardSuperAdminDepartmentsRouteChildren {
+  DashboardSuperAdminDepartmentsDepartmentIdRoute: typeof DashboardSuperAdminDepartmentsDepartmentIdRoute
+}
+
+const DashboardSuperAdminDepartmentsRouteChildren: DashboardSuperAdminDepartmentsRouteChildren =
+  {
+    DashboardSuperAdminDepartmentsDepartmentIdRoute:
+      DashboardSuperAdminDepartmentsDepartmentIdRoute,
+  }
+
+const DashboardSuperAdminDepartmentsRouteWithChildren =
+  DashboardSuperAdminDepartmentsRoute._addFileChildren(
+    DashboardSuperAdminDepartmentsRouteChildren,
+  )
+
+interface DashboardSuperAdminFacultiesRouteChildren {
+  DashboardSuperAdminFacultiesFacultyIdRoute: typeof DashboardSuperAdminFacultiesFacultyIdRoute
+}
+
+const DashboardSuperAdminFacultiesRouteChildren: DashboardSuperAdminFacultiesRouteChildren =
+  {
+    DashboardSuperAdminFacultiesFacultyIdRoute:
+      DashboardSuperAdminFacultiesFacultyIdRoute,
+  }
+
+const DashboardSuperAdminFacultiesRouteWithChildren =
+  DashboardSuperAdminFacultiesRoute._addFileChildren(
+    DashboardSuperAdminFacultiesRouteChildren,
+  )
+
+interface DashboardSuperAdminUsersRouteChildren {
+  DashboardSuperAdminUsersUserIdRoute: typeof DashboardSuperAdminUsersUserIdRoute
+}
+
+const DashboardSuperAdminUsersRouteChildren: DashboardSuperAdminUsersRouteChildren =
+  {
+    DashboardSuperAdminUsersUserIdRoute: DashboardSuperAdminUsersUserIdRoute,
+  }
+
+const DashboardSuperAdminUsersRouteWithChildren =
+  DashboardSuperAdminUsersRoute._addFileChildren(
+    DashboardSuperAdminUsersRouteChildren,
+  )
+
+interface DashboardSuperAdminRouteChildren {
+  DashboardSuperAdminDepartmentsRoute: typeof DashboardSuperAdminDepartmentsRouteWithChildren
+  DashboardSuperAdminFacultiesRoute: typeof DashboardSuperAdminFacultiesRouteWithChildren
+  DashboardSuperAdminOrganizationRoute: typeof DashboardSuperAdminOrganizationRoute
+  DashboardSuperAdminUsersRoute: typeof DashboardSuperAdminUsersRouteWithChildren
+}
+
+const DashboardSuperAdminRouteChildren: DashboardSuperAdminRouteChildren = {
+  DashboardSuperAdminDepartmentsRoute:
+    DashboardSuperAdminDepartmentsRouteWithChildren,
+  DashboardSuperAdminFacultiesRoute:
+    DashboardSuperAdminFacultiesRouteWithChildren,
+  DashboardSuperAdminOrganizationRoute: DashboardSuperAdminOrganizationRoute,
+  DashboardSuperAdminUsersRoute: DashboardSuperAdminUsersRouteWithChildren,
+}
+
+const DashboardSuperAdminRouteWithChildren =
+  DashboardSuperAdminRoute._addFileChildren(DashboardSuperAdminRouteChildren)
+
 interface DashboardRouteChildren {
   DashboardDepartmentAdminRoute: typeof DashboardDepartmentAdminRoute
-  DashboardFacultyAdminRoute: typeof DashboardFacultyAdminRoute
+  DashboardFacultyAdminRoute: typeof DashboardFacultyAdminRouteWithChildren
   DashboardIpttoOfficerRoute: typeof DashboardIpttoOfficerRoute
   DashboardLecturerRoute: typeof DashboardLecturerRouteWithChildren
-  DashboardSuperAdminRoute: typeof DashboardSuperAdminRoute
+  DashboardSuperAdminRoute: typeof DashboardSuperAdminRouteWithChildren
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardDepartmentAdminRoute: DashboardDepartmentAdminRoute,
-  DashboardFacultyAdminRoute: DashboardFacultyAdminRoute,
+  DashboardFacultyAdminRoute: DashboardFacultyAdminRouteWithChildren,
   DashboardIpttoOfficerRoute: DashboardIpttoOfficerRoute,
   DashboardLecturerRoute: DashboardLecturerRouteWithChildren,
-  DashboardSuperAdminRoute: DashboardSuperAdminRoute,
+  DashboardSuperAdminRoute: DashboardSuperAdminRouteWithChildren,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
@@ -1727,6 +2098,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiJobsFailedRoute: ApiJobsFailedRoute,
   ApiResearchApprovalTransitionsRoute: ApiResearchApprovalTransitionsRoute,
   ApiResearchSubmissionsRoute: ApiResearchSubmissionsRouteWithChildren,
+  ApiAdminOrganizationDepartmentsRoute: ApiAdminOrganizationDepartmentsRoute,
+  ApiAdminOrganizationFacultiesRoute: ApiAdminOrganizationFacultiesRoute,
   ApiAuthStaffPasswordResetCompleteRoute:
     ApiAuthStaffPasswordResetCompleteRoute,
   ApiAuthStaffPasswordResetRequestRoute: ApiAuthStaffPasswordResetRequestRoute,
