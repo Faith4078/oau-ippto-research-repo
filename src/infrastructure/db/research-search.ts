@@ -190,10 +190,14 @@ function researcherSearchQuery(request: NormalizedSearchRequest): SQL {
 			jsonb_build_object(
 				'title', up.title,
 				'orcid', up.orcid,
-				'publicEmail', up.public_email
+				'publicEmail', up.public_email,
+				'facultyName', f.name,
+				'departmentName', d.name
 			) as metadata
 		from users u
 		join user_profiles up on up.user_id = u.id
+		left join faculties f on f.id = up.faculty_id
+		left join departments d on d.id = up.department_id
 		cross join search_query sq
 		where u.status = 'active'
 			${keywordCondition("u.name", "up.bio", "array_to_string(up.research_interests, ' ')")}

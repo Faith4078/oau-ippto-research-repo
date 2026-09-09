@@ -36,10 +36,12 @@ import {
 	useCallback,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from "react";
 
 import { PublicNavActions } from "#/components/public-pages/public-nav-actions.tsx";
+import { useDebouncedCallback } from "#/hooks/use-debounce.ts";
 import type { PublicRecordDetail } from "#/routes/api/public-record.ts";
 import {
 	Card,
@@ -123,6 +125,8 @@ type PublicStatsPayload = {
 	departments: number;
 };
 
+type SortOption = { value: string; label: string };
+
 type CollectionConfig = {
 	seo: PageSeo;
 	eyebrow: string;
@@ -139,7 +143,21 @@ type CollectionConfig = {
 	emptyTitle: string;
 	emptyText: string;
 	resultLabel: string;
+	/**
+	 * Options shown in the sort dropdown. Defaults to `defaultSortOptions`
+	 * (which includes "Most relevant") when omitted. The researchers
+	 * collection overrides this to drop "Most relevant" — see the
+	 * `collectionPages.researchers` definition.
+	 */
+	sortOptions?: Array<SortOption>;
 };
+
+const defaultSortOptions: Array<SortOption> = [
+	{ value: "relevance", label: "Most relevant" },
+	{ value: "newest", label: "Newest first" },
+	{ value: "oldest", label: "Oldest first" },
+	{ value: "title", label: "A to Z" },
+];
 
 type DetailConfig = {
 	seo: PageSeo;
@@ -468,6 +486,11 @@ export const collectionPages = {
 		"No researcher profiles match this search",
 		"Try a different name, department, faculty, or research interest.",
 		"3 researcher profiles",
+		[
+			{ value: "newest", label: "Newest first" },
+			{ value: "oldest", label: "Oldest first" },
+			{ value: "title", label: "A to Z" },
+		],
 	),
 	publications: collection(
 		pageSeo.publications,
@@ -1070,13 +1093,16 @@ export const detailPages = {
 	),
 } satisfies Record<string, DetailConfig>;
 
+const searchDebounceMs = 350;
+
 export function CollectionPage({ config }: { config: CollectionConfig }) {
 	const dataSource = useMemo(
 		() => collectionDataSource(config.seo.path),
 		[config.seo.path],
 	);
+	const sortOptions = config.sortOptions ?? defaultSortOptions;
 	const [query, setQuery] = useState("");
-	const [sort, setSort] = useState("relevance");
+	const [sort, setSort] = useState(() => sortOptions[0]?.value ?? "relevance");
 	const [items, setItems] = useState<Array<CardItem>>(
 		dataSource.kind === "static" ? config.items : [],
 	);
@@ -1087,6 +1113,7 @@ export function CollectionPage({ config }: { config: CollectionConfig }) {
 	const [totalPages, setTotalPages] = useState(1);
 	const [isLoading, setIsLoading] = useState(dataSource.kind !== "static");
 	const [error, setError] = useState<string | null>(null);
+	const abortControllerRef = useRef<AbortController | null>(null);
 
 	const loadItems = useCallback(
 		async (requestedPage: number, keyword: string, requestedSort: string) => {
@@ -1109,6 +1136,12 @@ export function CollectionPage({ config }: { config: CollectionConfig }) {
 				return;
 			}
 
+			// Cancel any request superseded by this one so a slow, stale response
+			// can never clobber a newer one (last keystroke wins).
+			abortControllerRef.current?.abort();
+			const controller = new AbortController();
+			abortControllerRef.current = controller;
+
 			setIsLoading(true);
 			setError(null);
 
@@ -1116,6 +1149,7 @@ export function CollectionPage({ config }: { config: CollectionConfig }) {
 				if (dataSource.kind === "organization") {
 					const response = await fetch("/api/organization-options", {
 						headers: { Accept: "application/json" },
+						signal: controller.signal,
 					});
 					if (!response.ok) throw new Error("The directory is unavailable.");
 					const payload = (await response.json()) as {
@@ -1182,6 +1216,7 @@ export function CollectionPage({ config }: { config: CollectionConfig }) {
 						pageSize: 12,
 						sort: requestedSort,
 					}),
+					signal: controller.signal,
 				});
 				if (!response.ok) throw new Error("Search is temporarily unavailable.");
 				const payload = (await response.json()) as { data?: SearchPagePayload };
@@ -1191,6 +1226,11 @@ export function CollectionPage({ config }: { config: CollectionConfig }) {
 				setTotalItems(payload.data.totalItems);
 				setTotalPages(payload.data.totalPages);
 			} catch (cause) {
+				// A stale request aborted in favor of a newer one — the newer
+				// request owns the loading/error state from here, so do nothing.
+				if (cause instanceof DOMException && cause.name === "AbortError") {
+					return;
+				}
 				setItems([]);
 				setTotalItems(0);
 				setTotalPages(1);
@@ -1200,21 +1240,45 @@ export function CollectionPage({ config }: { config: CollectionConfig }) {
 						: "This public collection could not be loaded.",
 				);
 			} finally {
-				setIsLoading(false);
+				// Only the request that is still current may clear the loading
+				// state — an aborted, superseded request must not flip it off
+				// behind the newer request's back.
+				if (abortControllerRef.current === controller) {
+					setIsLoading(false);
+				}
 			}
 		},
 		[config.items, dataSource],
 	);
 
+	const debouncedLoadItems = useDebouncedCallback(loadItems, searchDebounceMs);
+	const initialSort = sortOptions[0]?.value ?? "relevance";
+
 	useEffect(() => {
 		const initialQuery =
 			new URLSearchParams(window.location.search).get("query") ?? "";
 		setQuery(initialQuery);
-		void loadItems(1, initialQuery, "relevance");
-	}, [loadItems]);
+		// Initial load runs immediately — only user-typed changes are debounced.
+		void loadItems(1, initialQuery, initialSort);
+	}, [loadItems, initialSort]);
 
-	function submitSearch(event: FormEvent<HTMLFormElement>) {
+	function handleQueryChange(value: string) {
+		setQuery(value);
+		debouncedLoadItems(1, value, sort);
+	}
+
+	function handleSortChange(value: string) {
+		debouncedLoadItems.cancel();
+		setSort(value);
+		void loadItems(1, query, value);
+	}
+
+	function handleSubmit(event: FormEvent<HTMLFormElement>) {
+		// Search is already reactive as-you-type; this only stops Enter from
+		// doing a native form submit/page reload, flushing any pending
+		// debounced search immediately for a snappier response.
 		event.preventDefault();
+		debouncedLoadItems.cancel();
 		void loadItems(1, query, sort);
 	}
 
@@ -1227,11 +1291,12 @@ export function CollectionPage({ config }: { config: CollectionConfig }) {
 						<SearchFilterPanel
 							config={config}
 							isLoading={isLoading}
-							onQueryChange={setQuery}
-							onSortChange={setSort}
-							onSubmit={submitSearch}
+							onQueryChange={handleQueryChange}
+							onSortChange={handleSortChange}
+							onSubmit={handleSubmit}
 							query={query}
 							sort={sort}
+							sortOptions={sortOptions}
 							totalItems={totalItems}
 						/>
 						{error ? (
@@ -1242,22 +1307,27 @@ export function CollectionPage({ config }: { config: CollectionConfig }) {
 								{error} Please try again.
 							</div>
 						) : null}
-						{isLoading ? (
+						{isLoading && items.length === 0 ? (
 							<LoadingSkeleton label="Loading public records" rows={3} />
 						) : null}
-						<div className="grid gap-4">
+						<div
+							className={`grid gap-4 transition-opacity duration-150 ${
+								isLoading && items.length > 0 ? "opacity-60" : "opacity-100"
+							}`}
+						>
 							{items.map((item) => (
 								<ResultCard item={item} key={item.href ?? item.title} />
 							))}
 						</div>
-						{!isLoading && !error && totalItems > 0 ? (
+						{!error && totalItems > 0 ? (
 							<Pagination
 								page={page}
 								totalItems={totalItems}
 								totalPages={totalPages}
-								onPageChange={(nextPage) =>
-									void loadItems(nextPage, query, sort)
-								}
+								onPageChange={(nextPage) => {
+									debouncedLoadItems.cancel();
+									void loadItems(nextPage, query, sort);
+								}}
 							/>
 						) : null}
 						{!isLoading && !error && totalItems === 0 ? (
@@ -1291,6 +1361,8 @@ function collectionDataSource(path: string) {
 }
 
 function searchResultToCard(item: SearchResultPayload): CardItem {
+	if (item.entityType === "researcher") return researcherResultToCard(item);
+
 	const details = [
 		formatEntityType(item.entityType),
 		item.year ? String(item.year) : null,
@@ -1311,9 +1383,34 @@ function searchResultToCard(item: SearchResultPayload): CardItem {
 	};
 }
 
+/**
+ * Researcher cards always surface department and faculty (not just whatever
+ * generic metadata happens to be present), since the researchers directory
+ * is specifically meant to help visitors find experts by where they work.
+ */
+function researcherResultToCard(item: SearchResultPayload): CardItem {
+	const jobTitle = item.metadata.title ? String(item.metadata.title) : null;
+	const department = item.metadata.departmentName
+		? String(item.metadata.departmentName)
+		: null;
+	const faculty = item.metadata.facultyName
+		? String(item.metadata.facultyName)
+		: null;
+	return {
+		title: item.title,
+		meta:
+			[jobTitle, department, faculty].filter(Boolean).join(" | ") ||
+			"Researcher",
+		description:
+			item.summary || "Open this profile to see more about this researcher.",
+		href: item.url,
+		tags: [department, faculty].filter((value): value is string =>
+			Boolean(value),
+		),
+	};
+}
+
 function metadataLabel(item: SearchResultPayload) {
-	if (item.entityType === "researcher")
-		return String(item.metadata.title ?? "Researcher");
 	if (item.entityType === "publication")
 		return String(item.metadata.type ?? "Publication").replace(/_/g, " ");
 	if (
@@ -1758,6 +1855,7 @@ function collection(
 	emptyTitle: string,
 	emptyText: string,
 	resultLabel: string,
+	sortOptions?: Array<SortOption>,
 ): CollectionConfig {
 	return {
 		seo,
@@ -1775,6 +1873,7 @@ function collection(
 		emptyTitle,
 		emptyText,
 		resultLabel,
+		sortOptions,
 	};
 }
 
@@ -2143,6 +2242,7 @@ function SearchFilterPanel({
 	config,
 	query,
 	sort,
+	sortOptions,
 	totalItems,
 	isLoading,
 	onQueryChange,
@@ -2152,6 +2252,7 @@ function SearchFilterPanel({
 	config: CollectionConfig;
 	query: string;
 	sort: string;
+	sortOptions: Array<SortOption>;
 	totalItems: number;
 	isLoading: boolean;
 	onQueryChange: (value: string) => void;
@@ -2163,7 +2264,7 @@ function SearchFilterPanel({
 			className="rounded-lg border border-[#d8d8d8] bg-[#f0f0f0] p-4"
 			onSubmit={onSubmit}
 		>
-			<div className="grid gap-3 sm:grid-cols-[1fr_190px_56px]">
+			<div className="grid gap-3 sm:grid-cols-[1fr_190px]">
 				<label
 					className="search-box min-h-14"
 					htmlFor={`${config.eyebrow}-search`}
@@ -2185,20 +2286,13 @@ function SearchFilterPanel({
 						onChange={(event) => onSortChange(event.target.value)}
 						value={sort}
 					>
-						<option value="relevance">Most relevant</option>
-						<option value="newest">Newest first</option>
-						<option value="oldest">Oldest first</option>
-						<option value="title">A to Z</option>
+						{sortOptions.map((option) => (
+							<option key={option.value} value={option.value}>
+								{option.label}
+							</option>
+						))}
 					</select>
 				</label>
-				<button
-					aria-label="Search"
-					className="flex min-h-14 items-center justify-center rounded bg-[#146ef5] text-white hover:bg-[#0d5fdc]"
-					disabled={isLoading}
-					type="submit"
-				>
-					<Search className="h-5 w-5" />
-				</button>
 			</div>
 			<div className="mt-4 text-sm text-[#6b7280]" aria-live="polite">
 				{isLoading
