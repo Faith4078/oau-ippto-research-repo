@@ -24,11 +24,11 @@ describe("staff password reset", () => {
 		);
 	});
 
-	it("keeps reset passwords on the shared exact 8 character policy", async () => {
+	it("keeps reset passwords on the shared minimum length policy", async () => {
 		const response = await handleStaffPasswordResetComplete(
 			new Request("http://localhost/api/auth/staff-password-reset/complete", {
 				body: JSON.stringify({
-					password: "Password123",
+					password: "short",
 					token: "reset-token",
 				}),
 				headers: {
@@ -41,7 +41,7 @@ describe("staff password reset", () => {
 
 		expect(response.status).toBe(422);
 		expect(payload.error.fieldErrors.password).toContain(
-			"Password must be exactly 8 characters.",
+			"Password must be at least 8 characters.",
 		);
 	});
 });

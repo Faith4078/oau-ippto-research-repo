@@ -1,8 +1,8 @@
 export const passwordPolicyText =
-	"Use exactly 8 characters with uppercase, lowercase, a number, and a special symbol.";
+	"Use at least 8 characters with uppercase, lowercase, a number, and a special symbol.";
 
 export const passwordPolicyPattern =
-	"(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8}";
+	"(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}";
 
 export type PasswordRequirement = {
 	id: "length" | "lowercase" | "uppercase" | "number" | "symbol";
@@ -16,8 +16,8 @@ export function getPasswordRequirements(
 	return [
 		{
 			id: "length",
-			label: "Exactly 8 characters",
-			valid: password.length === 8,
+			label: "At least 8 characters",
+			valid: password.length >= 8,
 		},
 		{
 			id: "uppercase",

@@ -103,7 +103,7 @@ describe("staff ID sign-in scaffolding", () => {
 		);
 	});
 
-	it("requires signup passwords to be exactly 8 characters", () => {
+	it("requires signup passwords to be at least 8 characters", () => {
 		const result = validateStaffSignUpInput({
 			kind: "iptto",
 			email: "innovation@oauife.edu.ng",
@@ -114,7 +114,7 @@ describe("staff ID sign-in scaffolding", () => {
 
 		expect(result.ok).toBe(false);
 		expect(result.ok ? null : result.fieldErrors.password).toContain(
-			"Password must be exactly 8 characters.",
+			"Password must be at least 8 characters.",
 		);
 	});
 

@@ -131,7 +131,7 @@ function ResetPasswordPage() {
 						Create your new password.
 					</h1>
 					<p className="mt-5 text-base leading-7 text-[#6b7280]">
-						Your new password must be exactly 8 characters and include
+						Your new password must be at least 8 characters and include
 						uppercase, lowercase, a number, and a special symbol.
 					</p>
 				</div>
@@ -175,7 +175,6 @@ function ResetPasswordPage() {
 										autoComplete="new-password"
 										className="h-12 rounded border-[#d8d8d8] bg-white text-base md:text-base"
 										id={passwordInputId}
-										maxLength={8}
 										minLength={8}
 										name="password"
 										onChange={(event) => setPassword(event.target.value)}
