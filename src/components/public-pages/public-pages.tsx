@@ -2238,7 +2238,7 @@ function ResultCard({ item }: { item: CardItem }) {
 		</article>
 	);
 
-	return item.href ? <a href={item.href}>{content}</a> : content;
+	return item.href ? <Link to={item.href}>{content}</Link> : content;
 }
 
 function RecordFacts({

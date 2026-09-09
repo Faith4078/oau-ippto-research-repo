@@ -6,6 +6,7 @@ import {
 	BadgeCheck,
 	BookOpen,
 	Building2,
+	CalendarDays,
 	ChartNoAxesCombined,
 	Database,
 	FileSearch,
@@ -23,7 +24,6 @@ import {
 import { useEffect, useState } from "react";
 
 import { PublicNavActions } from "#/components/public-pages/public-nav-actions.tsx";
-import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 
 const universityName = "Obafemi Awolowo University";
 
@@ -77,10 +77,14 @@ const statistics = [
 ];
 
 type FeaturedResearchItem = {
+	id: string;
 	area: string;
 	title: string;
 	text: string;
 	href: string;
+	authorName: string | null;
+	publishedDate: string;
+	imageFileId: string | null;
 };
 
 const publicationTypes = [
@@ -166,6 +170,9 @@ function Home() {
 	const [featuredResearch, setFeaturedResearch] = useState<
 		FeaturedResearchItem[]
 	>([]);
+	const [featuredImageUrls, setFeaturedImageUrls] = useState<
+		Record<string, string>
+	>({});
 	const [isStatsLoading, setIsStatsLoading] = useState(true);
 	const [isFeaturedLoading, setIsFeaturedLoading] = useState(true);
 
@@ -221,15 +228,23 @@ function Home() {
 						.slice(0, 3)
 						.map(
 							(item: {
+								id: string;
 								title: string;
 								description: string;
 								href: string;
 								tags?: string[];
+								authorName?: string | null;
+								publishedDate?: string;
+								imageFileId?: string | null;
 							}) => ({
+								id: item.id,
 								area: item.tags?.[0] ?? "Published Research",
 								title: item.title,
 								text: item.description,
 								href: item.href,
+								authorName: item.authorName ?? null,
+								publishedDate: item.publishedDate ?? "Published",
+								imageFileId: item.imageFileId ?? null,
 							}),
 						),
 				);
@@ -242,6 +257,48 @@ function Home() {
 			cancelled = true;
 		};
 	}, []);
+
+	useEffect(() => {
+		const itemsWithImages = featuredResearch.filter((item) => item.imageFileId);
+		if (!itemsWithImages.length) return;
+
+		let cancelled = false;
+		void Promise.all(
+			itemsWithImages.map(async (item) => {
+				try {
+					const response = await fetch("/api/files/signed-download-url", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({
+							fileId: item.imageFileId,
+							researchRecordId: item.id,
+						}),
+					});
+					if (!response.ok) return null;
+					const payload = (await response.json()) as {
+						data?: { url?: string };
+					};
+					return payload.data?.url
+						? ([item.id, payload.data.url] as const)
+						: null;
+				} catch {
+					return null;
+				}
+			}),
+		).then((results) => {
+			if (cancelled) return;
+			const resolved = Object.fromEntries(
+				results.filter((entry): entry is readonly [string, string] =>
+					Boolean(entry),
+				),
+			);
+			setFeaturedImageUrls((previous) => ({ ...previous, ...resolved }));
+		});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [featuredResearch]);
 
 	return (
 		<main className="min-h-screen bg-[#ffffff] text-[#080808]">
@@ -350,30 +407,35 @@ function Home() {
 							and more.
 						</p>
 					</div>
-					<a className="btn-secondary" href="/research">
+					<Link className="btn-secondary" to="/research">
 						View All Research
 						<ArrowRight className="h-5 w-5" />
-					</a>
+					</Link>
 				</div>
-				<div className="story-grid">
+				<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 					{isFeaturedLoading ? (
-						<div className="lg:col-span-3">
-							<LoadingSkeleton label="Loading featured research" rows={3} />
-						</div>
+						<>
+							<span className="sr-only" aria-live="polite">
+								Loading featured research
+							</span>
+							<FeaturedCardSkeleton />
+							<FeaturedCardSkeleton />
+							<FeaturedCardSkeleton />
+						</>
 					) : featuredResearch.length ? (
 						featuredResearch.map((item) => (
-							<a href={item.href} key={item.href}>
-								<article className="story-card h-full">
-									<span>{item.area}</span>
-									<h3>{item.title}</h3>
-									<p>{item.text}</p>
-								</article>
-							</a>
+							<FeaturedResearchCard
+								imageUrl={featuredImageUrls[item.id]}
+								item={item}
+								key={item.href}
+							/>
 						))
 					) : (
-						<div className="story-card lg:col-span-3">
-							<h3>Published research is being prepared</h3>
-							<p>
+						<div className="rounded-lg border border-[#d8d8d8] bg-[#f0f0f0] p-6 text-center sm:col-span-2 lg:col-span-3">
+							<h3 className="text-xl font-semibold">
+								Published research is being prepared
+							</h3>
+							<p className="mt-2 text-sm text-[#6b7280]">
 								Browse the catalogue to see all currently available records.
 							</p>
 						</div>
@@ -731,6 +793,90 @@ function ContentPanel({
 				<Icon className="h-5 w-5" />
 				{cta}
 			</Link>
+		</div>
+	);
+}
+
+function FeaturedResearchCard({
+	item,
+	imageUrl,
+}: {
+	item: FeaturedResearchItem;
+	imageUrl?: string;
+}) {
+	return (
+		<Link
+			className="group flex h-full flex-col overflow-hidden rounded-lg border border-[#d8d8d8] bg-white transition hover:-translate-y-1 hover:border-[#146ef5] hover:shadow-lg"
+			to={item.href}
+		>
+			<div className="aspect-video w-full shrink-0 overflow-hidden bg-[#f0f0f0]">
+				{imageUrl ? (
+					<img
+						alt={item.title}
+						className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+						src={imageUrl}
+					/>
+				) : (
+					<ResearchImagePlaceholder />
+				)}
+			</div>
+			<div className="flex flex-1 flex-col gap-2 p-5">
+				<span className="w-fit rounded-full border border-[#d8d8d8] bg-[#eef4ff] px-2.5 py-1 text-xs font-semibold text-[#146ef5]">
+					{item.area}
+				</span>
+				<h3 className="line-clamp-2 text-lg font-semibold leading-snug tracking-normal text-[#080808]">
+					{item.title}
+				</h3>
+				<div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 text-xs text-[#6b7280]">
+					<span className="inline-flex items-center gap-1">
+						<Users className="h-3.5 w-3.5" />
+						{item.authorName ?? "OAU Researcher"}
+					</span>
+					<span className="inline-flex items-center gap-1">
+						<CalendarDays className="h-3.5 w-3.5" />
+						{item.publishedDate}
+					</span>
+				</div>
+			</div>
+		</Link>
+	);
+}
+
+/** A tasteful, offline-safe placeholder shown when a research record has no uploaded image. */
+function ResearchImagePlaceholder() {
+	return (
+		<div className="relative flex h-full w-full items-center justify-center bg-gradient-to-br from-[#eef4ff] via-[#e3ecff] to-[#c9dcff]">
+			<div
+				aria-hidden="true"
+				className="absolute inset-0 opacity-60"
+				style={{
+					backgroundImage:
+						"radial-gradient(circle at 18% 22%, rgba(20,110,245,0.28), transparent 42%), radial-gradient(circle at 82% 78%, rgba(20,110,245,0.22), transparent 45%)",
+				}}
+			/>
+			<div className="relative flex h-14 w-14 items-center justify-center rounded-full border border-white/70 bg-white/70 text-[#146ef5] shadow-sm backdrop-blur-sm">
+				<BookOpen className="h-6 w-6" />
+			</div>
+		</div>
+	);
+}
+
+function FeaturedCardSkeleton() {
+	return (
+		<div
+			aria-hidden="true"
+			className="flex h-full flex-col overflow-hidden rounded-lg border border-[#d8d8d8] bg-white"
+		>
+			<div className="aspect-video w-full animate-pulse bg-[#e5e7eb]" />
+			<div className="flex flex-1 flex-col gap-3 p-5">
+				<div className="h-5 w-24 animate-pulse rounded-full bg-[#eef0f3]" />
+				<div className="h-4 w-full animate-pulse rounded-full bg-[#d8d8d8]" />
+				<div className="h-4 w-2/3 animate-pulse rounded-full bg-[#d8d8d8]" />
+				<div className="mt-auto flex items-center gap-3 pt-2">
+					<div className="h-3 w-20 animate-pulse rounded-full bg-[#eef0f3]" />
+					<div className="h-3 w-16 animate-pulse rounded-full bg-[#eef0f3]" />
+				</div>
+			</div>
 		</div>
 	);
 }

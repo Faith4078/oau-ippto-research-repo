@@ -13,6 +13,9 @@ type PublicResearchRow = {
 	faculty_name: string;
 	department_name: string;
 	published_year: number | string | null;
+	published_date: string | null;
+	primary_author: string | null;
+	image_file_id: string | null;
 	keywords: string[] | null;
 };
 
@@ -25,7 +28,6 @@ type PublicResearchDetailRow = PublicResearchRow & {
 	commercialization_status: string | null;
 	funding_info: string | null;
 	comment: string | null;
-	image_file_id: string | null;
 	owner_id: string | null;
 };
 
@@ -36,6 +38,12 @@ export type PublicResearchItem = {
 	description: string;
 	href: string;
 	tags: string[];
+	/** First listed author, when available, for a compact byline. */
+	authorName: string | null;
+	/** Human-readable publication date (falls back to the year, or a generic label). */
+	publishedDate: string;
+	/** Id of an uploaded research image, resolved to a signed URL via `/api/files/signed-download-url`. */
+	imageFileId: string | null;
 };
 
 export type PublicResearchDetail = PublicResearchItem & {
@@ -74,6 +82,15 @@ export const Route = createFileRoute("/api/public-research")({
 							f.name as faculty_name,
 							d.name as department_name,
 							extract(year from coalesce(r.published_at, r.created_at))::int as published_year,
+							to_char(coalesce(r.published_at, r.created_at), 'FMDD Mon YYYY') as published_date,
+							(
+								select a2.name
+								from research_authors ra2
+								join authors a2 on a2.id = ra2.author_id
+								where ra2.research_record_id = r.id
+								order by a2.name
+								limit 1
+							) as primary_author,
 							p.title as publication_title,
 							p.type::text as publication_type,
 							p.citation,
@@ -158,6 +175,23 @@ export const Route = createFileRoute("/api/public-research")({
 						f.name as faculty_name,
 						d.name as department_name,
 						extract(year from coalesce(r.published_at, r.created_at))::int as published_year,
+						to_char(coalesce(r.published_at, r.created_at), 'FMDD Mon YYYY') as published_date,
+						(
+							select a2.name
+							from research_authors ra2
+							join authors a2 on a2.id = ra2.author_id
+							where ra2.research_record_id = r.id
+							order by a2.name
+							limit 1
+						) as primary_author,
+						(
+							select img.id::text
+							from files img
+							where img.research_record_id = r.id
+								and img.purpose = 'research_image'
+							order by img.created_at desc
+							limit 1
+						) as image_file_id,
 						coalesce(
 							array_agg(k.value order by k.value)
 								filter (where k.value is not null),
@@ -209,6 +243,9 @@ function toPublicResearchItem(row: PublicResearchRow): PublicResearchItem {
 		description: row.abstract,
 		href: `/research/${row.id}`,
 		tags,
+		authorName: row.primary_author,
+		publishedDate: row.published_date ?? year,
+		imageFileId: row.image_file_id,
 	};
 }
 
