@@ -1,6 +1,6 @@
 "use client";
 
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import {
 	BadgeCheck,
@@ -107,7 +107,7 @@ const workspaceNavByRole: Record<
 > = {
 	lecturer: {
 		primary: [
-			{ label: "My Research", icon: FileClock, href: "#my-research" },
+			{ label: "My Research", icon: FileClock, href: "/dashboard/lecturer" },
 			{
 				label: "Add Research",
 				icon: SlidersHorizontal,
@@ -188,6 +188,45 @@ function getWorkspaceNav(role: DashboardRole) {
 	return workspaceNavByRole[role];
 }
 
+type WorkspaceNavItem = { label: string; icon: LucideIcon; href: string };
+
+/**
+ * A route href (e.g. "/dashboard/lecturer/submit") is active when it matches
+ * the current page. A hash href (e.g. "#review-queue") never changes the
+ * page, so it's active once it's the most recently clicked in-page anchor
+ * (tracked in `activeHash`); until anything is clicked, the first item in
+ * the nav is highlighted as the sensible default.
+ */
+function buildNavItemActiveStates(
+	nav: { primary: Array<WorkspaceNavItem>; secondary: Array<WorkspaceNavItem> },
+	context: { pathname: string; activeHash: string | null },
+): {
+	primary: Map<string, boolean>;
+	secondary: Map<string, boolean>;
+} {
+	const isActive = (href: string) =>
+		href.startsWith("#")
+			? context.activeHash === href
+			: context.pathname === href;
+
+	const allItems = [...nav.primary, ...nav.secondary];
+	const anyActive = allItems.some((item) => isActive(item.href));
+	const fallbackHref = allItems[0]?.href;
+
+	const toEntries = (items: Array<WorkspaceNavItem>) =>
+		new Map(
+			items.map((item) => [
+				item.href,
+				anyActive ? isActive(item.href) : item.href === fallbackHref,
+			]),
+		);
+
+	return {
+		primary: toEntries(nav.primary),
+		secondary: toEntries(nav.secondary),
+	};
+}
+
 const throughputBars = [
 	{ label: "W1", height: 34 },
 	{ label: "W2", height: 58 },
@@ -213,7 +252,23 @@ export function DashboardShell({
 	const [signedInName, setSignedInName] = useState<string | null>(null);
 	const [lecturerIdentity, setLecturerIdentity] =
 		useState<LecturerTopBarIdentity | null>(null);
+	const [activeHash, setActiveHash] = useState<string | null>(null);
 	const displayName = formatDashboardName(signedInName ?? workspace.persona);
+	const pathname = useLocation({
+		select: (state) => state.pathname.replace(/\/+$/, "") || "/",
+	});
+
+	useEffect(() => {
+		const readHash = () => setActiveHash(window.location.hash || null);
+		readHash();
+		window.addEventListener("hashchange", readHash);
+		return () => window.removeEventListener("hashchange", readHash);
+	}, []);
+
+	const navItemStates = buildNavItemActiveStates(workspaceNav, {
+		activeHash,
+		pathname,
+	});
 
 	useEffect(() => {
 		if (workspace.role !== "lecturer" && workspace.role !== "iptto-officer") {
@@ -349,9 +404,9 @@ export function DashboardShell({
 
 					<nav className="flex-1 space-y-6 p-4">
 						<SidebarGroup label="Workspace">
-							{workspaceNav.primary.map((item, index) => (
+							{workspaceNav.primary.map((item) => (
 								<SidebarButton
-									active={index === 0}
+									active={navItemStates.primary.get(item.href) ?? false}
 									href={item.href}
 									icon={item.icon}
 									key={item.label}
@@ -361,9 +416,9 @@ export function DashboardShell({
 							))}
 						</SidebarGroup>
 						<SidebarGroup label="Tools">
-							{workspaceNav.secondary.map((item, index) => (
+							{workspaceNav.secondary.map((item) => (
 								<SidebarButton
-									active={index === 0 && workspaceNav.primary.length === 0}
+									active={navItemStates.secondary.get(item.href) ?? false}
 									href={item.href}
 									icon={item.icon}
 									key={item.label}
