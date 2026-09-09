@@ -116,6 +116,11 @@ const workspaceNavByRole: Record<
 		],
 		secondary: [
 			{
+				label: "Request IPTTO Services",
+				icon: Lightbulb,
+				href: "/dashboard/lecturer/request-service",
+			},
+			{
 				label: "My Profile",
 				icon: UserCircle2,
 				href: "/dashboard/lecturer/profile",

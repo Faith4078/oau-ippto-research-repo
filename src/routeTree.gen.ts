@@ -74,6 +74,7 @@ import { Route as ApiPatentsPatentIdRouteImport } from './routes/api/patents.$pa
 import { Route as ApiResearchApprovalTransitionsRouteImport } from './routes/api/research/approval-transitions'
 import { Route as ApiResearchSubmissionsRouteImport } from './routes/api/research/submissions'
 import { Route as DashboardLecturerProfileRouteImport } from './routes/dashboard.lecturer.profile'
+import { Route as DashboardLecturerRequestServiceRouteImport } from './routes/dashboard.lecturer.request-service'
 import { Route as DashboardLecturerSubmitRouteImport } from './routes/dashboard.lecturer.submit'
 import { Route as ApiAuthStaffPasswordResetCompleteRouteImport } from './routes/api/auth/staff-password-reset/complete'
 import { Route as ApiAuthStaffPasswordResetRequestRouteImport } from './routes/api/auth/staff-password-reset/request'
@@ -415,6 +416,12 @@ const DashboardLecturerProfileRoute =
     path: '/profile',
     getParentRoute: () => DashboardLecturerRoute,
   } as any)
+const DashboardLecturerRequestServiceRoute =
+  DashboardLecturerRequestServiceRouteImport.update({
+    id: '/request-service',
+    path: '/request-service',
+    getParentRoute: () => DashboardLecturerRoute,
+  } as any)
 const DashboardLecturerSubmitRoute = DashboardLecturerSubmitRouteImport.update({
   id: '/submit',
   path: '/submit',
@@ -529,6 +536,7 @@ export interface FileRoutesByFullPath {
   '/api/research/approval-transitions': typeof ApiResearchApprovalTransitionsRoute
   '/api/research/submissions': typeof ApiResearchSubmissionsRouteWithChildren
   '/dashboard/lecturer/profile': typeof DashboardLecturerProfileRoute
+  '/dashboard/lecturer/request-service': typeof DashboardLecturerRequestServiceRoute
   '/dashboard/lecturer/submit': typeof DashboardLecturerSubmitRoute
   '/api/auth/staff-password-reset/complete': typeof ApiAuthStaffPasswordResetCompleteRoute
   '/api/auth/staff-password-reset/request': typeof ApiAuthStaffPasswordResetRequestRoute
@@ -598,6 +606,7 @@ export interface FileRoutesByTo {
   '/api/research/approval-transitions': typeof ApiResearchApprovalTransitionsRoute
   '/api/research/submissions': typeof ApiResearchSubmissionsRouteWithChildren
   '/dashboard/lecturer/profile': typeof DashboardLecturerProfileRoute
+  '/dashboard/lecturer/request-service': typeof DashboardLecturerRequestServiceRoute
   '/dashboard/lecturer/submit': typeof DashboardLecturerSubmitRoute
   '/api/auth/staff-password-reset/complete': typeof ApiAuthStaffPasswordResetCompleteRoute
   '/api/auth/staff-password-reset/request': typeof ApiAuthStaffPasswordResetRequestRoute
@@ -674,6 +683,7 @@ export interface FileRoutesById {
   '/api/research/approval-transitions': typeof ApiResearchApprovalTransitionsRoute
   '/api/research/submissions': typeof ApiResearchSubmissionsRouteWithChildren
   '/dashboard/lecturer/profile': typeof DashboardLecturerProfileRoute
+  '/dashboard/lecturer/request-service': typeof DashboardLecturerRequestServiceRoute
   '/dashboard/lecturer/submit': typeof DashboardLecturerSubmitRoute
   '/api/auth/staff-password-reset/complete': typeof ApiAuthStaffPasswordResetCompleteRoute
   '/api/auth/staff-password-reset/request': typeof ApiAuthStaffPasswordResetRequestRoute
@@ -751,6 +761,7 @@ export interface FileRouteTypes {
     | '/api/research/approval-transitions'
     | '/api/research/submissions'
     | '/dashboard/lecturer/profile'
+    | '/dashboard/lecturer/request-service'
     | '/dashboard/lecturer/submit'
     | '/api/auth/staff-password-reset/complete'
     | '/api/auth/staff-password-reset/request'
@@ -820,6 +831,7 @@ export interface FileRouteTypes {
     | '/api/research/approval-transitions'
     | '/api/research/submissions'
     | '/dashboard/lecturer/profile'
+    | '/dashboard/lecturer/request-service'
     | '/dashboard/lecturer/submit'
     | '/api/auth/staff-password-reset/complete'
     | '/api/auth/staff-password-reset/request'
@@ -895,6 +907,7 @@ export interface FileRouteTypes {
     | '/api/research/approval-transitions'
     | '/api/research/submissions'
     | '/dashboard/lecturer/profile'
+    | '/dashboard/lecturer/request-service'
     | '/dashboard/lecturer/submit'
     | '/api/auth/staff-password-reset/complete'
     | '/api/auth/staff-password-reset/request'
@@ -1410,6 +1423,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardLecturerProfileRouteImport
       parentRoute: typeof DashboardLecturerRoute
     }
+    '/dashboard/lecturer/request-service': {
+      id: '/dashboard/lecturer/request-service'
+      path: '/request-service'
+      fullPath: '/dashboard/lecturer/request-service'
+      preLoaderRoute: typeof DashboardLecturerRequestServiceRouteImport
+      parentRoute: typeof DashboardLecturerRoute
+    }
     '/dashboard/lecturer/submit': {
       id: '/dashboard/lecturer/submit'
       path: '/submit'
@@ -1471,12 +1491,14 @@ declare module '@tanstack/react-router' {
 
 interface DashboardLecturerRouteChildren {
   DashboardLecturerProfileRoute: typeof DashboardLecturerProfileRoute
+  DashboardLecturerRequestServiceRoute: typeof DashboardLecturerRequestServiceRoute
   DashboardLecturerSubmitRoute: typeof DashboardLecturerSubmitRoute
   DashboardLecturerEditResearchRecordIdRoute: typeof DashboardLecturerEditResearchRecordIdRoute
 }
 
 const DashboardLecturerRouteChildren: DashboardLecturerRouteChildren = {
   DashboardLecturerProfileRoute: DashboardLecturerProfileRoute,
+  DashboardLecturerRequestServiceRoute: DashboardLecturerRequestServiceRoute,
   DashboardLecturerSubmitRoute: DashboardLecturerSubmitRoute,
   DashboardLecturerEditResearchRecordIdRoute:
     DashboardLecturerEditResearchRecordIdRoute,
