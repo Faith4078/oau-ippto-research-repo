@@ -907,12 +907,15 @@ function Header() {
 					className="flex items-center gap-3 text-[#080808] no-underline"
 					to="/"
 				>
-					<div className="flex h-9 w-9 items-center justify-center rounded bg-[#146ef5] text-white">
-						<Database className="h-5 w-5" />
+					<div className="relative flex h-9 w-9 items-center justify-center rounded bg-[#146ef5] text-white">
+						<BookOpen className="h-5 w-5" />
+						<Sparkles className="absolute right-0.5 top-0.5 h-2.5 w-2.5" />
 					</div>
 					<div className="leading-tight">
-						<strong className="block text-sm font-semibold">OAU IPTTO</strong>
-						<span className="text-xs text-[#6b7280]">Research repository</span>
+						<strong className="block text-sm font-semibold">
+							OAU Research &amp; Innovation
+						</strong>
+						<span className="text-xs text-[#6b7280]">Repository</span>
 					</div>
 				</Link>
 				<div className="ml-auto flex items-center gap-2">
@@ -1293,9 +1296,11 @@ function Footer() {
 							<Database className="h-5 w-5" />
 						</div>
 						<div>
-							<strong className="block">OAU IPTTO</strong>
+							<strong className="block">
+								OAU Research &amp; Innovation Repository
+							</strong>
 							<span className="text-sm text-[#6b7280]">
-								Official Research Repository
+								Research · Innovation · Societal Impact
 							</span>
 						</div>
 					</div>

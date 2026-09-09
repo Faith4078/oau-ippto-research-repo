@@ -26,6 +26,7 @@ import {
 	Scale,
 	Search,
 	SlidersHorizontal,
+	Sparkles,
 	Users,
 	X,
 } from "lucide-react";
@@ -55,7 +56,7 @@ import {
 	LoadingSkeletonFrame,
 } from "@/components/ui/loading-skeleton";
 
-const siteName = "OAU IPTTO Research Repository";
+const siteName = "OAU Research & Innovation Repository";
 const baseUrl = "https://research.oauife.edu.ng";
 
 type PublicIcon = ComponentType<{ className?: string }>;
@@ -1935,12 +1936,15 @@ function PublicHeader() {
 		<header className="fixed inset-x-0 top-0 z-50 border-b border-[#d8d8d8] bg-white/90 backdrop-blur-xl">
 			<nav className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
 				<Link className="flex items-center gap-3 text-[#080808]" to="/">
-					<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-[#146ef5] text-white">
-						<FileSearch className="h-5 w-5" />
+					<div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded bg-[#146ef5] text-white">
+						<BookOpen className="h-5 w-5" />
+						<Sparkles className="absolute right-0.5 top-0.5 h-2.5 w-2.5" />
 					</div>
 					<div className="leading-tight">
-						<strong className="block text-sm font-semibold">OAU IPTTO</strong>
-						<span className="text-xs text-[#6b7280]">Research repository</span>
+						<strong className="block text-sm font-semibold">
+							OAU Research &amp; Innovation
+						</strong>
+						<span className="text-xs text-[#6b7280]">Repository</span>
 					</div>
 				</Link>
 				<div className="ml-auto flex items-center gap-2">
@@ -2075,12 +2079,14 @@ function PublicFooter() {
 				<div>
 					<div className="flex items-center gap-3">
 						<div className="flex h-10 w-10 items-center justify-center rounded bg-[#146ef5] text-white">
-							<FileSearch className="h-5 w-5" />
+							<BookOpen className="h-5 w-5" />
 						</div>
 						<div>
-							<strong className="block">OAU IPTTO</strong>
+							<strong className="block">
+								OAU Research &amp; Innovation Repository
+							</strong>
 							<span className="text-sm text-[#6b7280]">
-								Official Research Repository
+								Research · Innovation · Societal Impact
 							</span>
 						</div>
 					</div>

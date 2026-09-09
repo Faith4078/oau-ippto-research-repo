@@ -403,7 +403,7 @@ export function DashboardShell({
 							</div>
 							<div className="leading-tight">
 								<strong className="block text-sm font-semibold">
-									OAU IPTTO
+									OAU Research &amp; Innovation
 								</strong>
 								<span className="text-xs text-[#6b7280]">Staff dashboard</span>
 							</div>
