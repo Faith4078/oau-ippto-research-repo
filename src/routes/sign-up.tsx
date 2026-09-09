@@ -1,6 +1,11 @@
 "use client";
 
-import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	Link,
+	Outlet,
+	useLocation,
+} from "@tanstack/react-router";
 import {
 	ArrowLeft,
 	ArrowRight,
@@ -61,13 +66,13 @@ function SignUpPage() {
 	return (
 		<main className="flex min-h-screen items-center justify-center bg-white px-4 py-12 text-[#080808] sm:px-6 lg:px-8">
 			<section className="w-full max-w-5xl">
-				<a
+				<Link
 					className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-[#146ef5] hover:underline"
-					href="/"
+					to="/"
 				>
 					<ArrowLeft className="h-4 w-4" />
 					Back to the public repository
-				</a>
+				</Link>
 				<div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
 					<div className="max-w-xl">
 						<div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#d8d8d8] bg-[#eef4ff] px-3 py-1 text-sm font-medium text-[#146ef5]">
@@ -82,12 +87,12 @@ function SignUpPage() {
 						</p>
 						<p className="mt-5 text-sm text-[#6b7280]">
 							Already approved?{" "}
-							<a
+							<Link
 								className="font-semibold text-[#146ef5] hover:underline"
-								href="/sign-in"
+								to="/sign-in"
 							>
 								Staff sign in
-							</a>
+							</Link>
 						</p>
 					</div>
 					<div className="grid gap-4">
@@ -115,10 +120,10 @@ function SignUpPage() {
 											asChild
 											className="h-12 rounded bg-[#146ef5] text-base text-white hover:bg-[#0d5fdc]"
 										>
-											<a href={option.href}>
+											<Link to={option.href}>
 												Continue
 												<ArrowRight className="h-5 w-5" />
-											</a>
+											</Link>
 										</Button>
 									</CardContent>
 								</Card>

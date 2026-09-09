@@ -1,6 +1,6 @@
 "use client";
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Eye, EyeOff, LockKeyhole, LogIn } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 
@@ -95,13 +95,13 @@ function SignInPage() {
 	return (
 		<main className="flex min-h-screen items-center justify-center bg-white px-4 py-12 text-[#080808] sm:px-6 lg:px-8">
 			<section className="w-full max-w-5xl">
-				<a
+				<Link
 					className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-[#146ef5] hover:underline"
-					href="/"
+					to="/"
 				>
 					<ArrowLeft className="h-4 w-4" />
 					Back to the public repository
-				</a>
+				</Link>
 				<div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
 					<div className="max-w-xl">
 						<div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#d8d8d8] bg-[#eef4ff] px-3 py-1 text-sm font-medium text-[#146ef5]">
@@ -180,12 +180,12 @@ function SignInPage() {
 											</button>
 										</div>
 										<FieldDescription>
-											<a
+											<Link
 												className="font-medium text-[#146ef5] underline-offset-4 hover:underline"
-												href="/forgot-password"
+												to="/forgot-password"
 											>
 												Forgot your password?
-											</a>
+											</Link>
 										</FieldDescription>
 									</Field>
 								</FieldGroup>
@@ -204,19 +204,19 @@ function SignInPage() {
 							<div className="mt-6 border-t border-[#d8d8d8] pt-5 text-sm text-[#6b7280]">
 								<p>Need staff access?</p>
 								<div className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
-									<a
+									<Link
 										className="font-medium text-[#146ef5] hover:underline"
-										href="/sign-up"
+										to="/sign-up"
 									>
 										Create an account request
-									</a>
+									</Link>
 								</div>
-								<a
+								<Link
 									className="mt-4 inline-block font-medium text-[#080808] hover:underline"
-									href="/"
+									to="/"
 								>
 									Back to the public repository
-								</a>
+								</Link>
 							</div>
 						</CardContent>
 					</Card>

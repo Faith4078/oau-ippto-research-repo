@@ -1,7 +1,9 @@
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 
+import { DashboardShell } from "#/components/dashboard/dashboard-shell.tsx";
 import { LecturerWorkspace } from "#/components/dashboard/lecturer-workspace.tsx";
 import { requireDashboardRouteAuth } from "#/lib/auth-functions.ts";
+import { workspaces } from "#/presentation/dashboard/data.ts";
 
 export const Route = createFileRoute("/dashboard/lecturer")({
 	beforeLoad: ({ location }) =>
@@ -27,10 +29,15 @@ export const Route = createFileRoute("/dashboard/lecturer")({
 function LecturerDashboard() {
 	const location = useLocation();
 	const pathname = location.pathname.replace(/\/+$/, "");
+	const isIndexRoute = pathname === "/dashboard/lecturer";
 
-	if (pathname !== "/dashboard/lecturer") {
-		return <Outlet />;
-	}
-
-	return <LecturerWorkspace />;
+	// The shell (sidebar + topbar) must stay mounted across every
+	// /dashboard/lecturer/* route so navigating between "My Research",
+	// "Add Research", "Edit", and "Profile" feels like switching tabs
+	// inside the dashboard instead of leaving it.
+	return (
+		<DashboardShell workspace={workspaces.lecturer}>
+			{isIndexRoute ? <LecturerWorkspace /> : <Outlet />}
+		</DashboardShell>
+	);
 }

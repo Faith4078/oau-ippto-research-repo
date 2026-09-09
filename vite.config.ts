@@ -24,44 +24,6 @@ const publicPrerenderPaths = [
 	"/contact",
 ];
 
-// const config = defineConfig(({ command }) => {
-// 	const plugins: Array<PluginOption> = [
-// 		 tsconfigPaths(),
-// 		devtools(),
-// 		neon,
-// 		tailwindcss(),
-// 		tanstackStart({
-// 			// Nitro owns production prerendering for this deployment. TanStack's
-// 			// preview-based prerenderer expects its default dist/server output, while
-// 			// Nitro emits the deployable server under .output/server.
-// 			prerender: {
-// 				enabled: false,
-// 			},
-// 		}),
-// 		viteReact(),
-// 	];
-
-// 	if (command === "build") {
-// 		plugins.push(
-// 			nitro({
-// 				prerender: {
-// 					concurrency: 1,
-// 					crawlLinks: false,
-// 					failOnError: true,
-// 					routes: publicPrerenderPaths,
-// 				},
-// 				rollupConfig: { external: [/^@sentry\//] },
-// 			}),
-// 		);
-// 	}
-
-// 	return {
-// 		resolve: { tsconfigPaths: true },
-// 		plugins,
-// 	};
-// });
-
-// export default config;
 const config = defineConfig(({ command }) => {
   const plugins: Array<PluginOption> = [
     tsconfigPaths(),

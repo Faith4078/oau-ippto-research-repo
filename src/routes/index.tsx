@@ -1,6 +1,6 @@
 "use client";
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
 	ArrowRight,
 	BadgeCheck,
@@ -441,10 +441,10 @@ function Home() {
 							See how OAU ideas become useful products, protected inventions,
 							and industry partnerships—with support from IPTTO.
 						</p>
-						<a className="btn-primary mt-8 w-fit" href="/innovations">
+						<Link className="btn-primary mt-8 w-fit" to="/innovations">
 							<Lightbulb className="h-5 w-5" />
 							Explore Innovations
-						</a>
+						</Link>
 					</div>
 					<div className="grid gap-4 sm:grid-cols-2">
 						{innovationItems.map((item) => (
@@ -546,10 +546,10 @@ function Home() {
 							</p>
 						</div>
 						<div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-							<a className="btn-primary" href="/research">
+							<Link className="btn-primary" to="/research">
 								<Search className="h-5 w-5" />
 								Search Research
-							</a>
+							</Link>
 							<a className="btn-secondary" href="#featured">
 								Browse Research
 								<ArrowRight className="h-5 w-5" />
@@ -571,9 +571,9 @@ function Header() {
 	return (
 		<header className="fixed inset-x-0 top-0 z-50 border-b border-white/15 bg-white/88 backdrop-blur-xl">
 			<nav className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-				<a
+				<Link
 					className="flex items-center gap-3 text-[#080808] no-underline"
-					href="/"
+					to="/"
 				>
 					<div className="flex h-9 w-9 items-center justify-center rounded bg-[#146ef5] text-white">
 						<Database className="h-5 w-5" />
@@ -582,7 +582,7 @@ function Header() {
 						<strong className="block text-sm font-semibold">OAU IPTTO</strong>
 						<span className="text-xs text-[#6b7280]">Research repository</span>
 					</div>
-				</a>
+				</Link>
 				<div className="ml-auto flex items-center gap-2">
 					<PublicNavActions
 						dashboardHref={dashboardHref}
@@ -644,17 +644,17 @@ function HomeNavigationDrawer({
 						const Icon = link.icon;
 
 						return (
-							<a
+							<Link
 								className="group flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium text-[#374151] transition hover:bg-[#f4f7ff] hover:text-[#146ef5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#146ef5]/30"
-								href={link.href}
 								key={link.href}
 								onClick={onClose}
+								to={link.href}
 							>
 								<span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#f7f7f7] text-[#6b7280] transition group-hover:bg-white group-hover:text-[#146ef5]">
 									<Icon className="h-4 w-4" />
 								</span>
 								<span>{link.label}</span>
-							</a>
+							</Link>
 						);
 					})}
 				</div>
@@ -727,10 +727,10 @@ function ContentPanel({
 				{title}
 			</h2>
 			<p className="mt-5 max-w-xl text-base leading-7 text-[#6b7280]">{text}</p>
-			<a className="btn-primary mt-8 w-fit" href={href}>
+			<Link className="btn-primary mt-8 w-fit" to={href}>
 				<Icon className="h-5 w-5" />
 				{cta}
-			</a>
+			</Link>
 		</div>
 	);
 }
@@ -774,9 +774,9 @@ function Footer() {
 					<h3 className="text-base font-semibold">Quick Links</h3>
 					<div className="footer-links">
 						{footerLinks.map((link) => (
-							<a href={link.href} key={link.href}>
+							<Link key={link.href} to={link.href}>
 								{link.label}
-							</a>
+							</Link>
 						))}
 					</div>
 				</div>

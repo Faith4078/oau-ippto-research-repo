@@ -1,6 +1,6 @@
 "use client";
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
 	CheckCircle2,
 	ClipboardPenLine,
@@ -408,19 +408,19 @@ function LecturerSignUpPage() {
 						</form>
 						<p className="mt-6 border-t border-[#d8d8d8] pt-5 text-sm text-[#6b7280]">
 							Already requested access?{" "}
-							<a
+							<Link
 								className="font-medium text-[#146ef5] hover:underline"
-								href="/sign-in"
+								to="/sign-in"
 							>
 								Sign in
-							</a>
+							</Link>
 							{" · "}
-							<a
+							<Link
 								className="font-medium text-[#080808] hover:underline"
-								href="/"
+								to="/"
 							>
 								Public repository
-							</a>
+							</Link>
 						</p>
 					</CardContent>
 				</Card>

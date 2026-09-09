@@ -1,4 +1,11 @@
+import {
+	createMemoryHistory,
+	createRootRoute,
+	createRouter,
+	RouterProvider,
+} from "@tanstack/react-router";
 import { cleanup, render, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { DashboardShell } from "#/components/dashboard/dashboard-shell.tsx";
@@ -8,6 +15,19 @@ afterEach(() => {
 	cleanup();
 	vi.unstubAllGlobals();
 });
+
+// DashboardShell renders <Link> for its logo and sidebar navigation, which
+// requires a router context to be mounted. Wrap it in a minimal in-memory
+// router instead of rendering it bare.
+function renderWithRouter(ui: ReactElement) {
+	const rootRoute = createRootRoute({ component: () => ui });
+	const router = createRouter({
+		history: createMemoryHistory({ initialEntries: ["/"] }),
+		routeTree: rootRoute,
+	});
+
+	return render(<RouterProvider router={router} />);
+}
 
 describe("DashboardShell signed-in name", () => {
 	it.each([
@@ -38,7 +58,7 @@ describe("DashboardShell signed-in name", () => {
 				),
 			);
 
-			render(
+			renderWithRouter(
 				<DashboardShell workspace={workspaces[role]}>
 					<p>Dashboard content</p>
 				</DashboardShell>,

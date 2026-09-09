@@ -273,7 +273,7 @@ export function DashboardShell({
 					inert={isResponsiveWorkspace && !isDesktop && !isMobileSidebarOpen}
 				>
 					<div className="flex h-20 items-center justify-between border-[#d8d8d8] border-b px-5">
-						<a className="flex items-center gap-3" href="/dashboard">
+						<Link className="flex items-center gap-3" to="/dashboard">
 							<div className="flex h-10 w-10 items-center justify-center rounded bg-[#146ef5] text-white">
 								<ShieldCheck className="h-5 w-5" />
 							</div>
@@ -283,7 +283,7 @@ export function DashboardShell({
 								</strong>
 								<span className="text-xs text-[#6b7280]">Staff dashboard</span>
 							</div>
-						</a>
+						</Link>
 						{isResponsiveWorkspace ? (
 							<button
 								aria-label="Close dashboard navigation"
@@ -462,18 +462,28 @@ function SidebarButton({
 	label: string;
 	onClick?: () => void;
 }) {
+	const className = cn(
+		"flex w-full items-center gap-3 rounded px-3 py-2.5 text-sm font-medium text-[#6b7280]",
+		active && "bg-white text-[#080808]",
+	);
+
+	// In-page anchors (e.g. "#my-research") scroll to a section on the
+	// current page and must stay plain <a> tags; everything else is a real
+	// route and should use client-side navigation.
+	if (href.startsWith("#")) {
+		return (
+			<a className={className} href={href} onClick={onClick}>
+				<Icon className="h-4 w-4" />
+				{label}
+			</a>
+		);
+	}
+
 	return (
-		<a
-			className={cn(
-				"flex w-full items-center gap-3 rounded px-3 py-2.5 text-sm font-medium text-[#6b7280]",
-				active && "bg-white text-[#080808]",
-			)}
-			href={href}
-			onClick={onClick}
-		>
+		<Link className={className} onClick={onClick} to={href}>
 			<Icon className="h-4 w-4" />
 			{label}
-		</a>
+		</Link>
 	);
 }
 

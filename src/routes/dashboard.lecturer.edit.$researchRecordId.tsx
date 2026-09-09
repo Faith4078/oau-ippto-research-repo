@@ -121,76 +121,71 @@ function LecturerResearchEditPage() {
 	}, [researchRecordId]);
 
 	return (
-		<main className="min-h-screen bg-[#f0f0f0] p-4 text-[#080808] sm:p-6 lg:p-8">
-			<div className="mx-auto max-w-5xl space-y-5">
-				<div className="rounded-lg border border-[#d8d8d8] bg-white p-4">
-					<Link
-						className="text-sm font-semibold text-[#146ef5]"
-						to="/dashboard/lecturer"
-					>
-						Back to my research
-					</Link>
-					<h1 className="mt-4 text-3xl font-semibold tracking-normal">
-						Edit Research
-					</h1>
-					<p className="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
-						Update the details below, then save your changes.
-					</p>
-				</div>
-
-				{loadState.status === "loading" ? (
-					<div className="rounded-lg border border-[#d8d8d8] bg-white p-6">
-						<LoadingSkeletonFrame label="Loading your research" />
-					</div>
-				) : null}
-
-				{loadState.status === "not-found" ? (
-					<div className="rounded-lg border border-[#d8d8d8] bg-white p-6">
-						<p className="font-semibold">This research record was not found</p>
-						<p className="mt-2 text-sm text-[#6b7280]">
-							It may have been deleted, or it may belong to another account.
-						</p>
-						<Button asChild className="mt-4">
-							<Link to="/dashboard/lecturer">Back to my research</Link>
-						</Button>
-					</div>
-				) : null}
-
-				{loadState.status === "not-editable" ? (
-					<div className="rounded-lg border border-[#d8d8d8] bg-white p-6">
-						<p className="font-semibold">
-							This research can no longer be edited
-						</p>
-						<p className="mt-2 text-sm text-[#6b7280]">
-							Research in "{loadState.recordStatus.replace(/_/g, " ")}" status
-							is
-							{loadState.recordStatus === "published"
-								? " already public and can only be changed through IPTTO."
-								: " no longer editable from this page."}
-						</p>
-						<Button asChild className="mt-4">
-							<Link to="/dashboard/lecturer">Back to my research</Link>
-						</Button>
-					</div>
-				) : null}
-
-				{loadState.status === "error" ? (
-					<div className="rounded-lg border border-[#d8d8d8] bg-white p-6">
-						<p className="font-semibold">Your research could not be loaded</p>
-						<p className="mt-2 text-sm text-[#6b7280]">{loadState.message}</p>
-					</div>
-				) : null}
-
-				{loadState.status === "ready" ? (
-					<ResearchSubmissionForm
-						hasExistingDocument={loadState.submission.hasExistingDocument}
-						initialFormValues={loadState.submission.values}
-						mode="edit"
-						researchRecordId={loadState.submission.id}
-					/>
-				) : null}
+		<div className="mx-auto max-w-5xl space-y-5">
+			<div className="rounded-lg border border-[#d8d8d8] bg-white p-4">
+				<Link
+					className="text-sm font-semibold text-[#146ef5]"
+					to="/dashboard/lecturer"
+				>
+					Back to my research
+				</Link>
+				<h1 className="mt-4 text-3xl font-semibold tracking-normal">
+					Edit Research
+				</h1>
+				<p className="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+					Update the details below, then save your changes.
+				</p>
 			</div>
-		</main>
+
+			{loadState.status === "loading" ? (
+				<div className="rounded-lg border border-[#d8d8d8] bg-white p-6">
+					<LoadingSkeletonFrame label="Loading your research" />
+				</div>
+			) : null}
+
+			{loadState.status === "not-found" ? (
+				<div className="rounded-lg border border-[#d8d8d8] bg-white p-6">
+					<p className="font-semibold">This research record was not found</p>
+					<p className="mt-2 text-sm text-[#6b7280]">
+						It may have been deleted, or it may belong to another account.
+					</p>
+					<Button asChild className="mt-4">
+						<Link to="/dashboard/lecturer">Back to my research</Link>
+					</Button>
+				</div>
+			) : null}
+
+			{loadState.status === "not-editable" ? (
+				<div className="rounded-lg border border-[#d8d8d8] bg-white p-6">
+					<p className="font-semibold">This research can no longer be edited</p>
+					<p className="mt-2 text-sm text-[#6b7280]">
+						Research in "{loadState.recordStatus.replace(/_/g, " ")}" status is
+						{loadState.recordStatus === "published"
+							? " already public and can only be changed through IPTTO."
+							: " no longer editable from this page."}
+					</p>
+					<Button asChild className="mt-4">
+						<Link to="/dashboard/lecturer">Back to my research</Link>
+					</Button>
+				</div>
+			) : null}
+
+			{loadState.status === "error" ? (
+				<div className="rounded-lg border border-[#d8d8d8] bg-white p-6">
+					<p className="font-semibold">Your research could not be loaded</p>
+					<p className="mt-2 text-sm text-[#6b7280]">{loadState.message}</p>
+				</div>
+			) : null}
+
+			{loadState.status === "ready" ? (
+				<ResearchSubmissionForm
+					hasExistingDocument={loadState.submission.hasExistingDocument}
+					initialFormValues={loadState.submission.values}
+					mode="edit"
+					researchRecordId={loadState.submission.id}
+				/>
+			) : null}
+		</div>
 	);
 }
 

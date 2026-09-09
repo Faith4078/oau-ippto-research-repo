@@ -1,5 +1,6 @@
 "use client";
 
+import { Link } from "@tanstack/react-router";
 import {
 	ArrowLeft,
 	ArrowRight,
@@ -1346,13 +1347,13 @@ export function DetailPlaceholderPage({
 	return (
 		<PublicPageShell>
 			<section className="section-wrap pb-12 pt-32">
-				<a
+				<Link
 					className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-[#146ef5]"
-					href={config.backHref}
+					to={config.backHref}
 				>
 					<ArrowLeft className="h-4 w-4" />
 					{config.backLabel}
-				</a>
+				</Link>
 				<div className="grid gap-8 lg:grid-cols-[1fr_360px] lg:items-start">
 					<div>
 						<span className="eyebrow">
@@ -1373,14 +1374,14 @@ export function DetailPlaceholderPage({
 						) : null}
 						<div className="mt-8 flex flex-col gap-3 sm:flex-row">
 							{config.actions.map((action) => (
-								<a
+								<Link
 									className="btn-primary w-fit"
-									href={action.href}
 									key={action.label}
+									to={action.href}
 								>
 									<action.icon className="h-5 w-5" />
 									{action.label}
-								</a>
+								</Link>
 							))}
 						</div>
 					</div>
@@ -1487,10 +1488,10 @@ export function LivePublicRecordPage({
 						It may have been unpublished, archived, or the link may be
 						incorrect.
 					</p>
-					<a className="btn-primary mt-8 w-fit" href={backHref}>
+					<Link className="btn-primary mt-8 w-fit" to={backHref}>
 						<ArrowLeft className="h-5 w-5" />
 						Back to public records
-					</a>
+					</Link>
 				</section>
 			</PublicPageShell>
 		);
@@ -1499,13 +1500,13 @@ export function LivePublicRecordPage({
 	return (
 		<PublicPageShell>
 			<section className="section-wrap pb-12 pt-32">
-				<a
+				<Link
 					className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-[#146ef5]"
-					href={record.backHref}
+					to={record.backHref}
 				>
 					<ArrowLeft className="h-4 w-4" />
 					{record.backLabel}
-				</a>
+				</Link>
 				<div className="grid gap-8 lg:grid-cols-[1fr_360px] lg:items-start">
 					<div>
 						{record.imageUrl ? (
@@ -1834,7 +1835,7 @@ function PublicHeader() {
 	return (
 		<header className="fixed inset-x-0 top-0 z-50 border-b border-[#d8d8d8] bg-white/90 backdrop-blur-xl">
 			<nav className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-				<a className="flex items-center gap-3 text-[#080808]" href="/">
+				<Link className="flex items-center gap-3 text-[#080808]" to="/">
 					<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-[#146ef5] text-white">
 						<FileSearch className="h-5 w-5" />
 					</div>
@@ -1842,7 +1843,7 @@ function PublicHeader() {
 						<strong className="block text-sm font-semibold">OAU IPTTO</strong>
 						<span className="text-xs text-[#6b7280]">Research repository</span>
 					</div>
-				</a>
+				</Link>
 				<div className="ml-auto flex items-center gap-2">
 					<PublicNavActions
 						dashboardHref={dashboardHref}
@@ -1904,17 +1905,17 @@ function NavigationDrawer({
 						const Icon = link.icon;
 
 						return (
-							<a
+							<Link
 								className="group flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium text-[#374151] transition hover:bg-[#f4f7ff] hover:text-[#146ef5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#146ef5]/30"
-								href={link.href}
 								key={link.href}
 								onClick={onClose}
+								to={link.href}
 							>
 								<span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#f7f7f7] text-[#6b7280] transition group-hover:bg-white group-hover:text-[#146ef5]">
 									<Icon className="h-4 w-4" />
 								</span>
 								<span>{link.label}</span>
-							</a>
+							</Link>
 						);
 					})}
 				</div>
@@ -1994,9 +1995,9 @@ function PublicFooter() {
 					<h2 className="text-base font-semibold">Public pages</h2>
 					<div className="footer-links">
 						{publicLinks.map((link) => (
-							<a href={link.href} key={link.href}>
+							<Link key={link.href} to={link.href}>
 								{link.label}
-							</a>
+							</Link>
 						))}
 					</div>
 				</div>

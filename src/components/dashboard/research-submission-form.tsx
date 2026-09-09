@@ -1,5 +1,6 @@
 "use client";
 
+import { Link } from "@tanstack/react-router";
 import { UploadCloud } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -754,7 +755,7 @@ export function ResearchSubmissionForm({
 							className="h-10 rounded bg-[#146ef5] px-4 text-white hover:bg-[#0d5fdc]"
 							type="button"
 						>
-							<a href="/dashboard/lecturer">View my submissions</a>
+							<Link to="/dashboard/lecturer">View my submissions</Link>
 						</Button>
 						<Button
 							asChild
@@ -762,7 +763,7 @@ export function ResearchSubmissionForm({
 							type="button"
 							variant="outline"
 						>
-							<a href="/research">Browse all research</a>
+							<Link to="/research">Browse all research</Link>
 						</Button>
 					</CardContent>
 				) : null}

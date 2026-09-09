@@ -1,6 +1,6 @@
 "use client";
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, BookOpenCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { PublicResearchDetail } from "#/routes/api/public-research.ts";
@@ -139,10 +139,10 @@ function ResearchDetailPage() {
 					It may have been unpublished, archived, restricted, or the link may be
 					incorrect.
 				</p>
-				<a className="btn-primary mt-8 w-fit" href="/research">
+				<Link className="btn-primary mt-8 w-fit" to="/research">
 					<ArrowLeft className="h-5 w-5" />
 					Back to all research
-				</a>
+				</Link>
 			</section>
 		</PublicPageShell>
 	);
@@ -173,13 +173,13 @@ function LiveResearchDetail({
 	return (
 		<PublicPageShell>
 			<section className="section-wrap pb-12 pt-32">
-				<a
+				<Link
 					className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-[#146ef5]"
-					href="/research"
+					to="/research"
 				>
 					<ArrowLeft className="h-4 w-4" />
 					Back to all research
-				</a>
+				</Link>
 				<div className="grid gap-8 lg:grid-cols-[1fr_360px] lg:items-start">
 					<div>
 						<span className="eyebrow">
@@ -234,12 +234,13 @@ function LiveResearchDetail({
 						<p className="mt-3 text-sm leading-6 text-[#6b7280]">
 							{record.authors.length ? (
 								record.ownerId ? (
-									<a
+									<Link
 										className="font-medium text-[#146ef5] hover:underline"
-										href={`/researchers/${record.ownerId}`}
+										params={{ profileId: record.ownerId }}
+										to="/researchers/$profileId"
 									>
 										{record.authors.join(", ")}
-									</a>
+									</Link>
 								) : (
 									record.authors.join(", ")
 								)

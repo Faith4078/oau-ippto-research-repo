@@ -1,5 +1,6 @@
 "use client";
 
+import { Link } from "@tanstack/react-router";
 import { LayoutDashboard, LockKeyhole, LogOut, Users } from "lucide-react";
 
 import { signOutAndRedirectHome } from "#/lib/sign-out.ts";
@@ -19,14 +20,14 @@ export function PublicNavActions({
 	if (isSignedIn) {
 		return (
 			<>
-				<a
+				<Link
 					aria-label="Open dashboard"
 					className={primaryActionClass}
-					href={dashboardHref}
+					to={dashboardHref}
 				>
 					<LayoutDashboard className="h-4 w-4" />
 					<span className="hidden sm:inline">Dashboard</span>
-				</a>
+				</Link>
 				<button
 					aria-label="Logout"
 					className={`${secondaryActionClass} cursor-pointer`}
@@ -42,14 +43,14 @@ export function PublicNavActions({
 
 	return (
 		<>
-			<a aria-label="Sign up" className={secondaryActionClass} href="/sign-up">
+			<Link aria-label="Sign up" className={secondaryActionClass} to="/sign-up">
 				<Users className="h-4 w-4" />
 				<span className="hidden sm:inline">Sign up</span>
-			</a>
-			<a aria-label="Sign in" className={primaryActionClass} href="/sign-in">
+			</Link>
+			<Link aria-label="Sign in" className={primaryActionClass} to="/sign-in">
 				<LockKeyhole className="h-4 w-4" />
 				<span className="hidden sm:inline">Sign in</span>
-			</a>
+			</Link>
 		</>
 	);
 }
