@@ -142,6 +142,10 @@ function statusForError(code: string): number {
 		return 409;
 	}
 
+	if (code.endsWith("_CONFLICT")) {
+		return 409;
+	}
+
 	if (code === "ACCOUNT_NOTIFICATION_FAILED") {
 		return 503;
 	}

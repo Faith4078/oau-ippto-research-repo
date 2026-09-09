@@ -1,6 +1,6 @@
 "use client";
 
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import {
 	BadgeCheck,
@@ -13,13 +13,13 @@ import {
 	FileClock,
 	Filter,
 	Gavel,
+	House,
 	Lightbulb,
 	LockKeyhole,
 	LogOut,
 	Menu,
 	MoreHorizontal,
 	Plus,
-	Settings,
 	ShieldCheck,
 	SlidersHorizontal,
 	UserCircle2,
@@ -190,19 +190,19 @@ const workspaceNavByRole: Record<
 	"super-admin": {
 		primary: [
 			{
-				label: "Account Requests",
-				icon: UserCircle2,
-				href: "/dashboard/super-admin#account-requests",
+				label: "Home",
+				icon: House,
+				href: "/dashboard/super-admin",
 			},
 			{
-				label: "User Access",
-				icon: ShieldCheck,
-				href: "/dashboard/super-admin#user-access",
+				label: "Faculties",
+				icon: BookOpenCheck,
+				href: "/dashboard/super-admin/faculties",
 			},
 			{
-				label: "Organization",
+				label: "Departments",
 				icon: Building2,
-				href: "/dashboard/super-admin/organization",
+				href: "/dashboard/super-admin/departments",
 			},
 			{
 				label: "Users by Role",
@@ -210,13 +210,7 @@ const workspaceNavByRole: Record<
 				href: "/dashboard/super-admin/users",
 			},
 		],
-		secondary: [
-			{
-				label: "Needs Attention",
-				icon: Settings,
-				href: "/dashboard/super-admin#platform-attention",
-			},
-		],
+		secondary: [],
 	},
 };
 
@@ -244,6 +238,7 @@ export function DashboardShell({
 }) {
 	const isResponsiveWorkspace = isNonAdminWorkspace(workspace.role);
 	const workspaceNav = getWorkspaceNav(workspace.role);
+	const location = useLocation();
 	const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 	const [isDesktop, setIsDesktop] = useState(false);
 	const [isIdentityLoading, setIsIdentityLoading] = useState(true);
@@ -372,7 +367,12 @@ export function DashboardShell({
 						<SidebarGroup label="Workspace">
 							{workspaceNav.primary.map((item, index) => (
 								<SidebarButton
-									active={index === 0}
+									active={isSidebarItemActive(
+										item.href,
+										location.pathname,
+										location.hash,
+										index === 0,
+									)}
 									href={item.href}
 									icon={item.icon}
 									key={item.label}
@@ -384,7 +384,12 @@ export function DashboardShell({
 						<SidebarGroup label="Tools">
 							{workspaceNav.secondary.map((item, index) => (
 								<SidebarButton
-									active={index === 0 && workspaceNav.primary.length === 0}
+									active={isSidebarItemActive(
+										item.href,
+										location.pathname,
+										location.hash,
+										index === 0 && workspaceNav.primary.length === 0,
+									)}
 									href={item.href}
 									icon={item.icon}
 									key={item.label}
@@ -429,6 +434,28 @@ function isNonAdminWorkspace(role: DashboardRole) {
 
 function shouldShowConfirmationPreview(role: DashboardRole) {
 	return role === "department-admin" || role === "faculty-admin";
+}
+
+function isSidebarItemActive(
+	href: string,
+	pathname: string,
+	hash: string,
+	isDefault = false,
+) {
+	if (href.startsWith("#")) {
+		return hash === href || (!hash && isDefault);
+	}
+
+	const [itemPath, hashFragment] = href.split("#");
+	if (pathname !== itemPath) {
+		return false;
+	}
+
+	if (hashFragment) {
+		return hash === `#${hashFragment}` || (!hash && isDefault);
+	}
+
+	return true;
 }
 
 function TopBar({

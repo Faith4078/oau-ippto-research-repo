@@ -1,6 +1,6 @@
 "use client";
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { CheckCircle2, RefreshCw, XCircle } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -41,25 +41,32 @@ export const Route = createFileRoute("/dashboard/super-admin")({
 });
 
 function SuperAdminDashboard() {
+	const location = useLocation();
+	const isOverview = location.pathname === "/dashboard/super-admin";
+
 	return (
 		<DashboardShell workspace={workspaces["super-admin"]}>
-			<div className="space-y-6">
-				<header>
-					<p className="text-sm font-semibold text-[#146ef5]">
-						Super Administrator
-					</p>
-					<h1 className="mt-2 text-4xl font-semibold tracking-normal">
-						Platform access and operations
-					</h1>
-					<p className="mt-3 max-w-3xl text-[#6b7280]">
-						Approve real account requests and inspect automatic work that needs
-						attention.
-					</p>
-				</header>
-				<AccountApprovalQueue />
-				<UserAccessPanel />
-				<FailedJobsPanel />
-			</div>
+			{isOverview ? (
+				<div className="space-y-6">
+					<header>
+						<p className="text-sm font-semibold text-[#146ef5]">
+							Super Administrator
+						</p>
+						<h1 className="mt-2 text-4xl font-semibold tracking-normal">
+							Platform access and operations
+						</h1>
+						<p className="mt-3 max-w-3xl text-[#6b7280]">
+							Approve real account requests and inspect automatic work that
+							needs attention.
+						</p>
+					</header>
+					<AccountApprovalQueue />
+					<UserAccessPanel />
+					<FailedJobsPanel />
+				</div>
+			) : (
+				<Outlet />
+			)}
 		</DashboardShell>
 	);
 }

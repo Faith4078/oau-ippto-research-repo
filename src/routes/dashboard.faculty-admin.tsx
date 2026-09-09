@@ -1,6 +1,6 @@
 "use client";
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -40,12 +40,19 @@ export const Route = createFileRoute("/dashboard/faculty-admin")({
 });
 
 function FacultyAdminDashboard() {
+	const location = useLocation();
+	const isOverview = location.pathname === "/dashboard/faculty-admin";
+
 	return (
 		<DashboardShell workspace={workspaces["faculty-admin"]}>
-			<div className="space-y-6">
-				<ResearchReviewWorkspace embedded stage="faculty" />
-				<DepartmentAdministratorAccessPanel />
-			</div>
+			{isOverview ? (
+				<div className="space-y-6">
+					<ResearchReviewWorkspace embedded stage="faculty" />
+					<DepartmentAdministratorAccessPanel />
+				</div>
+			) : (
+				<Outlet />
+			)}
 		</DashboardShell>
 	);
 }
