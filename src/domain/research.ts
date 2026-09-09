@@ -23,6 +23,7 @@ export type FilePurpose =
 	| "innovation_support"
 	| "patent_support"
 	| "profile_image"
+	| "research_image"
 	| "other";
 
 export type ResearchRecord = Timestamped & {
@@ -39,6 +40,12 @@ export type ResearchRecord = Timestamped & {
 	startedOn: string | null;
 	completedOn: string | null;
 	publishedAt: Date | null;
+	/** Patent/prototype/innovation/commercialization status. Optional — may be added later. */
+	commercializationStatus?: string | null;
+	/** Funding status/needs description. Optional — may be added later. */
+	fundingInfo?: string | null;
+	/** Free-text note, e.g. a funding solicitation with contact details. Optional. */
+	comment?: string | null;
 	metadata: Metadata;
 };
 

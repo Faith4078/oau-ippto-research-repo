@@ -20,6 +20,54 @@ function ResearchDetailPage() {
 	const { recordId } = Route.useParams();
 	const [record, setRecord] = useState<PublicResearchDetail | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+	useEffect(() => {
+		let isMounted = true;
+
+		async function loadImage() {
+			if (!record?.imageFileId) {
+				setImageUrl(null);
+				return;
+			}
+
+			try {
+				const response = await fetch("/api/files/signed-download-url", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						fileId: record.imageFileId,
+						researchRecordId: record.id,
+					}),
+				});
+
+				if (!response.ok) {
+					if (isMounted) {
+						setImageUrl(null);
+					}
+					return;
+				}
+
+				const payload = (await response.json()) as {
+					data?: { url?: string };
+				};
+
+				if (isMounted) {
+					setImageUrl(payload.data?.url ?? null);
+				}
+			} catch {
+				if (isMounted) {
+					setImageUrl(null);
+				}
+			}
+		}
+
+		void loadImage();
+
+		return () => {
+			isMounted = false;
+		};
+	}, [record?.imageFileId, record?.id]);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -65,7 +113,7 @@ function ResearchDetailPage() {
 	}, [recordId]);
 
 	if (record) {
-		return <LiveResearchDetail record={record} />;
+		return <LiveResearchDetail imageUrl={imageUrl} record={record} />;
 	}
 
 	if (isLoading) {
@@ -100,12 +148,26 @@ function ResearchDetailPage() {
 	);
 }
 
-function LiveResearchDetail({ record }: { record: PublicResearchDetail }) {
+function LiveResearchDetail({
+	record,
+	imageUrl,
+}: {
+	record: PublicResearchDetail;
+	imageUrl: string | null;
+}) {
 	const facts = [
 		{ label: "Faculty", value: record.faculty },
 		{ label: "Department", value: record.department },
 		{ label: "Year", value: record.year },
 		{ label: "Who can view this?", value: formatAccess(record.accessLevel) },
+		...(record.commercializationStatus
+			? [
+					{
+						label: "Patent / commercialization status",
+						value: record.commercializationStatus,
+					},
+				]
+			: []),
 	];
 
 	return (
@@ -130,6 +192,13 @@ function LiveResearchDetail({ record }: { record: PublicResearchDetail }) {
 						<p className="mt-5 max-w-3xl text-base leading-8 text-[#6b7280] sm:text-lg">
 							{record.abstract}
 						</p>
+						{imageUrl ? (
+							<img
+								alt={record.title}
+								className="mt-6 max-h-96 w-full max-w-2xl rounded-lg border border-[#d8d8d8] object-cover"
+								src={imageUrl}
+							/>
+						) : null}
 						<div className="mt-6 flex flex-wrap gap-2">
 							{record.tags.map((tag) => (
 								<span
@@ -183,6 +252,24 @@ function LiveResearchDetail({ record }: { record: PublicResearchDetail }) {
 							{record.citation ?? "Citation details are being prepared."}
 						</p>
 					</article>
+					{record.fundingInfo ? (
+						<article className="rounded-lg border border-[#d8d8d8] bg-white p-5">
+							<h2 className="text-xl font-semibold">Funding</h2>
+							<p className="mt-3 text-sm leading-6 text-[#6b7280]">
+								{record.fundingInfo}
+							</p>
+						</article>
+					) : null}
+					{record.comment ? (
+						<article className="rounded-lg border border-[#d8d8d8] bg-white p-5 lg:col-span-3">
+							<h2 className="text-xl font-semibold">
+								Note from the researcher
+							</h2>
+							<p className="mt-3 whitespace-pre-line text-sm leading-6 text-[#6b7280]">
+								{record.comment}
+							</p>
+						</article>
+					) : null}
 				</div>
 			</section>
 		</PublicPageShell>

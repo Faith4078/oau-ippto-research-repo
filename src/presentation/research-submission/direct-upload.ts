@@ -31,10 +31,15 @@ export type ResearchSubmissionFormValues = {
 	completedOn: string;
 	requiresIpttoReview: boolean;
 	fileChecksum: string;
+	commercializationStatus: string;
+	fundingInfo: string;
+	comment: string;
+	imageChecksum: string;
 };
 
 export type ResearchSubmissionUpload = {
 	file: File;
+	image?: File | null;
 	values: ResearchSubmissionFormValues;
 };
 
@@ -78,6 +83,12 @@ export function buildResearchSubmissionPayload(
 	input: ResearchSubmissionUpload,
 ): ResearchSubmissionInput {
 	const fileMetadata = buildResearchFileMetadata(input);
+	const filesMetadata = [fileMetadata];
+
+	if (input.image) {
+		filesMetadata.push(buildResearchImageMetadata(input));
+	}
+
 	const payload = {
 		title: input.values.title,
 		abstract: input.values.abstract,
@@ -100,11 +111,14 @@ export function buildResearchSubmissionPayload(
 			citation: emptyToNull(input.values.citation),
 		},
 		accessLevel: input.values.accessLevel,
-		files: [fileMetadata],
+		files: filesMetadata,
 		researchArea: emptyToNull(input.values.researchArea),
 		startedOn: emptyToNull(input.values.startedOn),
 		completedOn: emptyToNull(input.values.completedOn),
 		requiresIpttoReview: input.values.requiresIpttoReview,
+		commercializationStatus: emptyToNull(input.values.commercializationStatus),
+		fundingInfo: emptyToNull(input.values.fundingInfo),
+		comment: emptyToNull(input.values.comment),
 	};
 
 	return researchSubmissionInputSchema.parse(payload);
@@ -123,6 +137,23 @@ export function buildResearchFileMetadata(
 	};
 }
 
+export function buildResearchImageMetadata(
+	input: ResearchSubmissionUpload,
+): SignedUploadRequest["file"] {
+	if (!input.image) {
+		throw new Error("No research image was provided.");
+	}
+
+	return {
+		filename: input.image.name,
+		mimeType: input.image.type || "application/octet-stream",
+		fileSizeBytes: input.image.size,
+		checksum: emptyToNull(input.values.imageChecksum),
+		accessLevel: input.values.accessLevel,
+		purpose: "research_image",
+	};
+}
+
 export async function submitResearchWithDirectUpload(
 	input: ResearchSubmissionUpload,
 	fetcher: Fetcher = fetch,
@@ -134,30 +165,28 @@ export async function submitResearchWithDirectUpload(
 		fetcher,
 	);
 
-	let file: RepositoryFile;
+	const files: RepositoryFile[] = [];
 
 	try {
-		const fileMetadata = buildResearchFileMetadata(input);
-		const signedUpload = await postJson<SignedUrlResponse>(
-			"/api/files/signed-upload-url",
-			{
+		files.push(
+			await uploadResearchFile({
 				researchRecordId: submission.id,
-				file: fileMetadata,
-			},
-			fetcher,
+				file: input.file,
+				metadata: buildResearchFileMetadata(input),
+				fetcher,
+			}),
 		);
 
-		await uploadFileToR2(input.file, signedUpload, fetcher);
-
-		file = await postJson<RepositoryFile>(
-			"/api/files/confirm-upload",
-			{
-				researchRecordId: submission.id,
-				file: fileMetadata,
-				objectKey: signedUpload.objectKey,
-			},
-			fetcher,
-		);
+		if (input.image) {
+			files.push(
+				await uploadResearchFile({
+					researchRecordId: submission.id,
+					file: input.image,
+					metadata: buildResearchImageMetadata(input),
+					fetcher,
+				}),
+			);
+		}
 	} catch (error) {
 		const message =
 			error instanceof Error
@@ -169,8 +198,36 @@ export async function submitResearchWithDirectUpload(
 
 	return {
 		submission,
-		files: [file],
+		files,
 	};
+}
+
+async function uploadResearchFile(input: {
+	researchRecordId: string;
+	file: File;
+	metadata: SignedUploadRequest["file"];
+	fetcher: Fetcher;
+}): Promise<RepositoryFile> {
+	const signedUpload = await postJson<SignedUrlResponse>(
+		"/api/files/signed-upload-url",
+		{
+			researchRecordId: input.researchRecordId,
+			file: input.metadata,
+		},
+		input.fetcher,
+	);
+
+	await uploadFileToR2(input.file, signedUpload, input.fetcher);
+
+	return postJson<RepositoryFile>(
+		"/api/files/confirm-upload",
+		{
+			researchRecordId: input.researchRecordId,
+			file: input.metadata,
+			objectKey: signedUpload.objectKey,
+		},
+		input.fetcher,
+	);
 }
 
 async function postJson<T>(

@@ -32,6 +32,10 @@ const baseValues: ResearchSubmissionFormValues = {
 	completedOn: "2026-06-30",
 	requiresIpttoReview: true,
 	fileChecksum: "0123456789abcdef",
+	commercializationStatus: "Patent pending",
+	fundingInfo: "Seeking a research grant",
+	comment: "This research needs additional funding. Reach out via email.",
+	imageChecksum: "",
 };
 
 describe("research direct upload client", () => {

@@ -44,6 +44,9 @@ export class DrizzleResearchWorkflowRepository
 				startedOn: input.startedOn ?? null,
 				completedOn: input.completedOn ?? null,
 				publishedAt: initialState.publishedAt,
+				commercializationStatus: input.commercializationStatus ?? null,
+				fundingInfo: input.fundingInfo ?? null,
+				comment: input.comment ?? null,
 				metadata: initialState.metadata,
 			})
 			.returning({
@@ -236,6 +239,9 @@ function mapResearchRecord(
 		startedOn: record.startedOn,
 		completedOn: record.completedOn,
 		publishedAt: record.publishedAt,
+		commercializationStatus: record.commercializationStatus,
+		fundingInfo: record.fundingInfo,
+		comment: record.comment,
 		metadata: record.metadata,
 		createdAt: record.createdAt,
 		updatedAt: record.updatedAt,

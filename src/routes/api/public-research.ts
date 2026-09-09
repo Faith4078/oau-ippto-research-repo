@@ -22,6 +22,10 @@ type PublicResearchDetailRow = PublicResearchRow & {
 	publication_title: string | null;
 	publication_type: string | null;
 	citation: string | null;
+	commercialization_status: string | null;
+	funding_info: string | null;
+	comment: string | null;
+	image_file_id: string | null;
 };
 
 export type PublicResearchItem = {
@@ -43,6 +47,10 @@ export type PublicResearchDetail = PublicResearchItem & {
 	publicationType: string | null;
 	citation: string | null;
 	year: string;
+	commercializationStatus: string | null;
+	fundingInfo: string | null;
+	comment: string | null;
+	imageFileId: string | null;
 };
 
 export const Route = createFileRoute("/api/public-research")({
@@ -66,6 +74,17 @@ export const Route = createFileRoute("/api/public-research")({
 							p.title as publication_title,
 							p.type::text as publication_type,
 							p.citation,
+							r.commercialization_status,
+							r.funding_info,
+							r.comment,
+							(
+								select img.id::text
+								from files img
+								where img.research_record_id = r.id
+									and img.purpose = 'research_image'
+								order by img.created_at desc
+								limit 1
+							) as image_file_id,
 							coalesce(
 								array_agg(distinct a.name order by a.name)
 									filter (where a.name is not null),
@@ -99,7 +118,10 @@ export const Route = createFileRoute("/api/public-research")({
 							r.created_at,
 							p.title,
 							p.type,
-							p.citation
+							p.citation,
+							r.commercialization_status,
+							r.funding_info,
+							r.comment
 						limit 1
 					`);
 					const row = result.rows[0];
@@ -202,5 +224,9 @@ function toPublicResearchDetail(
 		publicationType: row.publication_type,
 		citation: row.citation,
 		year,
+		commercializationStatus: row.commercialization_status,
+		fundingInfo: row.funding_info,
+		comment: row.comment,
+		imageFileId: row.image_file_id,
 	};
 }

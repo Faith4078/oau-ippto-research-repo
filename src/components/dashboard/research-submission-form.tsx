@@ -96,6 +96,10 @@ const initialValues: ResearchSubmissionFormValues = {
 	completedOn: "",
 	requiresIpttoReview: false,
 	fileChecksum: "",
+	commercializationStatus: "",
+	fundingInfo: "",
+	comment: "",
+	imageChecksum: "",
 };
 
 type SubmissionState =
@@ -108,6 +112,7 @@ export function ResearchSubmissionForm() {
 	const [values, setValues] =
 		useState<ResearchSubmissionFormValues>(initialValues);
 	const [file, setFile] = useState<File | null>(null);
+	const [image, setImage] = useState<File | null>(null);
 	const [submissionState, setSubmissionState] = useState<SubmissionState>({
 		status: "idle",
 	});
@@ -182,7 +187,7 @@ export function ResearchSubmissionForm() {
 		setSubmissionState({ status: "submitting" });
 
 		try {
-			await submitResearchWithDirectUpload({ file, values });
+			await submitResearchWithDirectUpload({ file, image, values });
 			toast.success("Research submitted", {
 				description: "Your research is now awaiting IPTTO review.",
 			});
@@ -571,6 +576,73 @@ export function ResearchSubmissionForm() {
 			</Card>
 
 			<Card className="gap-0 rounded-lg border-[#d8d8d8] bg-white py-0 shadow-none">
+				<CardHeader className="border-[#d8d8d8] border-b px-4 py-4">
+					<CardTitle className="text-base tracking-normal">
+						Additional details (optional)
+					</CardTitle>
+					<CardDescription>
+						Add these now if you have them, or come back and fill them in later.
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="grid gap-4 p-4 md:grid-cols-2">
+					<Field>
+						<FieldLabel htmlFor="commercializationStatus">
+							Patent / prototype / commercialization status (optional)
+						</FieldLabel>
+						<Input
+							id="commercializationStatus"
+							onChange={(event) =>
+								updateValue("commercializationStatus", event.target.value)
+							}
+							placeholder="e.g. Patent pending, prototype built"
+							value={values.commercializationStatus}
+						/>
+					</Field>
+					<Field>
+						<FieldLabel htmlFor="fundingInfo">
+							Funding information (optional)
+						</FieldLabel>
+						<Input
+							id="fundingInfo"
+							onChange={(event) =>
+								updateValue("fundingInfo", event.target.value)
+							}
+							placeholder="e.g. Self-funded, seeking a research grant"
+							value={values.fundingInfo}
+						/>
+					</Field>
+					<Field className="md:col-span-2">
+						<FieldLabel htmlFor="comment">Comment (optional)</FieldLabel>
+						<textarea
+							className="min-h-28 rounded border border-[#d8d8d8] bg-white px-4 py-3 text-sm outline-none focus-visible:border-[#146ef5] focus-visible:ring-[3px] focus-visible:ring-[#146ef5]/20"
+							id="comment"
+							onChange={(event) => updateValue("comment", event.target.value)}
+							placeholder="This research needs X funding to be achieved, should you be interested. Kindly reach out via this mail."
+							value={values.comment}
+						/>
+						<FieldDescription>
+							Use this space for anything readers should know, such as a funding
+							request and how to reach you.
+						</FieldDescription>
+					</Field>
+					<Field className="md:col-span-2">
+						<FieldLabel htmlFor="researchImage">
+							Upload an image of the research (optional)
+						</FieldLabel>
+						<Input
+							accept=".png,.jpg,.jpeg,image/png,image/jpeg"
+							id="researchImage"
+							onChange={(event) => setImage(event.target.files?.[0] ?? null)}
+							type="file"
+						/>
+						<FieldDescription>
+							PNG or JPG. You can add this now or upload it later.
+						</FieldDescription>
+					</Field>
+				</CardContent>
+			</Card>
+
+			<Card className="gap-0 rounded-lg border-[#d8d8d8] bg-white py-0 shadow-none">
 				<CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
 					<div
 						className="text-sm text-[#6b7280]"
@@ -620,8 +692,7 @@ export function ResearchSubmissionForm() {
 function describeSubmissionError(error: unknown): string {
 	if (error instanceof z.ZodError) {
 		return (
-			error.issues[0]?.message ??
-			"Check your research details and try again."
+			error.issues[0]?.message ?? "Check your research details and try again."
 		);
 	}
 

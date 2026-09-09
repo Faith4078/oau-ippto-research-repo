@@ -30,6 +30,7 @@ export const filePurposeSchema = z.enum([
 	"innovation_support",
 	"patent_support",
 	"profile_image",
+	"research_image",
 	"other",
 ]);
 
@@ -155,6 +156,9 @@ export const researchSubmissionInputSchema = z.object({
 	startedOn: z.iso.date().nullable().optional(),
 	completedOn: z.iso.date().nullable().optional(),
 	requiresIpttoReview: z.boolean().optional().default(false),
+	commercializationStatus: z.string().trim().max(255).nullable().optional(),
+	fundingInfo: z.string().trim().max(2000).nullable().optional(),
+	comment: z.string().trim().max(5000).nullable().optional(),
 });
 
 export const researchApprovalTransitionInputSchema = z.object({

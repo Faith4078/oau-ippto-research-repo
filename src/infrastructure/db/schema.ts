@@ -161,6 +161,7 @@ export const filePurposeEnum = pgEnum("file_purpose", [
 	"innovation_support",
 	"patent_support",
 	"profile_image",
+	"research_image",
 	"other",
 ]);
 
@@ -471,6 +472,11 @@ export const researchRecords = pgTable(
 		startedOn: date("started_on"),
 		completedOn: date("completed_on"),
 		publishedAt: timestamp("published_at", { withTimezone: true }),
+		commercializationStatus: varchar("commercialization_status", {
+			length: 255,
+		}),
+		fundingInfo: text("funding_info"),
+		comment: text("comment"),
 		metadata: jsonb("metadata")
 			.$type<Record<string, unknown>>()
 			.default({})
