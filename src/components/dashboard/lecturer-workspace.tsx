@@ -37,11 +37,14 @@ type Submission = {
 	type: string;
 };
 
+const PAGE_SIZE = 5;
+
 export function LecturerWorkspace() {
 	const [items, setItems] = useState<Submission[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [query, setQuery] = useState("");
 	const [deletingId, setDeletingId] = useState<string | null>(null);
+	const [page, setPage] = useState(1);
 
 	const loadSubmissions = useCallback(async () => {
 		try {
@@ -113,6 +116,20 @@ export function LecturerWorkspace() {
 				)
 			: items;
 	}, [items, query]);
+
+	// Reset back to page one whenever the search query changes so a stale
+	// page number never leaves the list looking empty.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: query is the intentional trigger even though it isn't read in the effect body.
+	useEffect(() => {
+		setPage(1);
+	}, [query]);
+
+	const totalPages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+	const currentPage = Math.min(page, totalPages);
+	const pageItems = useMemo(
+		() => visible.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+		[visible, currentPage],
+	);
 
 	return (
 		<div className="space-y-6">
@@ -217,57 +234,99 @@ export function LecturerWorkspace() {
 							)}
 						</div>
 					) : (
-						visible.map((item) => (
-							<article
-								className="flex flex-col gap-3 rounded border border-[#d8d8d8] p-4 sm:flex-row sm:items-center sm:justify-between"
-								key={item.id}
-							>
-								<div>
-									<h2 className="font-semibold">{item.title}</h2>
-									<p className="mt-1 text-sm text-[#6b7280]">
-										{item.type} · {item.department} · {item.date}
-									</p>
-									<p className="mt-2 text-sm font-medium text-[#146ef5]">
-										{item.statusLabel}
-									</p>
-								</div>
-								<div className="flex flex-wrap gap-2">
-									{item.published && (
-										<Button asChild variant="outline">
-											<a
-												href={`/research/${item.id}`}
-												rel="noopener noreferrer"
-												target="_blank"
-											>
-												View public page
-											</a>
-										</Button>
-									)}
-									{item.editable && (
-										<>
-											<Button asChild variant="outline">
-												<Link
-													to="/dashboard/lecturer/edit/$researchRecordId"
-													params={{ researchRecordId: item.id }}
+						<>
+							{pageItems.map((item) => (
+								<article
+									className="flex flex-col gap-3 rounded border border-[#d8d8d8] p-4 sm:flex-row sm:items-center sm:justify-between"
+									key={item.id}
+								>
+									<div>
+										<h2 className="font-semibold">{item.title}</h2>
+										<p className="mt-1 text-sm text-[#6b7280]">
+											{item.type} · {item.department} · {item.date}
+										</p>
+										<p className="mt-2 text-sm font-medium text-[#146ef5]">
+											{item.statusLabel}
+										</p>
+									</div>
+									{/*
+									Edit + Delete are their own flex pair, kept in a
+									separate container from "View public page". On
+									mobile this row is spread with justify-between
+									(pair on one side, public link on the other); from
+									sm: up it becomes a column so the public link sits
+									directly below the pair.
+								*/}
+									<div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:flex-col sm:items-start sm:justify-start">
+										{item.editable && (
+											<div className="flex gap-2">
+												<Button asChild size="icon-lg" variant="outline">
+													<Link
+														aria-label={`Edit ${item.title}`}
+														params={{ researchRecordId: item.id }}
+														title="Edit"
+														to="/dashboard/lecturer/edit/$researchRecordId"
+													>
+														<Pencil className="h-4 w-4" />
+													</Link>
+												</Button>
+												<Button
+													aria-label={
+														deletingId === item.id
+															? `Deleting ${item.title}`
+															: `Delete ${item.title}`
+													}
+													className="border-[#f4c7c7] text-[#b42318] hover:bg-[#fef2f2] hover:text-[#b42318]"
+													disabled={deletingId === item.id}
+													onClick={() => void handleDelete(item)}
+													size="icon-lg"
+													title="Delete"
+													variant="outline"
 												>
-													<Pencil className="h-4 w-4" />
-													Edit
-												</Link>
+													<Trash2 className="h-4 w-4" />
+												</Button>
+											</div>
+										)}
+										{item.published && (
+											<Button asChild variant="outline">
+												<a
+													href={`/research/${item.id}`}
+													rel="noopener noreferrer"
+													target="_blank"
+												>
+													View public page
+												</a>
 											</Button>
-											<Button
-												disabled={deletingId === item.id}
-												onClick={() => void handleDelete(item)}
-												variant="outline"
-												className="border-[#f4c7c7] text-[#b42318] hover:bg-[#fef2f2] hover:text-[#b42318]"
-											>
-												<Trash2 className="h-4 w-4" />
-												{deletingId === item.id ? "Deleting…" : "Delete"}
-											</Button>
-										</>
-									)}
+										)}
+									</div>
+								</article>
+							))}
+							{totalPages > 1 && (
+								<div className="flex items-center justify-between gap-3 rounded-lg border border-[#d8d8d8] bg-white p-3">
+									<p className="text-sm text-[#6b7280]">
+										Page {currentPage} of {totalPages}
+									</p>
+									<div className="flex gap-2">
+										<Button
+											disabled={currentPage <= 1}
+											onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+											variant="outline"
+										>
+											Previous
+										</Button>
+										<Button
+											disabled={currentPage >= totalPages}
+											onClick={() =>
+												setPage((prev) => Math.min(totalPages, prev + 1))
+											}
+											variant="outline"
+										>
+											Next
+										</Button>
+									</div>
 								</div>
-							</article>
-						))
+							)}
+						</>
 					)}
 				</CardContent>
 			</Card>

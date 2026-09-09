@@ -64,6 +64,12 @@ type LecturerSubmissionItem = {
 	published: boolean;
 };
 
+type LecturerTopBarIdentity = {
+	departmentName: string | null;
+	email: string | null;
+	facultyName: string | null;
+};
+
 type DashboardUser = {
 	id: string;
 	staffId: string;
@@ -200,6 +206,8 @@ export function DashboardShell({
 	const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 	const [isDesktop, setIsDesktop] = useState(false);
 	const [signedInName, setSignedInName] = useState<string | null>(null);
+	const [lecturerIdentity, setLecturerIdentity] =
+		useState<LecturerTopBarIdentity | null>(null);
 	const displayName = formatDashboardName(signedInName ?? workspace.persona);
 
 	useEffect(() => {
@@ -212,9 +220,26 @@ export function DashboardShell({
 		void fetch("/api/dashboard/me", { cache: "no-store" })
 			.then((response) => (response.ok ? response.json() : null))
 			.then((payload) => {
-				const name = payload?.data?.name;
-				if (!cancelled && typeof name === "string" && name.trim()) {
+				if (cancelled) {
+					return;
+				}
+
+				const data = payload?.data ?? null;
+				const name = data?.name;
+				if (typeof name === "string" && name.trim()) {
 					setSignedInName(name.trim());
+				}
+
+				if (workspace.role === "lecturer") {
+					setLecturerIdentity({
+						departmentName:
+							typeof data?.departmentName === "string"
+								? data.departmentName
+								: null,
+						email: typeof data?.email === "string" ? data.email : null,
+						facultyName:
+							typeof data?.facultyName === "string" ? data.facultyName : null,
+					});
 				}
 			})
 			.catch(() => {
@@ -350,6 +375,7 @@ export function DashboardShell({
 				<section className="min-w-0 flex-1">
 					<TopBar
 						displayName={displayName}
+						identity={workspace.role === "lecturer" ? lecturerIdentity : null}
 						onMenuClick={() => setIsMobileSidebarOpen(true)}
 						showMenu={isResponsiveWorkspace}
 					/>
@@ -376,13 +402,21 @@ function shouldShowConfirmationPreview(role: DashboardRole) {
 
 function TopBar({
 	displayName,
+	identity,
 	onMenuClick,
 	showMenu,
 }: {
 	displayName: string;
+	identity: LecturerTopBarIdentity | null;
 	onMenuClick: () => void;
 	showMenu: boolean;
 }) {
+	const identityDetails = identity
+		? [identity.departmentName, identity.facultyName, identity.email].filter(
+				(value): value is string => Boolean(value?.trim()),
+			)
+		: [];
+
 	return (
 		<header className="sticky top-0 z-30 border-[#d8d8d8] border-b bg-white/95 backdrop-blur">
 			<div className="flex h-20 items-center gap-3 px-4 sm:px-6 lg:px-8">
@@ -396,9 +430,14 @@ function TopBar({
 						<Menu className="h-5 w-5" />
 					</button>
 				) : null}
-				<p className="min-w-0 flex-1 truncate text-sm font-semibold">
-					{displayName}
-				</p>
+				<div className="min-w-0 flex-1">
+					<p className="truncate text-sm font-semibold">{displayName}</p>
+					{identityDetails.length > 0 ? (
+						<p className="mt-0.5 truncate text-xs text-[#6b7280]">
+							{identityDetails.join(" · ")}
+						</p>
+					) : null}
+				</div>
 				<div className="ml-auto flex items-center gap-2">
 					<button
 						aria-label="Sign out"
@@ -445,6 +484,14 @@ function SidebarFooter({
 				<p className="text-sm font-semibold">{roleLabels[workspace.role]}</p>
 				<p className="mt-1 text-xs leading-5 text-[#6b7280]">{displayName}</p>
 			</div>
+			<button
+				className="mt-3 flex w-full items-center justify-center gap-2 rounded border border-[#d8d8d8] bg-white px-3 py-2.5 text-sm font-medium text-[#080808] hover:border-[#146ef5]"
+				onClick={() => void signOutAndRedirectHome()}
+				type="button"
+			>
+				<LogOut className="h-4 w-4" />
+				Logout
+			</button>
 		</div>
 	);
 }
