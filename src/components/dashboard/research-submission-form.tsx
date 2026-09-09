@@ -24,6 +24,7 @@ import {
 	type ResearchSubmissionFormValues,
 	ResearchSubmissionUploadError,
 	submitResearchWithDirectUpload,
+	updateResearchWithDirectUpload,
 } from "#/presentation/research-submission/direct-upload.ts";
 
 const facultyOptions = [
@@ -108,14 +109,32 @@ type SubmissionState =
 	| { status: "success"; message: string }
 	| { status: "error"; message: string };
 
-export function ResearchSubmissionForm() {
-	const [values, setValues] =
-		useState<ResearchSubmissionFormValues>(initialValues);
+type ResearchSubmissionFormProps = {
+	/** Defaults to "create". Pass "edit" to update an existing record instead of creating one. */
+	mode?: "create" | "edit";
+	/** Required when mode is "edit" — the record being edited. */
+	researchRecordId?: string;
+	/** Pre-fills the form. Used to load an existing record's data in edit mode. */
+	initialFormValues?: ResearchSubmissionFormValues;
+	/** Whether the record already has an attached research document, so re-uploading is optional. */
+	hasExistingDocument?: boolean;
+};
+
+export function ResearchSubmissionForm({
+	mode = "create",
+	researchRecordId,
+	initialFormValues,
+	hasExistingDocument = false,
+}: ResearchSubmissionFormProps = {}) {
+	const [values, setValues] = useState<ResearchSubmissionFormValues>(
+		initialFormValues ?? initialValues,
+	);
 	const [file, setFile] = useState<File | null>(null);
 	const [image, setImage] = useState<File | null>(null);
 	const [submissionState, setSubmissionState] = useState<SubmissionState>({
 		status: "idle",
 	});
+	const requiresNewFile = mode === "create" || !hasExistingDocument;
 	const filteredDepartments = useMemo(
 		() =>
 			departmentOptions.filter(
@@ -160,7 +179,11 @@ export function ResearchSubmissionForm() {
 	}
 
 	async function submitForm() {
-		const validationMessage = validateSubmissionForm(values, file);
+		const validationMessage = validateSubmissionForm(
+			values,
+			file,
+			requiresNewFile,
+		);
 
 		if (validationMessage) {
 			toast.error("Complete the research form", {
@@ -173,7 +196,7 @@ export function ResearchSubmissionForm() {
 			return;
 		}
 
-		if (!file) {
+		if (requiresNewFile && !file) {
 			toast.error("Attach a research document", {
 				description: "A PDF, PNG, or JPEG file is required before submission.",
 			});
@@ -186,8 +209,51 @@ export function ResearchSubmissionForm() {
 
 		setSubmissionState({ status: "submitting" });
 
+		if (mode === "edit" && researchRecordId) {
+			try {
+				await updateResearchWithDirectUpload({
+					researchRecordId,
+					file,
+					image,
+					values,
+				});
+				toast.success("Research updated", {
+					description: "Your changes were saved.",
+				});
+				setSubmissionState({
+					status: "success",
+					message: "Your changes were saved.",
+				});
+			} catch (error) {
+				if (error instanceof ResearchSubmissionUploadError) {
+					const message =
+						"Your changes were saved, but a new file could not be attached. Please try adding it again.";
+
+					toast.warning("Saved without the new file", {
+						description: "Please try adding it again.",
+					});
+					setSubmissionState({ status: "success", message });
+					return;
+				}
+
+				const message = describeSubmissionError(error);
+				toast.error("Changes not saved", {
+					description: message,
+				});
+				setSubmissionState({
+					status: "error",
+					message,
+				});
+			}
+			return;
+		}
+
 		try {
-			await submitResearchWithDirectUpload({ file, image, values });
+			await submitResearchWithDirectUpload({
+				file: file as File,
+				image,
+				values,
+			});
 			toast.success("Research submitted", {
 				description: "Your research is now awaiting IPTTO review.",
 			});
@@ -518,16 +584,23 @@ export function ResearchSubmissionForm() {
 				</CardHeader>
 				<CardContent className="grid gap-4 p-4 md:grid-cols-2">
 					<Field>
-						<FieldLabel htmlFor="file">Research document</FieldLabel>
+						<FieldLabel htmlFor="file">
+							Research document
+							{hasExistingDocument
+								? " (optional — replaces the current file)"
+								: ""}
+						</FieldLabel>
 						<Input
 							accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
 							id="file"
 							onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-							required
+							required={requiresNewFile}
 							type="file"
 						/>
 						<FieldDescription>
-							PDF, PNG, or JPG. Maximum upload size is 50 MB.
+							{hasExistingDocument
+								? "Leave this blank to keep the document already on file. PDF, PNG, or JPG. Maximum upload size is 50 MB."
+								: "PDF, PNG, or JPG. Maximum upload size is 50 MB."}
 						</FieldDescription>
 					</Field>
 					<Field>
@@ -648,12 +721,15 @@ export function ResearchSubmissionForm() {
 						className="text-sm text-[#6b7280]"
 						data-testid="submission-status"
 					>
-						{submissionState.status === "idle" && "Submit"}
+						{submissionState.status === "idle" &&
+							(mode === "edit" ? "Save changes" : "Submit")}
 						{(submissionState.status === "success" ||
 							submissionState.status === "error") &&
 							submissionState.message}
 						{submissionState.status === "submitting" &&
-							"Submitting your research and attaching the document…"}
+							(mode === "edit"
+								? "Saving your changes…"
+								: "Submitting your research and attaching the document…")}
 					</div>
 					<Button
 						className="h-11 rounded bg-[#146ef5] px-4 text-white hover:bg-[#0d5fdc]"
@@ -662,7 +738,13 @@ export function ResearchSubmissionForm() {
 						type="button"
 					>
 						<UploadCloud className="h-4 w-4" />
-						{submissionState.status === "submitting" ? "Submitting…" : "Submit"}
+						{submissionState.status === "submitting"
+							? mode === "edit"
+								? "Saving…"
+								: "Submitting…"
+							: mode === "edit"
+								? "Save changes"
+								: "Submit"}
 					</Button>
 				</CardContent>
 				{submissionState.status === "success" ? (
@@ -710,6 +792,7 @@ function describeSubmissionError(error: unknown): string {
 function validateSubmissionForm(
 	values: ResearchSubmissionFormValues,
 	file: File | null,
+	requireFile: boolean,
 ) {
 	if (values.title.trim().length < 5) {
 		return "Enter a research title with at least 5 characters.";
@@ -735,7 +818,7 @@ function validateSubmissionForm(
 		return "Enter a valid publication URL, starting with https://.";
 	}
 
-	if (!file) {
+	if (requireFile && !file) {
 		return "Attach a PDF, PNG, or JPEG research document.";
 	}
 

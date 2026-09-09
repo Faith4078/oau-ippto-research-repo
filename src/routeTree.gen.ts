@@ -77,6 +77,8 @@ import { Route as ApiAuthStaffPasswordResetRequestRouteImport } from './routes/a
 import { Route as ApiInnovationsInnovationIdArchiveRouteImport } from './routes/api/innovations.$innovationId.archive'
 import { Route as ApiInnovationsInnovationIdPublishRouteImport } from './routes/api/innovations.$innovationId.publish'
 import { Route as ApiInnovationsInnovationIdReviewRouteImport } from './routes/api/innovations.$innovationId.review'
+import { Route as ApiResearchSubmissionsResearchRecordIdRouteImport } from './routes/api/research/submissions.$researchRecordId'
+import { Route as DashboardLecturerEditResearchRecordIdRouteImport } from './routes/dashboard.lecturer.edit.$researchRecordId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -429,6 +431,18 @@ const ApiInnovationsInnovationIdReviewRoute =
     path: '/review',
     getParentRoute: () => ApiInnovationsInnovationIdRoute,
   } as any)
+const ApiResearchSubmissionsResearchRecordIdRoute =
+  ApiResearchSubmissionsResearchRecordIdRouteImport.update({
+    id: '/$researchRecordId',
+    path: '/$researchRecordId',
+    getParentRoute: () => ApiResearchSubmissionsRoute,
+  } as any)
+const DashboardLecturerEditResearchRecordIdRoute =
+  DashboardLecturerEditResearchRecordIdRouteImport.update({
+    id: '/edit/$researchRecordId',
+    path: '/edit/$researchRecordId',
+    getParentRoute: () => DashboardLecturerRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -492,13 +506,15 @@ export interface FileRoutesByFullPath {
   '/api/jobs/failed': typeof ApiJobsFailedRoute
   '/api/patents/$patentId': typeof ApiPatentsPatentIdRoute
   '/api/research/approval-transitions': typeof ApiResearchApprovalTransitionsRoute
-  '/api/research/submissions': typeof ApiResearchSubmissionsRoute
+  '/api/research/submissions': typeof ApiResearchSubmissionsRouteWithChildren
   '/dashboard/lecturer/submit': typeof DashboardLecturerSubmitRoute
   '/api/auth/staff-password-reset/complete': typeof ApiAuthStaffPasswordResetCompleteRoute
   '/api/auth/staff-password-reset/request': typeof ApiAuthStaffPasswordResetRequestRoute
   '/api/innovations/$innovationId/archive': typeof ApiInnovationsInnovationIdArchiveRoute
   '/api/innovations/$innovationId/publish': typeof ApiInnovationsInnovationIdPublishRoute
   '/api/innovations/$innovationId/review': typeof ApiInnovationsInnovationIdReviewRoute
+  '/api/research/submissions/$researchRecordId': typeof ApiResearchSubmissionsResearchRecordIdRoute
+  '/dashboard/lecturer/edit/$researchRecordId': typeof DashboardLecturerEditResearchRecordIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -556,13 +572,15 @@ export interface FileRoutesByTo {
   '/api/jobs/failed': typeof ApiJobsFailedRoute
   '/api/patents/$patentId': typeof ApiPatentsPatentIdRoute
   '/api/research/approval-transitions': typeof ApiResearchApprovalTransitionsRoute
-  '/api/research/submissions': typeof ApiResearchSubmissionsRoute
+  '/api/research/submissions': typeof ApiResearchSubmissionsRouteWithChildren
   '/dashboard/lecturer/submit': typeof DashboardLecturerSubmitRoute
   '/api/auth/staff-password-reset/complete': typeof ApiAuthStaffPasswordResetCompleteRoute
   '/api/auth/staff-password-reset/request': typeof ApiAuthStaffPasswordResetRequestRoute
   '/api/innovations/$innovationId/archive': typeof ApiInnovationsInnovationIdArchiveRoute
   '/api/innovations/$innovationId/publish': typeof ApiInnovationsInnovationIdPublishRoute
   '/api/innovations/$innovationId/review': typeof ApiInnovationsInnovationIdReviewRoute
+  '/api/research/submissions/$researchRecordId': typeof ApiResearchSubmissionsResearchRecordIdRoute
+  '/dashboard/lecturer/edit/$researchRecordId': typeof DashboardLecturerEditResearchRecordIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -627,13 +645,15 @@ export interface FileRoutesById {
   '/api/jobs/failed': typeof ApiJobsFailedRoute
   '/api/patents/$patentId': typeof ApiPatentsPatentIdRoute
   '/api/research/approval-transitions': typeof ApiResearchApprovalTransitionsRoute
-  '/api/research/submissions': typeof ApiResearchSubmissionsRoute
+  '/api/research/submissions': typeof ApiResearchSubmissionsRouteWithChildren
   '/dashboard/lecturer/submit': typeof DashboardLecturerSubmitRoute
   '/api/auth/staff-password-reset/complete': typeof ApiAuthStaffPasswordResetCompleteRoute
   '/api/auth/staff-password-reset/request': typeof ApiAuthStaffPasswordResetRequestRoute
   '/api/innovations/$innovationId/archive': typeof ApiInnovationsInnovationIdArchiveRoute
   '/api/innovations/$innovationId/publish': typeof ApiInnovationsInnovationIdPublishRoute
   '/api/innovations/$innovationId/review': typeof ApiInnovationsInnovationIdReviewRoute
+  '/api/research/submissions/$researchRecordId': typeof ApiResearchSubmissionsResearchRecordIdRoute
+  '/dashboard/lecturer/edit/$researchRecordId': typeof DashboardLecturerEditResearchRecordIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -706,6 +726,8 @@ export interface FileRouteTypes {
     | '/api/innovations/$innovationId/archive'
     | '/api/innovations/$innovationId/publish'
     | '/api/innovations/$innovationId/review'
+    | '/api/research/submissions/$researchRecordId'
+    | '/dashboard/lecturer/edit/$researchRecordId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -770,6 +792,8 @@ export interface FileRouteTypes {
     | '/api/innovations/$innovationId/archive'
     | '/api/innovations/$innovationId/publish'
     | '/api/innovations/$innovationId/review'
+    | '/api/research/submissions/$researchRecordId'
+    | '/dashboard/lecturer/edit/$researchRecordId'
   id:
     | '__root__'
     | '/'
@@ -840,6 +864,8 @@ export interface FileRouteTypes {
     | '/api/innovations/$innovationId/archive'
     | '/api/innovations/$innovationId/publish'
     | '/api/innovations/$innovationId/review'
+    | '/api/research/submissions/$researchRecordId'
+    | '/dashboard/lecturer/edit/$researchRecordId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -883,7 +909,7 @@ export interface RootRouteChildren {
   ApiFilesSignedUploadUrlRoute: typeof ApiFilesSignedUploadUrlRoute
   ApiJobsFailedRoute: typeof ApiJobsFailedRoute
   ApiResearchApprovalTransitionsRoute: typeof ApiResearchApprovalTransitionsRoute
-  ApiResearchSubmissionsRoute: typeof ApiResearchSubmissionsRoute
+  ApiResearchSubmissionsRoute: typeof ApiResearchSubmissionsRouteWithChildren
   ApiAuthStaffPasswordResetCompleteRoute: typeof ApiAuthStaffPasswordResetCompleteRoute
   ApiAuthStaffPasswordResetRequestRoute: typeof ApiAuthStaffPasswordResetRequestRoute
 }
@@ -1366,15 +1392,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiInnovationsInnovationIdReviewRouteImport
       parentRoute: typeof ApiInnovationsInnovationIdRoute
     }
+    '/api/research/submissions/$researchRecordId': {
+      id: '/api/research/submissions/$researchRecordId'
+      path: '/$researchRecordId'
+      fullPath: '/api/research/submissions/$researchRecordId'
+      preLoaderRoute: typeof ApiResearchSubmissionsResearchRecordIdRouteImport
+      parentRoute: typeof ApiResearchSubmissionsRoute
+    }
+    '/dashboard/lecturer/edit/$researchRecordId': {
+      id: '/dashboard/lecturer/edit/$researchRecordId'
+      path: '/edit/$researchRecordId'
+      fullPath: '/dashboard/lecturer/edit/$researchRecordId'
+      preLoaderRoute: typeof DashboardLecturerEditResearchRecordIdRouteImport
+      parentRoute: typeof DashboardLecturerRoute
+    }
   }
 }
 
 interface DashboardLecturerRouteChildren {
   DashboardLecturerSubmitRoute: typeof DashboardLecturerSubmitRoute
+  DashboardLecturerEditResearchRecordIdRoute: typeof DashboardLecturerEditResearchRecordIdRoute
 }
 
 const DashboardLecturerRouteChildren: DashboardLecturerRouteChildren = {
   DashboardLecturerSubmitRoute: DashboardLecturerSubmitRoute,
+  DashboardLecturerEditResearchRecordIdRoute:
+    DashboardLecturerEditResearchRecordIdRoute,
 }
 
 const DashboardLecturerRouteWithChildren =
@@ -1541,6 +1584,21 @@ const ApiPatentsRouteWithChildren = ApiPatentsRoute._addFileChildren(
   ApiPatentsRouteChildren,
 )
 
+interface ApiResearchSubmissionsRouteChildren {
+  ApiResearchSubmissionsResearchRecordIdRoute: typeof ApiResearchSubmissionsResearchRecordIdRoute
+}
+
+const ApiResearchSubmissionsRouteChildren: ApiResearchSubmissionsRouteChildren =
+  {
+    ApiResearchSubmissionsResearchRecordIdRoute:
+      ApiResearchSubmissionsResearchRecordIdRoute,
+  }
+
+const ApiResearchSubmissionsRouteWithChildren =
+  ApiResearchSubmissionsRoute._addFileChildren(
+    ApiResearchSubmissionsRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ContactRoute: ContactRoute,
@@ -1582,7 +1640,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiFilesSignedUploadUrlRoute: ApiFilesSignedUploadUrlRoute,
   ApiJobsFailedRoute: ApiJobsFailedRoute,
   ApiResearchApprovalTransitionsRoute: ApiResearchApprovalTransitionsRoute,
-  ApiResearchSubmissionsRoute: ApiResearchSubmissionsRoute,
+  ApiResearchSubmissionsRoute: ApiResearchSubmissionsRouteWithChildren,
   ApiAuthStaffPasswordResetCompleteRoute:
     ApiAuthStaffPasswordResetCompleteRoute,
   ApiAuthStaffPasswordResetRequestRoute: ApiAuthStaffPasswordResetRequestRoute,

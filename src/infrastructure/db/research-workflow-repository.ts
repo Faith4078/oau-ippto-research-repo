@@ -10,6 +10,7 @@ import type {
 	ResearchRecord,
 } from "#/domain/index.ts";
 import type {
+	ResearchRecordUpdateInput,
 	ResearchSubmissionInput,
 	SignedUploadRequest,
 } from "#/lib/validation.ts";
@@ -102,6 +103,60 @@ export class DrizzleResearchWorkflowRepository
 
 		if (!record) {
 			throw new Error("Research record could not be updated.");
+		}
+
+		return mapResearchRecord(record);
+	}
+
+	async updateResearchRecord(
+		id: EntityId,
+		input: ResearchRecordUpdateInput,
+	): Promise<ResearchRecord | null> {
+		const values = removeUndefined({
+			title: input.title,
+			slug: input.title ? createSlug(input.title) : undefined,
+			abstract: input.abstract,
+			accessLevel: input.accessLevel,
+			facultyId: input.facultyId,
+			departmentId: input.departmentId,
+			researchArea: input.researchArea,
+			startedOn: input.startedOn,
+			completedOn: input.completedOn,
+			commercializationStatus: input.commercializationStatus,
+			fundingInfo: input.fundingInfo,
+			comment: input.comment,
+			updatedAt: new Date(),
+		});
+
+		const [record] = await this.database
+			.update(schema.researchRecords)
+			.set(values)
+			.where(eq(schema.researchRecords.id, id))
+			.returning();
+
+		if (!record) {
+			return null;
+		}
+
+		if (input.authors) {
+			await this.database
+				.delete(schema.researchAuthors)
+				.where(eq(schema.researchAuthors.researchRecordId, id));
+			await this.insertAuthors(id, input.authors);
+		}
+
+		if (input.keywords) {
+			await this.database
+				.delete(schema.researchKeywords)
+				.where(eq(schema.researchKeywords.researchRecordId, id));
+			await this.insertKeywords(id, input.keywords);
+		}
+
+		if (input.publication) {
+			await this.database
+				.delete(schema.publications)
+				.where(eq(schema.publications.researchRecordId, id));
+			await this.insertPublication(id, input.publication);
 		}
 
 		return mapResearchRecord(record);
@@ -210,6 +265,12 @@ export class DrizzleResearchWorkflowRepository
 			citation: publication.citation ?? null,
 		});
 	}
+}
+
+function removeUndefined<T extends Record<string, unknown>>(value: T) {
+	return Object.fromEntries(
+		Object.entries(value).filter(([, fieldValue]) => fieldValue !== undefined),
+	) as Partial<T>;
 }
 
 function createSlug(title: string): string {

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { desc, eq } from "drizzle-orm";
 import { requireDatabaseUrl } from "#/db/env.ts";
+import { isOwnerEditableResearchStatus } from "#/domain/approval-workflow.ts";
 import { createRuntimeApplicationServices } from "#/infrastructure/app-services.ts";
 import { createDatabase, schema } from "#/infrastructure/db/index.ts";
 import { readAuthSession } from "#/lib/auth-server.ts";
@@ -62,6 +63,7 @@ export const Route = createFileRoute("/api/research/submissions")({
 						date: formatDate(row.publishedAt ?? row.createdAt),
 						type: row.researchArea ?? "Research Output",
 						published: row.status === "published",
+						editable: isOwnerEditableResearchStatus(row.status),
 					})),
 				});
 			},

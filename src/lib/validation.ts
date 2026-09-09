@@ -161,6 +161,10 @@ export const researchSubmissionInputSchema = z.object({
 	comment: z.string().trim().max(5000).nullable().optional(),
 });
 
+export const researchRecordUpdateInputSchema = researchSubmissionInputSchema
+	.omit({ files: true })
+	.partial();
+
 export const researchApprovalTransitionInputSchema = z.object({
 	researchRecordId: entityIdSchema,
 	fromStatus: recordStatusSchema,
@@ -280,6 +284,9 @@ export const commercializationActivityInputSchema = z
 
 export type ResearchSubmissionInput = z.infer<
 	typeof researchSubmissionInputSchema
+>;
+export type ResearchRecordUpdateInput = z.infer<
+	typeof researchRecordUpdateInputSchema
 >;
 export type ResearchApprovalTransitionInput = z.infer<
 	typeof researchApprovalTransitionInputSchema

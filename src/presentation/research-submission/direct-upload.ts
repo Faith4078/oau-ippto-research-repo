@@ -1,6 +1,7 @@
 import type { ResearchSubmissionDraft } from "#/application/research-workflow.ts";
-import type { RepositoryFile } from "#/domain/index.ts";
+import type { RepositoryFile, ResearchRecord } from "#/domain/index.ts";
 import {
+	type ResearchRecordUpdateInput,
 	type ResearchSubmissionInput,
 	researchSubmissionInputSchema,
 	type SignedUploadRequest,
@@ -43,8 +44,20 @@ export type ResearchSubmissionUpload = {
 	values: ResearchSubmissionFormValues;
 };
 
+export type ResearchSubmissionUpdate = {
+	researchRecordId: string;
+	file?: File | null;
+	image?: File | null;
+	values: ResearchSubmissionFormValues;
+};
+
 export type DirectUploadResult = {
 	submission: ResearchSubmissionDraft;
+	files: RepositoryFile[];
+};
+
+export type DirectUpdateResult = {
+	submission: ResearchRecord;
 	files: RepositoryFile[];
 };
 
@@ -79,6 +92,39 @@ type SignedUrlResponse = {
 	objectKey: string;
 };
 
+function buildResearchRecordFields(values: ResearchSubmissionFormValues) {
+	return {
+		title: values.title,
+		abstract: values.abstract,
+		authors: parseAuthors(values.authorsText),
+		departmentId: values.departmentId,
+		facultyId: values.facultyId,
+		keywords: splitList(values.keywordsText),
+		publication: {
+			type: values.publicationType,
+			title: values.publicationTitle || values.title,
+			publisher: values.publisher,
+			journal: values.journal,
+			volume: values.volume,
+			issue: values.issue,
+			pages: values.pages,
+			doi: values.doi,
+			isbn: values.isbn,
+			url: emptyToNull(values.url),
+			publishedOn: emptyToNull(values.publishedOn),
+			citation: emptyToNull(values.citation),
+		},
+		accessLevel: values.accessLevel,
+		researchArea: emptyToNull(values.researchArea),
+		startedOn: emptyToNull(values.startedOn),
+		completedOn: emptyToNull(values.completedOn),
+		requiresIpttoReview: values.requiresIpttoReview,
+		commercializationStatus: emptyToNull(values.commercializationStatus),
+		fundingInfo: emptyToNull(values.fundingInfo),
+		comment: emptyToNull(values.comment),
+	};
+}
+
 export function buildResearchSubmissionPayload(
 	input: ResearchSubmissionUpload,
 ): ResearchSubmissionInput {
@@ -89,39 +135,18 @@ export function buildResearchSubmissionPayload(
 		filesMetadata.push(buildResearchImageMetadata(input));
 	}
 
-	const payload = {
-		title: input.values.title,
-		abstract: input.values.abstract,
-		authors: parseAuthors(input.values.authorsText),
-		departmentId: input.values.departmentId,
-		facultyId: input.values.facultyId,
-		keywords: splitList(input.values.keywordsText),
-		publication: {
-			type: input.values.publicationType,
-			title: input.values.publicationTitle || input.values.title,
-			publisher: input.values.publisher,
-			journal: input.values.journal,
-			volume: input.values.volume,
-			issue: input.values.issue,
-			pages: input.values.pages,
-			doi: input.values.doi,
-			isbn: input.values.isbn,
-			url: emptyToNull(input.values.url),
-			publishedOn: emptyToNull(input.values.publishedOn),
-			citation: emptyToNull(input.values.citation),
-		},
-		accessLevel: input.values.accessLevel,
+	return researchSubmissionInputSchema.parse({
+		...buildResearchRecordFields(input.values),
 		files: filesMetadata,
-		researchArea: emptyToNull(input.values.researchArea),
-		startedOn: emptyToNull(input.values.startedOn),
-		completedOn: emptyToNull(input.values.completedOn),
-		requiresIpttoReview: input.values.requiresIpttoReview,
-		commercializationStatus: emptyToNull(input.values.commercializationStatus),
-		fundingInfo: emptyToNull(input.values.fundingInfo),
-		comment: emptyToNull(input.values.comment),
-	};
+	});
+}
 
-	return researchSubmissionInputSchema.parse(payload);
+export function buildResearchUpdatePayload(
+	values: ResearchSubmissionFormValues,
+): ResearchRecordUpdateInput {
+	return researchSubmissionInputSchema
+		.omit({ files: true })
+		.parse(buildResearchRecordFields(values));
 }
 
 export function buildResearchFileMetadata(
@@ -202,6 +227,63 @@ export async function submitResearchWithDirectUpload(
 	};
 }
 
+export async function updateResearchWithDirectUpload(
+	input: ResearchSubmissionUpdate,
+	fetcher: Fetcher = fetch,
+): Promise<DirectUpdateResult> {
+	const updatePayload = buildResearchUpdatePayload(input.values);
+	const submission = await patchJson<ResearchRecord>(
+		`/api/research/submissions/${input.researchRecordId}`,
+		updatePayload,
+		fetcher,
+	);
+
+	const files: RepositoryFile[] = [];
+
+	try {
+		if (input.file) {
+			files.push(
+				await uploadResearchFile({
+					researchRecordId: input.researchRecordId,
+					file: input.file,
+					metadata: buildResearchFileMetadata({
+						file: input.file,
+						values: input.values,
+					}),
+					fetcher,
+				}),
+			);
+		}
+
+		if (input.image) {
+			files.push(
+				await uploadResearchFile({
+					researchRecordId: input.researchRecordId,
+					file: input.image,
+					metadata: buildResearchImageMetadata({
+						file: input.image,
+						image: input.image,
+						values: input.values,
+					}),
+					fetcher,
+				}),
+			);
+		}
+	} catch (error) {
+		const message =
+			error instanceof Error
+				? error.message
+				: "The document could not be attached.";
+
+		throw new ResearchSubmissionUploadError(message, submission);
+	}
+
+	return {
+		submission,
+		files,
+	};
+}
+
 async function uploadResearchFile(input: {
 	researchRecordId: string;
 	file: File;
@@ -235,8 +317,25 @@ async function postJson<T>(
 	payload: unknown,
 	fetcher: Fetcher,
 ): Promise<T> {
+	return requestJson<T>(url, "POST", payload, fetcher);
+}
+
+async function patchJson<T>(
+	url: string,
+	payload: unknown,
+	fetcher: Fetcher,
+): Promise<T> {
+	return requestJson<T>(url, "PATCH", payload, fetcher);
+}
+
+async function requestJson<T>(
+	url: string,
+	method: "POST" | "PATCH",
+	payload: unknown,
+	fetcher: Fetcher,
+): Promise<T> {
 	const response = await fetcher(url, {
-		method: "POST",
+		method,
 		headers: {
 			"Content-Type": "application/json",
 		},

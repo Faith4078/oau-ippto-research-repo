@@ -1,4 +1,7 @@
-import { resolveResearchTransition } from "../domain/approval-workflow.ts";
+import {
+	isOwnerEditableResearchStatus,
+	resolveResearchTransition,
+} from "../domain/approval-workflow.ts";
 import type {
 	ApprovalHistoryEntry,
 	EntityId,
@@ -8,8 +11,10 @@ import type {
 import { permissions } from "../domain/permissions.ts";
 import {
 	type ResearchApprovalTransitionInput,
+	type ResearchRecordUpdateInput,
 	type ResearchSubmissionInput,
 	researchApprovalTransitionInputSchema,
+	researchRecordUpdateInputSchema,
 	researchSubmissionInputSchema,
 	type SignedDownloadRequest,
 	type SignedUploadRequest,
@@ -53,6 +58,10 @@ export type ResearchWorkflowRepository = {
 		id: EntityId,
 		status: ResearchRecord["status"],
 	): Promise<ResearchRecord>;
+	updateResearchRecord(
+		id: EntityId,
+		input: ResearchRecordUpdateInput,
+	): Promise<ResearchRecord | null>;
 	attachUploadedFileMetadata(
 		input: SignedUploadRequest & {
 			objectKey: string;
@@ -141,6 +150,145 @@ export function createResearchWorkflowService(dependencies: {
 			});
 
 			return ok(draft);
+		},
+
+		async updateSubmission(
+			actor: AuthenticatedActor | null | undefined,
+			researchRecordId: EntityId,
+			payload: unknown,
+			context: ResearchWorkflowAuditContext = {},
+		): Promise<Result<ResearchRecord>> {
+			const record =
+				await researchRepository.findResearchRecordById(researchRecordId);
+
+			if (!record) {
+				return fail("RESEARCH_NOT_FOUND", "The research record was not found.");
+			}
+
+			const ownership = requireOwnResearchRecord(actor, record);
+
+			if (!ownership.ok) {
+				return ownership;
+			}
+
+			const authorization = requirePermission(
+				actor,
+				permissions.editOwnResearchDraft,
+				{
+					facultyId: record.facultyId,
+					departmentId: record.departmentId,
+					ownerId: record.ownerId,
+				},
+			);
+
+			if (!authorization.ok) {
+				return authorization;
+			}
+
+			if (!isResearchRecordEditable(record)) {
+				return fail(
+					"RESEARCH_NOT_EDITABLE",
+					`Research in ${record.status} status can no longer be edited.`,
+				);
+			}
+
+			const input = validatePayload(researchRecordUpdateInputSchema, payload);
+
+			if (!input.ok) {
+				return input;
+			}
+
+			const updated = await researchRepository.updateResearchRecord(
+				researchRecordId,
+				input.value,
+			);
+
+			if (!updated) {
+				return fail("RESEARCH_NOT_FOUND", "The research record was not found.");
+			}
+
+			await auditRepository.appendAuditLog({
+				actorId: authorization.value.userId,
+				action: "research.submission.updated",
+				targetType: "research_record",
+				targetId: updated.id,
+				ipAddress: context.ipAddress ?? null,
+				userAgent: context.userAgent ?? null,
+				metadata: { status: updated.status },
+			});
+
+			return ok(updated);
+		},
+
+		async deleteSubmission(
+			actor: AuthenticatedActor | null | undefined,
+			researchRecordId: EntityId,
+			context: ResearchWorkflowAuditContext = {},
+		): Promise<Result<ResearchRecord>> {
+			const record =
+				await researchRepository.findResearchRecordById(researchRecordId);
+
+			if (!record) {
+				return fail("RESEARCH_NOT_FOUND", "The research record was not found.");
+			}
+
+			const ownership = requireOwnResearchRecord(actor, record);
+
+			if (!ownership.ok) {
+				return ownership;
+			}
+
+			const authorization = requirePermission(
+				actor,
+				permissions.deleteOwnResearchDraft,
+				{
+					facultyId: record.facultyId,
+					departmentId: record.departmentId,
+					ownerId: record.ownerId,
+				},
+			);
+
+			if (!authorization.ok) {
+				return authorization;
+			}
+
+			if (!isResearchRecordEditable(record)) {
+				return fail(
+					"RESEARCH_NOT_DELETABLE",
+					`Research in ${record.status} status can no longer be deleted.`,
+				);
+			}
+
+			const updated = await researchRepository.updateResearchStatus(
+				researchRecordId,
+				"archived",
+			);
+
+			await auditRepository.appendApprovalHistory({
+				researchRecordId: updated.id,
+				innovationId: null,
+				patentId: null,
+				action: "archived",
+				fromStatus: record.status,
+				toStatus: "archived",
+				actorId: authorization.value.userId,
+				comment: null,
+			});
+
+			await auditRepository.appendAuditLog({
+				actorId: authorization.value.userId,
+				action: "research.workflow.archived",
+				targetType: "research_record",
+				targetId: updated.id,
+				ipAddress: context.ipAddress ?? null,
+				userAgent: context.userAgent ?? null,
+				metadata: {
+					fromStatus: record.status,
+					toStatus: "archived",
+				},
+			});
+
+			return ok(updated);
 		},
 
 		async transitionApproval(
@@ -366,6 +514,31 @@ export function createResearchWorkflowService(dependencies: {
 			return ok(signedUrl);
 		},
 	};
+}
+
+function isResearchRecordEditable(record: ResearchRecord): boolean {
+	return isOwnerEditableResearchStatus(record.status);
+}
+
+function requireOwnResearchRecord(
+	actor: AuthenticatedActor | null | undefined,
+	record: ResearchRecord,
+): Result<AuthenticatedActor> {
+	if (!actor) {
+		return fail(
+			"AUTHENTICATION_REQUIRED",
+			"You must be signed in to perform this action.",
+		);
+	}
+
+	if (!record.ownerId || record.ownerId !== actor.userId) {
+		return fail(
+			"FORBIDDEN",
+			"You can only edit or delete research records you own.",
+		);
+	}
+
+	return ok(actor);
 }
 
 function permissionsForApprovalDecision(

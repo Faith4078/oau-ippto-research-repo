@@ -16,4 +16,26 @@ export type ResearchRepository = {
 	listFilesByResearchRecord(
 		researchRecordId: EntityId,
 	): Promise<RepositoryFile[]>;
+	/** Updates the editable content fields of a research record the owner still controls. */
+	updateResearchRecord(
+		id: EntityId,
+		input: Partial<
+			Pick<
+				ResearchRecord,
+				| "title"
+				| "abstract"
+				| "accessLevel"
+				| "facultyId"
+				| "departmentId"
+				| "researchArea"
+				| "startedOn"
+				| "completedOn"
+				| "commercializationStatus"
+				| "fundingInfo"
+				| "comment"
+			>
+		>,
+	): Promise<ResearchRecord | null>;
+	/** Soft-deletes a research record by transitioning it to the "archived" status. */
+	archiveResearchRecord(id: EntityId): Promise<ResearchRecord | null>;
 };

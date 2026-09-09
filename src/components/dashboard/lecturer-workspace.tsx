@@ -6,9 +6,11 @@ import {
 	Clock3,
 	FilePlus2,
 	LockKeyhole,
+	Pencil,
 	Search,
+	Trash2,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { DashboardShell } from "#/components/dashboard/dashboard-shell.tsx";
@@ -28,6 +30,7 @@ type Submission = {
 	accessLevel: string;
 	date: string;
 	department: string;
+	editable: boolean;
 	id: string;
 	published: boolean;
 	statusLabel: string;
@@ -39,28 +42,67 @@ export function LecturerWorkspace() {
 	const [items, setItems] = useState<Submission[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [query, setQuery] = useState("");
+	const [deletingId, setDeletingId] = useState<string | null>(null);
+
+	const loadSubmissions = useCallback(async () => {
+		try {
+			const response = await fetch("/api/research/submissions", {
+				cache: "no-store",
+			});
+			const payload = await response.json();
+			if (!response.ok)
+				throw new Error(
+					payload.error?.message ?? "Your research could not be loaded.",
+				);
+			setItems(payload.data ?? []);
+		} catch (error) {
+			toast.error("Research unavailable", {
+				description: error instanceof Error ? error.message : "Try again.",
+			});
+		} finally {
+			setLoading(false);
+		}
+	}, []);
 
 	useEffect(() => {
-		void (async () => {
-			try {
-				const response = await fetch("/api/research/submissions", {
-					cache: "no-store",
-				});
-				const payload = await response.json();
-				if (!response.ok)
-					throw new Error(
-						payload.error?.message ?? "Your research could not be loaded.",
-					);
-				setItems(payload.data ?? []);
-			} catch (error) {
-				toast.error("Research unavailable", {
-					description: error instanceof Error ? error.message : "Try again.",
-				});
-			} finally {
-				setLoading(false);
+		void loadSubmissions();
+	}, [loadSubmissions]);
+
+	async function handleDelete(item: Submission) {
+		const confirmed = window.confirm(
+			`Delete "${item.title}"? This removes it from your workspace and, if it was public, takes it offline.`,
+		);
+
+		if (!confirmed) {
+			return;
+		}
+
+		setDeletingId(item.id);
+
+		try {
+			const response = await fetch(`/api/research/submissions/${item.id}`, {
+				method: "DELETE",
+			});
+			const payload = await response.json().catch(() => ({}));
+
+			if (!response.ok) {
+				throw new Error(
+					payload.error?.message ?? "This research could not be deleted.",
+				);
 			}
-		})();
-	}, []);
+
+			toast.success("Research deleted", {
+				description: `"${item.title}" was removed from your workspace.`,
+			});
+			await loadSubmissions();
+		} catch (error) {
+			toast.error("Delete failed", {
+				description: error instanceof Error ? error.message : "Try again.",
+			});
+		} finally {
+			setDeletingId(null);
+		}
+	}
 
 	const visible = useMemo(() => {
 		const value = query.trim().toLowerCase();
@@ -183,17 +225,41 @@ export function LecturerWorkspace() {
 											{item.statusLabel}
 										</p>
 									</div>
-									{item.published && (
-										<Button asChild variant="outline">
-											<a
-												href={`/research/${item.id}`}
-												rel="noopener noreferrer"
-												target="_blank"
-											>
-												View public page
-											</a>
-										</Button>
-									)}
+									<div className="flex flex-wrap gap-2">
+										{item.published && (
+											<Button asChild variant="outline">
+												<a
+													href={`/research/${item.id}`}
+													rel="noopener noreferrer"
+													target="_blank"
+												>
+													View public page
+												</a>
+											</Button>
+										)}
+										{item.editable && (
+											<>
+												<Button asChild variant="outline">
+													<Link
+														to="/dashboard/lecturer/edit/$researchRecordId"
+														params={{ researchRecordId: item.id }}
+													>
+														<Pencil className="h-4 w-4" />
+														Edit
+													</Link>
+												</Button>
+												<Button
+													disabled={deletingId === item.id}
+													onClick={() => void handleDelete(item)}
+													variant="outline"
+													className="border-[#f4c7c7] text-[#b42318] hover:bg-[#fef2f2] hover:text-[#b42318]"
+												>
+													<Trash2 className="h-4 w-4" />
+													{deletingId === item.id ? "Deleting…" : "Delete"}
+												</Button>
+											</>
+										)}
+									</div>
 								</article>
 							))
 						)}

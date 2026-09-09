@@ -14,6 +14,7 @@ import type {
 	ResearchRecord,
 } from "../../src/domain/index.ts";
 import type {
+	ResearchRecordUpdateInput,
 	ResearchSubmissionInput,
 	SignedUploadRequest,
 } from "../../src/lib/validation.ts";
@@ -260,6 +261,52 @@ class InMemoryResearchWorkflowRepository implements ResearchWorkflowRepository {
 		}
 
 		record.status = status;
+		record.updatedAt = new Date("2026-01-02T00:00:00.000Z");
+
+		return record;
+	}
+
+	async updateResearchRecord(
+		id: EntityId,
+		input: ResearchRecordUpdateInput,
+	): Promise<ResearchRecord | null> {
+		const record = await this.findResearchRecordById(id);
+
+		if (!record) {
+			return null;
+		}
+
+		const {
+			title,
+			abstract,
+			accessLevel,
+			facultyId: nextFacultyId,
+			departmentId: nextDepartmentId,
+			researchArea,
+			startedOn,
+			completedOn,
+			commercializationStatus,
+			fundingInfo,
+			comment,
+		} = input;
+
+		Object.assign(record, {
+			...(title !== undefined ? { title } : {}),
+			...(abstract !== undefined ? { abstract } : {}),
+			...(accessLevel !== undefined ? { accessLevel } : {}),
+			...(nextFacultyId !== undefined ? { facultyId: nextFacultyId } : {}),
+			...(nextDepartmentId !== undefined
+				? { departmentId: nextDepartmentId }
+				: {}),
+			...(researchArea !== undefined ? { researchArea } : {}),
+			...(startedOn !== undefined ? { startedOn } : {}),
+			...(completedOn !== undefined ? { completedOn } : {}),
+			...(commercializationStatus !== undefined
+				? { commercializationStatus }
+				: {}),
+			...(fundingInfo !== undefined ? { fundingInfo } : {}),
+			...(comment !== undefined ? { comment } : {}),
+		});
 		record.updatedAt = new Date("2026-01-02T00:00:00.000Z");
 
 		return record;

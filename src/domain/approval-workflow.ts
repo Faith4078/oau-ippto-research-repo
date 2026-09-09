@@ -75,6 +75,28 @@ function transition(
 	return { from, to, decision, action, requiresComment };
 }
 
+/**
+ * Statuses in which the owning lecturer may still edit or withdraw
+ * (archive) their own research record. Once a record is "published" it is
+ * live and public, and once "archived" it is already withdrawn, so both are
+ * excluded — every other status (including "iptto_review", which most new
+ * submissions land in immediately) stays editable until a reviewer moves it
+ * past those two states.
+ */
+export const ownerEditableResearchStatuses: readonly RecordStatus[] = [
+	"draft",
+	"submitted",
+	"department_review",
+	"faculty_review",
+	"iptto_review",
+	"approved",
+	"rejected",
+];
+
+export function isOwnerEditableResearchStatus(status: RecordStatus): boolean {
+	return ownerEditableResearchStatuses.includes(status);
+}
+
 export function getAllowedResearchTransitions(
 	status: RecordStatus,
 	requiresIpttoReview = false,
