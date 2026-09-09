@@ -1,9 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { sql } from "drizzle-orm";
+import { type SQL, sql } from "drizzle-orm";
 
 import { requireDatabaseUrl } from "#/db/env.ts";
 import { createDatabase } from "#/infrastructure/db/index.ts";
 import { publicRevalidationHeaders } from "./-helpers.ts";
+
+type Database = ReturnType<typeof createDatabase>;
+
+/** Number of related records returned alongside a research detail record. */
+const RELATED_RESEARCH_LIMIT = 4;
 
 type PublicResearchRow = {
 	id: string;
@@ -29,6 +34,7 @@ type PublicResearchDetailRow = PublicResearchRow & {
 	funding_info: string | null;
 	comment: string | null;
 	owner_id: string | null;
+	department_id: string;
 };
 
 export type PublicResearchItem = {
@@ -62,6 +68,8 @@ export type PublicResearchDetail = PublicResearchItem & {
 	imageFileId: string | null;
 	/** The id of the research record owner, usable as a `/researchers/$profileId` link target. */
 	ownerId: string | null;
+	/** A handful of other public research records sharing the same department or research area. */
+	related: PublicResearchItem[];
 };
 
 export const Route = createFileRoute("/api/public-research")({
@@ -98,6 +106,7 @@ export const Route = createFileRoute("/api/public-research")({
 							r.funding_info,
 							r.comment,
 							r.owner_id::text as owner_id,
+							r.department_id::text as department_id,
 							(
 								select img.id::text
 								from files img
@@ -143,7 +152,8 @@ export const Route = createFileRoute("/api/public-research")({
 							r.commercialization_status,
 							r.funding_info,
 							r.comment,
-							r.owner_id
+							r.owner_id,
+							r.department_id
 						limit 1
 					`);
 					const row = result.rows[0];
@@ -160,71 +170,103 @@ export const Route = createFileRoute("/api/public-research")({
 						);
 					}
 
+					// Related works: other published, public records that share the same
+					// department or research area, excluding the current record.
+					const related = await queryPublicResearchItems(database, {
+						where: sql`
+							r.id != ${recordId}
+							and (
+								r.department_id = ${row.department_id}
+								${row.research_area ? sql`or r.research_area = ${row.research_area}` : sql``}
+							)
+						`,
+						limit: RELATED_RESEARCH_LIMIT,
+					});
+
 					return Response.json(
-						{ data: toPublicResearchDetail(row) },
+						{ data: toPublicResearchDetail(row, related) },
 						{ headers: publicRevalidationHeaders },
 					);
 				}
 
-				const result = await database.execute<PublicResearchRow>(sql`
-					select
-						r.id::text as id,
-						r.title,
-						r.abstract,
-						r.research_area,
-						f.name as faculty_name,
-						d.name as department_name,
-						extract(year from coalesce(r.published_at, r.created_at))::int as published_year,
-						to_char(coalesce(r.published_at, r.created_at), 'FMDD Mon YYYY') as published_date,
-						(
-							select a2.name
-							from research_authors ra2
-							join authors a2 on a2.id = ra2.author_id
-							where ra2.research_record_id = r.id
-							order by a2.name
-							limit 1
-						) as primary_author,
-						(
-							select img.id::text
-							from files img
-							where img.research_record_id = r.id
-								and img.purpose = 'research_image'
-							order by img.created_at desc
-							limit 1
-						) as image_file_id,
-						coalesce(
-							array_agg(k.value order by k.value)
-								filter (where k.value is not null),
-							array[]::text[]
-						) as keywords
-					from research_records r
-					join faculties f on f.id = r.faculty_id
-					join departments d on d.id = r.department_id
-					left join research_keywords rk on rk.research_record_id = r.id
-					left join keywords k on k.id = rk.keyword_id
-					where r.status = 'published'
-						and r.access_level = 'public'
-					group by
-						r.id,
-						r.title,
-						r.abstract,
-						r.research_area,
-						f.name,
-						d.name,
-						r.published_at,
-						r.created_at
-					order by coalesce(r.published_at, r.created_at) desc
-					limit 30
-				`);
+				const items = await queryPublicResearchItems(database, {
+					where: sql`true`,
+					limit: 30,
+				});
 
 				return Response.json(
-					{ data: result.rows.map(toPublicResearchItem) },
+					{ data: items },
 					{ headers: publicRevalidationHeaders },
 				);
 			},
 		},
 	},
 });
+
+/**
+ * Runs the shared public-research listing query (published + public records)
+ * with a caller-supplied `where` fragment and row limit. Used for both the
+ * `/research` collection listing and the "related works" strip on a detail
+ * page.
+ */
+async function queryPublicResearchItems(
+	database: Database,
+	options: { where: SQL; limit: number },
+): Promise<PublicResearchItem[]> {
+	const result = await database.execute<PublicResearchRow>(sql`
+		select
+			r.id::text as id,
+			r.title,
+			r.abstract,
+			r.research_area,
+			f.name as faculty_name,
+			d.name as department_name,
+			extract(year from coalesce(r.published_at, r.created_at))::int as published_year,
+			to_char(coalesce(r.published_at, r.created_at), 'FMDD Mon YYYY') as published_date,
+			(
+				select a2.name
+				from research_authors ra2
+				join authors a2 on a2.id = ra2.author_id
+				where ra2.research_record_id = r.id
+				order by a2.name
+				limit 1
+			) as primary_author,
+			(
+				select img.id::text
+				from files img
+				where img.research_record_id = r.id
+					and img.purpose = 'research_image'
+				order by img.created_at desc
+				limit 1
+			) as image_file_id,
+			coalesce(
+				array_agg(k.value order by k.value)
+					filter (where k.value is not null),
+				array[]::text[]
+			) as keywords
+		from research_records r
+		join faculties f on f.id = r.faculty_id
+		join departments d on d.id = r.department_id
+		left join research_keywords rk on rk.research_record_id = r.id
+		left join keywords k on k.id = rk.keyword_id
+		where r.status = 'published'
+			and r.access_level = 'public'
+			and (${options.where})
+		group by
+			r.id,
+			r.title,
+			r.abstract,
+			r.research_area,
+			f.name,
+			d.name,
+			r.published_at,
+			r.created_at
+		order by coalesce(r.published_at, r.created_at) desc
+		limit ${options.limit}
+	`);
+
+	return result.rows.map(toPublicResearchItem);
+}
 
 function toPublicResearchItem(row: PublicResearchRow): PublicResearchItem {
 	const year = row.published_year ? String(row.published_year) : "Published";
@@ -251,6 +293,7 @@ function toPublicResearchItem(row: PublicResearchRow): PublicResearchItem {
 
 function toPublicResearchDetail(
 	row: PublicResearchDetailRow,
+	related: PublicResearchItem[],
 ): PublicResearchDetail {
 	const item = toPublicResearchItem(row);
 	const year = row.published_year ? String(row.published_year) : "Published";
@@ -271,5 +314,6 @@ function toPublicResearchDetail(
 		comment: row.comment,
 		imageFileId: row.image_file_id,
 		ownerId: row.owner_id,
+		related,
 	};
 }

@@ -1,15 +1,17 @@
 "use client";
 
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, BookOpenCheck } from "lucide-react";
+import { ArrowLeft, BookOpenCheck, Download, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { PublicResearchDetail } from "#/routes/api/public-research.ts";
 import {
 	PublicPageShell,
 	pageSeo,
 	publicHead,
+	ResultCard,
 } from "@/components/public-pages/public-pages";
 import { LoadingSkeletonFrame } from "@/components/ui/loading-skeleton";
+import { downloadTextFile, toSafeFileSlug } from "@/lib/download-file";
 
 export const Route = createFileRoute("/research/$recordId")({
 	head: () => publicHead(pageSeo.researchDetail),
@@ -148,6 +150,45 @@ function ResearchDetailPage() {
 	);
 }
 
+/** Builds the plain-text contents of the "Download summary" file. */
+function buildSummaryText(record: PublicResearchDetail): string {
+	const authors = record.authors.length
+		? record.authors.join(", ")
+		: "Not listed";
+
+	return [
+		record.title,
+		"",
+		`Authors: ${authors}`,
+		`Faculty: ${record.faculty}`,
+		`Department: ${record.department}`,
+		`Year: ${record.year}`,
+		"",
+		"Abstract",
+		"--------",
+		record.abstract,
+	].join("\n");
+}
+
+/**
+ * Builds the plain-text contents of the "Download citation" file. Prefers
+ * the pre-formatted `citation` stored on the record; falls back to a
+ * best-effort citation assembled from authors, title, venue and year so the
+ * button never downloads an empty/dead file.
+ */
+function buildCitationText(record: PublicResearchDetail): string {
+	if (record.citation) {
+		return record.citation;
+	}
+
+	const authors = record.authors.length
+		? record.authors.join(", ")
+		: "Unknown author";
+	const venue = record.publicationTitle ?? record.title;
+
+	return `${authors} (${record.year}). ${record.title}. ${venue}.`;
+}
+
 function LiveResearchDetail({
 	record,
 	imageUrl,
@@ -155,6 +196,16 @@ function LiveResearchDetail({
 	record: PublicResearchDetail;
 	imageUrl: string | null;
 }) {
+	const fileSlug = toSafeFileSlug(record.title);
+
+	function handleDownloadSummary() {
+		downloadTextFile(`${fileSlug}-summary.txt`, buildSummaryText(record));
+	}
+
+	function handleDownloadCitation() {
+		downloadTextFile(`${fileSlug}-citation.txt`, buildCitationText(record));
+	}
+
 	const facts = [
 		{ label: "Faculty", value: record.faculty },
 		{ label: "Department", value: record.department },
@@ -208,6 +259,16 @@ function LiveResearchDetail({
 									{tag}
 								</span>
 							))}
+						</div>
+						<div className="mt-6 flex flex-wrap gap-3">
+							<button
+								className="btn-secondary"
+								onClick={handleDownloadSummary}
+								type="button"
+							>
+								<Download className="h-5 w-5" />
+								Download summary
+							</button>
 						</div>
 					</div>
 					<aside className="rounded-lg border border-[#d8d8d8] bg-[#f0f0f0] p-5">
@@ -265,6 +326,14 @@ function LiveResearchDetail({
 						<p className="mt-3 text-sm leading-6 text-[#6b7280]">
 							{record.citation ?? "Citation details are being prepared."}
 						</p>
+						<button
+							className="btn-secondary mt-4 min-h-0 py-2 text-sm"
+							onClick={handleDownloadCitation}
+							type="button"
+						>
+							<FileText className="h-4 w-4" />
+							Download citation
+						</button>
 					</article>
 					{record.fundingInfo ? (
 						<article className="rounded-lg border border-[#d8d8d8] bg-white p-5">
@@ -286,6 +355,21 @@ function LiveResearchDetail({
 					) : null}
 				</div>
 			</section>
+			{record.related.length ? (
+				<section className="section-wrap pt-0">
+					<div className="mb-6">
+						<span className="eyebrow">Keep exploring</span>
+						<h2 className="mt-4 text-3xl font-semibold tracking-normal">
+							Related research
+						</h2>
+					</div>
+					<div className="grid gap-4 lg:grid-cols-2">
+						{record.related.map((item) => (
+							<ResultCard item={item} key={item.id} />
+						))}
+					</div>
+				</section>
+			) : null}
 		</PublicPageShell>
 	);
 }

@@ -2303,7 +2303,7 @@ function SearchFilterPanel({
 	);
 }
 
-function ResultCard({ item }: { item: CardItem }) {
+export function ResultCard({ item }: { item: CardItem }) {
 	const content = (
 		<article className="group rounded-lg border border-[#d8d8d8] bg-[#f0f0f0] p-5 hover:border-[#146ef5] hover:bg-white">
 			<div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
