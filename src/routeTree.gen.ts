@@ -31,6 +31,7 @@ import { Route as ApiCommercializationRouteImport } from './routes/api/commercia
 import { Route as ApiInnovationsRouteImport } from './routes/api/innovations'
 import { Route as ApiOrganizationOptionsRouteImport } from './routes/api/organization-options'
 import { Route as ApiPatentsRouteImport } from './routes/api/patents'
+import { Route as ApiPublicPublicationsRouteImport } from './routes/api/public-publications'
 import { Route as ApiPublicRecordRouteImport } from './routes/api/public-record'
 import { Route as ApiPublicResearchRouteImport } from './routes/api/public-research'
 import { Route as ApiPublicStatisticsRouteImport } from './routes/api/public-statistics'
@@ -190,6 +191,11 @@ const ApiOrganizationOptionsRoute = ApiOrganizationOptionsRouteImport.update({
 const ApiPatentsRoute = ApiPatentsRouteImport.update({
   id: '/api/patents',
   path: '/api/patents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicPublicationsRoute = ApiPublicPublicationsRouteImport.update({
+  id: '/api/public-publications',
+  path: '/api/public-publications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicRecordRoute = ApiPublicRecordRouteImport.update({
@@ -480,6 +486,7 @@ export interface FileRoutesByFullPath {
   '/api/innovations': typeof ApiInnovationsRouteWithChildren
   '/api/organization-options': typeof ApiOrganizationOptionsRoute
   '/api/patents': typeof ApiPatentsRouteWithChildren
+  '/api/public-publications': typeof ApiPublicPublicationsRoute
   '/api/public-record': typeof ApiPublicRecordRoute
   '/api/public-research': typeof ApiPublicResearchRoute
   '/api/public-statistics': typeof ApiPublicStatisticsRoute
@@ -548,6 +555,7 @@ export interface FileRoutesByTo {
   '/api/innovations': typeof ApiInnovationsRouteWithChildren
   '/api/organization-options': typeof ApiOrganizationOptionsRoute
   '/api/patents': typeof ApiPatentsRouteWithChildren
+  '/api/public-publications': typeof ApiPublicPublicationsRoute
   '/api/public-record': typeof ApiPublicRecordRoute
   '/api/public-research': typeof ApiPublicResearchRoute
   '/api/public-statistics': typeof ApiPublicStatisticsRoute
@@ -623,6 +631,7 @@ export interface FileRoutesById {
   '/api/innovations': typeof ApiInnovationsRouteWithChildren
   '/api/organization-options': typeof ApiOrganizationOptionsRoute
   '/api/patents': typeof ApiPatentsRouteWithChildren
+  '/api/public-publications': typeof ApiPublicPublicationsRoute
   '/api/public-record': typeof ApiPublicRecordRoute
   '/api/public-research': typeof ApiPublicResearchRoute
   '/api/public-statistics': typeof ApiPublicStatisticsRoute
@@ -699,6 +708,7 @@ export interface FileRouteTypes {
     | '/api/innovations'
     | '/api/organization-options'
     | '/api/patents'
+    | '/api/public-publications'
     | '/api/public-record'
     | '/api/public-research'
     | '/api/public-statistics'
@@ -767,6 +777,7 @@ export interface FileRouteTypes {
     | '/api/innovations'
     | '/api/organization-options'
     | '/api/patents'
+    | '/api/public-publications'
     | '/api/public-record'
     | '/api/public-research'
     | '/api/public-statistics'
@@ -841,6 +852,7 @@ export interface FileRouteTypes {
     | '/api/innovations'
     | '/api/organization-options'
     | '/api/patents'
+    | '/api/public-publications'
     | '/api/public-record'
     | '/api/public-research'
     | '/api/public-statistics'
@@ -916,6 +928,7 @@ export interface RootRouteChildren {
   ApiInnovationsRoute: typeof ApiInnovationsRouteWithChildren
   ApiOrganizationOptionsRoute: typeof ApiOrganizationOptionsRoute
   ApiPatentsRoute: typeof ApiPatentsRouteWithChildren
+  ApiPublicPublicationsRoute: typeof ApiPublicPublicationsRoute
   ApiPublicRecordRoute: typeof ApiPublicRecordRoute
   ApiPublicResearchRoute: typeof ApiPublicResearchRoute
   ApiPublicStatisticsRoute: typeof ApiPublicStatisticsRoute
@@ -1094,6 +1107,13 @@ declare module '@tanstack/react-router' {
       path: '/api/patents'
       fullPath: '/api/patents'
       preLoaderRoute: typeof ApiPatentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public-publications': {
+      id: '/api/public-publications'
+      path: '/api/public-publications'
+      fullPath: '/api/public-publications'
+      preLoaderRoute: typeof ApiPublicPublicationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public-record': {
@@ -1664,6 +1684,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiInnovationsRoute: ApiInnovationsRouteWithChildren,
   ApiOrganizationOptionsRoute: ApiOrganizationOptionsRoute,
   ApiPatentsRoute: ApiPatentsRouteWithChildren,
+  ApiPublicPublicationsRoute: ApiPublicPublicationsRoute,
   ApiPublicRecordRoute: ApiPublicRecordRoute,
   ApiPublicResearchRoute: ApiPublicResearchRoute,
   ApiPublicStatisticsRoute: ApiPublicStatisticsRoute,

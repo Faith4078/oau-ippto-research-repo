@@ -87,6 +87,49 @@ type FeaturedResearchItem = {
 	imageFileId: string | null;
 };
 
+type PublicationDisplayItem = {
+	id: string;
+	title: string;
+	type: string;
+	journal: string | null;
+	publishedDate: string;
+	href: string;
+	authorName: string | null;
+	imageFileId: string | null;
+	researchRecordId: string;
+};
+
+type InnovationDisplayItem = {
+	id: string;
+	title: string;
+	summary: string;
+	href: string;
+	trl: number | null;
+};
+
+type PatentDisplayItem = {
+	id: string;
+	title: string;
+	href: string;
+	status: string;
+};
+
+/** Mirrors `SearchResultPayload` from `#/components/public-pages/public-pages.tsx` — the same `/api/search` response shape the innovations/patents collection pages already consume. */
+type SearchResultPayload = {
+	id: string;
+	entityType:
+		| "research"
+		| "researcher"
+		| "publication"
+		| "innovation"
+		| "patent";
+	title: string;
+	summary: string;
+	url: string;
+	year: number | null;
+	metadata: Record<string, string | number | boolean | null>;
+};
+
 const publicationTypes = [
 	"Journal Articles",
 	"Conference Papers",
@@ -110,23 +153,6 @@ const researchAreas = [
 	"Economics",
 	"Social Sciences",
 	"Humanities",
-];
-
-const innovationItems = [
-	"Commercialised Technologies",
-	"Research Innovations",
-	"Technology Transfer Projects",
-	"Industry Partnerships",
-	"Start-up Initiatives",
-	"Innovation Showcase",
-];
-
-const patentItems = [
-	"Technology Summary",
-	"Inventors",
-	"Patent Status",
-	"Research Area",
-	"Industry Applications",
 ];
 
 const valueCards = [
@@ -175,6 +201,17 @@ function Home() {
 	>({});
 	const [isStatsLoading, setIsStatsLoading] = useState(true);
 	const [isFeaturedLoading, setIsFeaturedLoading] = useState(true);
+	const [publications, setPublications] = useState<PublicationDisplayItem[]>(
+		[],
+	);
+	const [publicationImageUrls, setPublicationImageUrls] = useState<
+		Record<string, string>
+	>({});
+	const [isPublicationsLoading, setIsPublicationsLoading] = useState(true);
+	const [innovations, setInnovations] = useState<InnovationDisplayItem[]>([]);
+	const [isInnovationsLoading, setIsInnovationsLoading] = useState(true);
+	const [patents, setPatents] = useState<PatentDisplayItem[]>([]);
+	const [isPatentsLoading, setIsPatentsLoading] = useState(true);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -299,6 +336,158 @@ function Home() {
 			cancelled = true;
 		};
 	}, [featuredResearch]);
+
+	useEffect(() => {
+		let cancelled = false;
+		void fetch("/api/public-publications", {
+			headers: { Accept: "application/json" },
+		})
+			.then((response) => {
+				if (!response.ok) throw new Error("Publications unavailable");
+				return response.json();
+			})
+			.then((payload) => {
+				if (cancelled || !Array.isArray(payload.data)) return;
+				setPublications(payload.data as PublicationDisplayItem[]);
+			})
+			.catch(() => undefined)
+			.finally(() => {
+				if (!cancelled) setIsPublicationsLoading(false);
+			});
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
+	useEffect(() => {
+		const itemsWithImages = publications.filter((item) => item.imageFileId);
+		if (!itemsWithImages.length) return;
+
+		let cancelled = false;
+		void Promise.all(
+			itemsWithImages.map(async (item) => {
+				try {
+					const response = await fetch("/api/files/signed-download-url", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({
+							fileId: item.imageFileId,
+							researchRecordId: item.researchRecordId,
+						}),
+					});
+					if (!response.ok) return null;
+					const payload = (await response.json()) as {
+						data?: { url?: string };
+					};
+					return payload.data?.url
+						? ([item.id, payload.data.url] as const)
+						: null;
+				} catch {
+					return null;
+				}
+			}),
+		).then((results) => {
+			if (cancelled) return;
+			const resolved = Object.fromEntries(
+				results.filter((entry): entry is readonly [string, string] =>
+					Boolean(entry),
+				),
+			);
+			setPublicationImageUrls((previous) => ({ ...previous, ...resolved }));
+		});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [publications]);
+
+	useEffect(() => {
+		let cancelled = false;
+		void fetch("/api/search", {
+			method: "POST",
+			headers: {
+				Accept: "application/json",
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				keyword: "",
+				filters: { entityTypes: ["innovation"] },
+				page: 1,
+				pageSize: 4,
+				sort: "newest",
+			}),
+		})
+			.then((response) => {
+				if (!response.ok) throw new Error("Innovations unavailable");
+				return response.json();
+			})
+			.then((payload) => {
+				if (cancelled) return;
+				const items = (payload.data?.items ?? []) as SearchResultPayload[];
+				setInnovations(
+					items.map((item) => ({
+						id: item.id,
+						title: item.title,
+						summary:
+							item.summary ||
+							"See the research and next steps behind this work.",
+						href: item.url,
+						trl:
+							typeof item.metadata.technologyReadinessLevel === "number"
+								? item.metadata.technologyReadinessLevel
+								: null,
+					})),
+				);
+			})
+			.catch(() => undefined)
+			.finally(() => {
+				if (!cancelled) setIsInnovationsLoading(false);
+			});
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
+	useEffect(() => {
+		let cancelled = false;
+		void fetch("/api/search", {
+			method: "POST",
+			headers: {
+				Accept: "application/json",
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				keyword: "",
+				filters: { entityTypes: ["patent"] },
+				page: 1,
+				pageSize: 4,
+				sort: "newest",
+			}),
+		})
+			.then((response) => {
+				if (!response.ok) throw new Error("Patents unavailable");
+				return response.json();
+			})
+			.then((payload) => {
+				if (cancelled) return;
+				const items = (payload.data?.items ?? []) as SearchResultPayload[];
+				setPatents(
+					items.map((item) => ({
+						id: item.id,
+						title: item.title,
+						href: item.url,
+						status: String(item.metadata.status ?? "filed"),
+					})),
+				);
+			})
+			.catch(() => undefined)
+			.finally(() => {
+				if (!cancelled) setIsPatentsLoading(false);
+			});
+		return () => {
+			cancelled = true;
+		};
+	}, []);
 
 	return (
 		<main className="min-h-screen bg-[#ffffff] text-[#080808]">
@@ -455,6 +644,53 @@ function Home() {
 				<TagPanel items={publicationTypes} title="Publication types include" />
 			</section>
 
+			<section className="section-wrap pt-0">
+				<div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+					<div>
+						<span className="eyebrow">Recent Publications</span>
+						<h2 className="mt-4 text-3xl font-semibold leading-tight tracking-normal sm:text-4xl">
+							Fresh From OAU Researchers
+						</h2>
+					</div>
+					<Link className="btn-secondary" to="/publications">
+						View All Publications
+						<ArrowRight className="h-5 w-5" />
+					</Link>
+				</div>
+				<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+					{isPublicationsLoading ? (
+						<>
+							<span className="sr-only" aria-live="polite">
+								Loading recent publications
+							</span>
+							<FeaturedCardSkeleton />
+							<FeaturedCardSkeleton />
+							<FeaturedCardSkeleton />
+						</>
+					) : publications.length ? (
+						publications
+							.slice(0, 6)
+							.map((item) => (
+								<PublicationCard
+									imageUrl={publicationImageUrls[item.id]}
+									item={item}
+									key={item.id}
+								/>
+							))
+					) : (
+						<div className="rounded-lg border border-[#d8d8d8] bg-[#f0f0f0] p-6 text-center sm:col-span-2 lg:col-span-3">
+							<h3 className="text-xl font-semibold">
+								Publications are being prepared
+							</h3>
+							<p className="mt-2 text-sm text-[#6b7280]">
+								Browse the catalogue to see all currently available
+								publications.
+							</p>
+						</div>
+					)}
+				</div>
+			</section>
+
 			<section
 				id="researchers"
 				className="section-wrap grid gap-8 pt-0 lg:grid-cols-[1.05fr_0.95fr] lg:items-start"
@@ -509,15 +745,27 @@ function Home() {
 						</Link>
 					</div>
 					<div className="grid gap-4 sm:grid-cols-2">
-						{innovationItems.map((item) => (
-							<div className="impact-card" key={item}>
+						{isInnovationsLoading ? (
+							<>
+								<span className="sr-only" aria-live="polite">
+									Loading innovations
+								</span>
+								<ImpactCardSkeleton />
+								<ImpactCardSkeleton />
+								<ImpactCardSkeleton />
+								<ImpactCardSkeleton />
+							</>
+						) : innovations.length ? (
+							innovations
+								.slice(0, 4)
+								.map((item) => <InnovationCard item={item} key={item.id} />)
+						) : (
+							<div className="impact-card sm:col-span-2">
 								<Lightbulb className="h-6 w-6 text-[#146ef5]" />
-								<strong>{item}</strong>
-								<p>
-									See the people, research, and next steps behind this work.
-								</p>
+								<strong>Innovations are being prepared</strong>
+								<p>Check back soon for published innovation records.</p>
 							</div>
-						))}
+						)}
 					</div>
 				</div>
 			</section>
@@ -531,7 +779,29 @@ function Home() {
 					text="Explore inventions developed at OAU, who created them, and how they may be used."
 					title="Protecting Innovation"
 				/>
-				<TagPanel items={patentItems} title="Patent profiles provide" />
+				<div className="tag-panel">
+					<h3>Recent Patent Activity</h3>
+					<div className="mt-5 grid gap-3">
+						{isPatentsLoading ? (
+							<>
+								<span className="sr-only" aria-live="polite">
+									Loading patents
+								</span>
+								<PatentRowSkeleton />
+								<PatentRowSkeleton />
+								<PatentRowSkeleton />
+							</>
+						) : patents.length ? (
+							patents
+								.slice(0, 4)
+								.map((item) => <PatentRow item={item} key={item.id} />)
+						) : (
+							<p className="text-sm text-[#6b7280]">
+								Patent activity is being prepared.
+							</p>
+						)}
+					</div>
+				</div>
 			</section>
 
 			<section className="section-wrap pt-0">
@@ -877,6 +1147,125 @@ function FeaturedCardSkeleton() {
 					<div className="h-3 w-16 animate-pulse rounded-full bg-[#eef0f3]" />
 				</div>
 			</div>
+		</div>
+	);
+}
+
+function PublicationCard({
+	item,
+	imageUrl,
+}: {
+	item: PublicationDisplayItem;
+	imageUrl?: string;
+}) {
+	return (
+		<Link
+			className="group flex h-full flex-col overflow-hidden rounded-lg border border-[#d8d8d8] bg-white transition hover:-translate-y-1 hover:border-[#146ef5] hover:shadow-lg"
+			to={item.href}
+		>
+			<div className="aspect-video w-full shrink-0 overflow-hidden bg-[#f0f0f0]">
+				{imageUrl ? (
+					<img
+						alt={item.title}
+						className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+						src={imageUrl}
+					/>
+				) : (
+					<ResearchImagePlaceholder />
+				)}
+			</div>
+			<div className="flex flex-1 flex-col gap-2 p-5">
+				<span className="w-fit rounded-full border border-[#d8d8d8] bg-[#eef4ff] px-2.5 py-1 text-xs font-semibold text-[#146ef5]">
+					{formatPublicationType(item.type)}
+				</span>
+				<h3 className="line-clamp-2 text-lg font-semibold leading-snug tracking-normal text-[#080808]">
+					{item.title}
+				</h3>
+				{item.journal ? (
+					<p className="line-clamp-1 text-xs text-[#6b7280]">{item.journal}</p>
+				) : null}
+				<div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 text-xs text-[#6b7280]">
+					<span className="inline-flex items-center gap-1">
+						<Users className="h-3.5 w-3.5" />
+						{item.authorName ?? "OAU Researcher"}
+					</span>
+					<span className="inline-flex items-center gap-1">
+						<CalendarDays className="h-3.5 w-3.5" />
+						{item.publishedDate}
+					</span>
+				</div>
+			</div>
+		</Link>
+	);
+}
+
+function formatPublicationType(type: string) {
+	return type
+		.replace(/_/g, " ")
+		.replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function InnovationCard({ item }: { item: InnovationDisplayItem }) {
+	return (
+		<Link className="impact-card group flex flex-col gap-2" to={item.href}>
+			<div className="flex items-center justify-between gap-3">
+				<Lightbulb className="h-6 w-6 text-[#146ef5]" />
+				<span className="impact-card-badge">
+					{item.trl ? `TRL ${item.trl}` : "Published"}
+				</span>
+			</div>
+			<strong className="line-clamp-2">{item.title}</strong>
+			<p className="line-clamp-3">{item.summary}</p>
+		</Link>
+	);
+}
+
+function ImpactCardSkeleton() {
+	return (
+		<div aria-hidden="true" className="impact-card flex flex-col gap-2">
+			<div className="flex items-center justify-between gap-3">
+				<div className="h-6 w-6 animate-pulse rounded-full bg-white/15" />
+				<div className="h-5 w-14 animate-pulse rounded-full bg-white/15" />
+			</div>
+			<div className="mt-4 h-4 w-full animate-pulse rounded-full bg-white/15" />
+			<div className="h-4 w-2/3 animate-pulse rounded-full bg-white/15" />
+			<div className="mt-2 h-3 w-full animate-pulse rounded-full bg-white/10" />
+			<div className="h-3 w-4/5 animate-pulse rounded-full bg-white/10" />
+		</div>
+	);
+}
+
+function PatentRow({ item }: { item: PatentDisplayItem }) {
+	return (
+		<Link
+			className="contributor-step justify-between gap-3 transition hover:border-[#146ef5]"
+			to={item.href}
+		>
+			<span className="flex min-w-0 items-center gap-3">
+				<Scale className="h-5 w-5 shrink-0 text-[#146ef5]" />
+				<span className="truncate">{item.title}</span>
+			</span>
+			<span className="shrink-0 rounded-full border border-[#d8d8d8] bg-white px-2 py-0.5 text-xs font-semibold text-[#146ef5]">
+				{formatPatentStatus(item.status)}
+			</span>
+		</Link>
+	);
+}
+
+function formatPatentStatus(status: string) {
+	return status
+		.replace(/_/g, " ")
+		.replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function PatentRowSkeleton() {
+	return (
+		<div aria-hidden="true" className="contributor-step justify-between gap-3">
+			<span className="flex min-w-0 items-center gap-3">
+				<div className="h-5 w-5 shrink-0 animate-pulse rounded-full bg-[#eef0f3]" />
+				<div className="h-3.5 w-40 animate-pulse rounded-full bg-[#eef0f3]" />
+			</span>
+			<div className="h-5 w-16 shrink-0 animate-pulse rounded-full bg-[#eef0f3]" />
 		</div>
 	);
 }

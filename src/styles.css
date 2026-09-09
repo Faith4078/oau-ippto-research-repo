@@ -137,7 +137,17 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 }
 
-a:not([class*="text-"]) {
+/*
+ * Generic links (no explicit Tailwind text-color utility) inherit the
+ * surrounding text color instead of the browser's default link blue.
+ *
+ * `.btn-primary`/`.btn-secondary`/`.btn-secondary-dark`/`.nav-cta` are
+ * excluded: those classes set their own explicit `color` below, and without
+ * this exclusion this selector's specificity (0,1,1) beats theirs (0,1,0),
+ * silently forcing `color: inherit` back over their intended text color —
+ * e.g. turning white button text black on a light-background section.
+ */
+a:not([class*="text-"]):not(.btn-primary):not(.btn-secondary):not(.btn-secondary-dark):not(.nav-cta) {
 	color: inherit;
 	text-decoration: none;
 }
@@ -506,6 +516,12 @@ button:active:not(:disabled),
 	padding: 20px;
 }
 
+.impact-card:hover {
+	transform: translateY(-4px);
+	border-color: rgba(20, 110, 245, 0.55);
+	background: rgba(255, 255, 255, 0.1);
+}
+
 .impact-card strong {
 	margin-top: 22px;
 	display: block;
@@ -515,6 +531,19 @@ button:active:not(:disabled),
 
 .impact-card p {
 	color: rgba(255, 255, 255, 0.68);
+}
+
+.impact-card-badge {
+	display: inline-flex;
+	align-items: center;
+	border-radius: 9999px;
+	border: 1px solid rgba(20, 110, 245, 0.4);
+	background: rgba(20, 110, 245, 0.16);
+	padding: 4px 10px;
+	color: #eef4ff;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.2;
 }
 
 .story-grid {
