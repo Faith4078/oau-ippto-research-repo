@@ -13,15 +13,18 @@ export function actorFromSession(
 	}
 
 	const user = sessionState.session.user;
+	const roleAssignments = user.roleAssignments.length
+		? user.roleAssignments
+		: user.roles.map((role) => ({
+				role,
+				facultyId: user.facultyId,
+				departmentId: user.departmentId,
+			}));
 
 	return {
 		userId: user.id,
 		status: user.status,
-		roles: user.roles.map((role) => ({
-			role,
-			facultyId: user.facultyId,
-			departmentId: user.departmentId,
-		})),
+		roles: roleAssignments,
 	};
 }
 

@@ -36,6 +36,7 @@ export const Route = createFileRoute("/api/dashboard/me")({
 						name: user.name,
 						email: user.email,
 						roles: user.roles,
+						roleAssignments: user.roleAssignments,
 						departmentId: user.departmentId,
 						facultyId: user.facultyId,
 						departmentName: organizationNames.departmentName,

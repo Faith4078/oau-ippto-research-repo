@@ -16,7 +16,7 @@ This file lists the remaining work needed to make the OAU IPTTO Research Reposit
 - [x] Add an authorized approval queue to the super administrator dashboard.
 - [x] Record approval, rejection, suspension, deactivation, and reactivation in audit logs.
 - [x] Add pending, active, rejected, suspended, and deactivated account states with validated transitions.
-- [ ] Decide who may provision department, faculty, and super administrator accounts.
+- [x] Implement administrator provisioning hierarchy: super administrators assign faculty and department administrators, and faculty administrators assign department administrators within their faculty.
 
 ## 3. Controlled organization data
 

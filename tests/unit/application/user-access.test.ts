@@ -9,29 +9,95 @@ const administrator: AuthenticatedActor = {
 	userId: "00000000-0000-4000-8000-000000000001",
 };
 
+const facultyId = "00000000-0000-4000-8000-000000000010";
+const departmentId = "00000000-0000-4000-8000-000000000020";
+const targetUserId = "00000000-0000-4000-8000-000000000002";
+
+const facultyAdministrator: AuthenticatedActor = {
+	roles: [{ role: "faculty_administrator", facultyId }],
+	status: "active",
+	userId: "00000000-0000-4000-8000-000000000003",
+};
+
+const activeLecturer = {
+	departmentId,
+	email: "lecturer@example.edu",
+	facultyId,
+	id: targetUserId,
+	name: "Dr Lecturer",
+	roles: ["lecturer"],
+	staffId: "AC/1234",
+	status: "active",
+} as const;
+
 describe("user access administration", () => {
-	it("assigns a faculty administrator only with a faculty scope", async () => {
+	it("promotes an active lecturer to faculty administrator", async () => {
 		const changes: unknown[] = [];
 		const service = createUserAccessService({
 			async departmentBelongsToFaculty() {
 				return true;
 			},
 			async findUserRoles() {
-				return [];
+				return ["lecturer"];
 			},
-			async listUsers() { return []; },
-			async setUserAccess(input) { changes.push(input); },
+			async listUsers() {
+				return [activeLecturer];
+			},
+			async setUserAccess(input) {
+				changes.push(input);
+			},
 		});
 
 		const result = await service.setAccess(administrator, {
 			departmentId: null,
-			facultyId: "00000000-0000-4000-8000-000000000010",
+			facultyId,
 			role: "faculty_administrator",
-			userId: "00000000-0000-4000-8000-000000000002",
+			userId: targetUserId,
 		});
 
 		expect(result.ok).toBe(true);
-		expect(changes).toHaveLength(1);
+		expect(changes).toEqual([
+			expect.objectContaining({
+				facultyId,
+				role: "faculty_administrator",
+				userId: targetUserId,
+			}),
+		]);
+	});
+
+	it("lets faculty administrators assign department administrators in their faculty", async () => {
+		const changes: unknown[] = [];
+		const service = createUserAccessService({
+			async departmentBelongsToFaculty() {
+				return true;
+			},
+			async findUserRoles() {
+				return ["lecturer"];
+			},
+			async listUsers() {
+				return [activeLecturer];
+			},
+			async setUserAccess(input) {
+				changes.push(input);
+			},
+		});
+
+		const result = await service.setAccess(facultyAdministrator, {
+			departmentId,
+			facultyId,
+			role: "department_administrator",
+			userId: targetUserId,
+		});
+
+		expect(result.ok).toBe(true);
+		expect(changes).toEqual([
+			expect.objectContaining({
+				departmentId,
+				facultyId,
+				role: "department_administrator",
+				userId: targetUserId,
+			}),
+		]);
 	});
 
 	it("rejects a department outside the selected faculty", async () => {
@@ -44,18 +110,18 @@ describe("user access administration", () => {
 				return [];
 			},
 			async listUsers() {
-				return [];
+				return [activeLecturer];
 			},
 			async setUserAccess(input) {
 				changes.push(input);
 			},
 		});
 
-		const result = await service.setAccess(administrator, {
-			departmentId: "00000000-0000-4000-8000-000000000020",
-			facultyId: "00000000-0000-4000-8000-000000000010",
+		const result = await service.setAccess(facultyAdministrator, {
+			departmentId,
+			facultyId,
 			role: "department_administrator",
-			userId: "00000000-0000-4000-8000-000000000002",
+			userId: targetUserId,
 		});
 
 		expect(result).toMatchObject({
@@ -89,14 +155,14 @@ describe("user access administration", () => {
 				departmentId: null,
 				facultyId: null,
 				role: "iptto_officer",
-				userId: "00000000-0000-4000-8000-000000000002",
+				userId: targetUserId,
 			},
 		);
 
 		expect(result).toMatchObject({ ok: false, error: { code: "FORBIDDEN" } });
 	});
 
-	it("never turns a lecturer account into a department administrator", async () => {
+	it("lets super administrators assign department administrators", async () => {
 		const changes: unknown[] = [];
 		const repository = {
 			async departmentBelongsToFaculty() {
@@ -106,7 +172,7 @@ describe("user access administration", () => {
 				return ["lecturer"] as const;
 			},
 			async listUsers() {
-				return [];
+				return [activeLecturer];
 			},
 			async setUserAccess(input: unknown) {
 				changes.push(input);
@@ -115,15 +181,50 @@ describe("user access administration", () => {
 		const service = createUserAccessService(repository);
 
 		const result = await service.setAccess(administrator, {
-			departmentId: "00000000-0000-4000-8000-000000000020",
-			facultyId: "00000000-0000-4000-8000-000000000010",
+			departmentId,
+			facultyId,
 			role: "department_administrator",
-			userId: "00000000-0000-4000-8000-000000000002",
+			userId: targetUserId,
+		});
+
+		expect(result.ok).toBe(true);
+		expect(changes).toEqual([
+			expect.objectContaining({
+				departmentId,
+				facultyId,
+				role: "department_administrator",
+				userId: targetUserId,
+			}),
+		]);
+	});
+
+	it("blocks faculty administrators from assigning outside their faculty", async () => {
+		const changes: unknown[] = [];
+		const service = createUserAccessService({
+			async departmentBelongsToFaculty() {
+				return true;
+			},
+			async findUserRoles() {
+				return ["lecturer"];
+			},
+			async listUsers() {
+				return [activeLecturer];
+			},
+			async setUserAccess(input: unknown) {
+				changes.push(input);
+			},
+		});
+
+		const result = await service.setAccess(facultyAdministrator, {
+			departmentId,
+			facultyId: "00000000-0000-4000-8000-000000000099",
+			role: "department_administrator",
+			userId: targetUserId,
 		});
 
 		expect(result).toMatchObject({
 			ok: false,
-			error: { code: "LECTURER_ADMIN_SEPARATION_REQUIRED" },
+			error: { code: "FACULTY_SCOPE_FORBIDDEN" },
 		});
 		expect(changes).toHaveLength(0);
 	});

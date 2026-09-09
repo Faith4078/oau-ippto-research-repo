@@ -9,6 +9,12 @@ import {
 
 export type AuthRole = (typeof applicationRoles)[number];
 
+export type AuthRoleAssignment = {
+	role: RoleKey;
+	departmentId: EntityId | null;
+	facultyId: EntityId | null;
+};
+
 export type AuthUser = {
 	id: EntityId;
 	staffId: string;
@@ -16,6 +22,7 @@ export type AuthUser = {
 	name: string;
 	status: UserStatus;
 	roles: readonly RoleKey[];
+	roleAssignments: readonly AuthRoleAssignment[];
 	departmentId: EntityId | null;
 	facultyId: EntityId | null;
 };

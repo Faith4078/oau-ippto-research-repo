@@ -143,24 +143,24 @@ export class PostgresUserAccessRepository implements UserAccessRepository {
 
 			await transaction
 				.delete(schema.userRoles)
-				.where(eq(schema.userRoles.userId, input.userId));
+				.where(
+					and(
+						eq(schema.userRoles.userId, input.userId),
+						eq(schema.userRoles.roleId, role.id),
+					),
+				);
 			await transaction.insert(schema.userRoles).values({
 				assignedById: input.actorId,
 				departmentId:
 					input.role === "department_administrator" ? input.departmentId : null,
 				facultyId:
-					input.role === "faculty_administrator" ? input.facultyId : null,
+					input.role === "faculty_administrator" ||
+					input.role === "department_administrator"
+						? input.facultyId
+						: null,
 				roleId: role.id,
 				userId: input.userId,
 			});
-			await transaction
-				.update(schema.userProfiles)
-				.set({
-					departmentId: input.departmentId,
-					facultyId: input.facultyId,
-					updatedAt: new Date(),
-				})
-				.where(eq(schema.userProfiles.userId, input.userId));
 			await transaction.insert(schema.auditLogs).values({
 				action: "user.access.changed",
 				actorId: input.actorId,

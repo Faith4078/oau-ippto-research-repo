@@ -198,7 +198,7 @@ function ResearchReviewContent({
 	async function downloadReport() {
 		setReportLoading(true);
 		try {
-			const response = await fetch("/api/dashboard/report", {
+			const response = await fetch(`/api/dashboard/report?stage=${stage}`, {
 				cache: "no-store",
 			});
 			const payload = await response.json();
