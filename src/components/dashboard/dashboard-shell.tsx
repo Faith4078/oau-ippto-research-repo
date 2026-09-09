@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import {
 	BadgeCheck,
+	BarChart3,
 	BookOpenCheck,
 	Building2,
 	CalendarDays,
@@ -152,6 +153,11 @@ const workspaceNavByRole: Record<
 				icon: House,
 				href: "/dashboard/department-admin",
 			},
+			{
+				label: "Publication Analytics",
+				icon: BarChart3,
+				href: "/dashboard/department-admin/publication-analytics",
+			},
 		],
 		secondary: [],
 	},
@@ -161,6 +167,11 @@ const workspaceNavByRole: Record<
 				label: "Home",
 				icon: House,
 				href: "/dashboard/faculty-admin",
+			},
+			{
+				label: "Publication Analytics",
+				icon: BarChart3,
+				href: "/dashboard/faculty-admin/publication-analytics",
 			},
 			{
 				label: "Departments",
@@ -196,6 +207,11 @@ const workspaceNavByRole: Record<
 				label: "Home",
 				icon: House,
 				href: "/dashboard/super-admin",
+			},
+			{
+				label: "Publication Analytics",
+				icon: BarChart3,
+				href: "/dashboard/super-admin/publication-analytics",
 			},
 			{
 				label: "Faculties",

@@ -1,7 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+"use client";
 
+import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
+
+import { DashboardShell } from "#/components/dashboard/dashboard-shell.tsx";
 import { ResearchReviewWorkspace } from "#/components/dashboard/research-review-workspace.tsx";
 import { requireDashboardRole } from "#/lib/auth-functions.ts";
+import { workspaces } from "#/presentation/dashboard/data.ts";
 
 export const Route = createFileRoute("/dashboard/department-admin")({
 	// The parent "/dashboard" route already resolved the signed-in user (one
@@ -29,5 +33,14 @@ export const Route = createFileRoute("/dashboard/department-admin")({
 });
 
 function DepartmentAdminDashboard() {
-	return <ResearchReviewWorkspace stage="department" />;
+	const location = useLocation();
+	const isOverview = location.pathname === "/dashboard/department-admin";
+
+	return isOverview ? (
+		<ResearchReviewWorkspace stage="department" />
+	) : (
+		<DashboardShell workspace={workspaces["department-admin"]}>
+			<Outlet />
+		</DashboardShell>
+	);
 }

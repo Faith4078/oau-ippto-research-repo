@@ -63,6 +63,7 @@ import { Route as ApiAuthSignUpRouteImport } from './routes/api/auth/sign-up'
 import { Route as ApiDashboardIpttoSummaryRouteImport } from './routes/api/dashboard/iptto-summary'
 import { Route as ApiDashboardMeRouteImport } from './routes/api/dashboard/me'
 import { Route as ApiDashboardProfileRouteImport } from './routes/api/dashboard/profile'
+import { Route as ApiDashboardPublicationAnalyticsRouteImport } from './routes/api/dashboard/publication-analytics'
 import { Route as ApiDashboardReportRouteImport } from './routes/api/dashboard/report'
 import { Route as ApiDashboardResearchReviewRouteImport } from './routes/api/dashboard/research-review'
 import { Route as ApiFilesConfirmUploadRouteImport } from './routes/api/files/confirm-upload'
@@ -73,7 +74,9 @@ import { Route as ApiJobsFailedRouteImport } from './routes/api/jobs/failed'
 import { Route as ApiPatentsPatentIdRouteImport } from './routes/api/patents.$patentId'
 import { Route as ApiResearchApprovalTransitionsRouteImport } from './routes/api/research/approval-transitions'
 import { Route as ApiResearchSubmissionsRouteImport } from './routes/api/research/submissions'
+import { Route as DashboardDepartmentAdminPublicationAnalyticsRouteImport } from './routes/dashboard.department-admin.publication-analytics'
 import { Route as DashboardFacultyAdminDepartmentsRouteImport } from './routes/dashboard.faculty-admin.departments'
+import { Route as DashboardFacultyAdminPublicationAnalyticsRouteImport } from './routes/dashboard.faculty-admin.publication-analytics'
 import { Route as DashboardFacultyAdminUsersRouteImport } from './routes/dashboard.faculty-admin.users'
 import { Route as DashboardLecturerProfileRouteImport } from './routes/dashboard.lecturer.profile'
 import { Route as DashboardLecturerRequestServiceRouteImport } from './routes/dashboard.lecturer.request-service'
@@ -81,6 +84,7 @@ import { Route as DashboardLecturerSubmitRouteImport } from './routes/dashboard.
 import { Route as DashboardSuperAdminDepartmentsRouteImport } from './routes/dashboard.super-admin.departments'
 import { Route as DashboardSuperAdminFacultiesRouteImport } from './routes/dashboard.super-admin.faculties'
 import { Route as DashboardSuperAdminOrganizationRouteImport } from './routes/dashboard.super-admin.organization'
+import { Route as DashboardSuperAdminPublicationAnalyticsRouteImport } from './routes/dashboard.super-admin.publication-analytics'
 import { Route as DashboardSuperAdminUsersRouteImport } from './routes/dashboard.super-admin.users'
 import { Route as ApiAdminOrganizationDepartmentsRouteImport } from './routes/api/admin/organization/departments'
 import { Route as ApiAdminOrganizationFacultiesRouteImport } from './routes/api/admin/organization/faculties'
@@ -369,6 +373,12 @@ const ApiDashboardProfileRoute = ApiDashboardProfileRouteImport.update({
   path: '/api/dashboard/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDashboardPublicationAnalyticsRoute =
+  ApiDashboardPublicationAnalyticsRouteImport.update({
+    id: '/api/dashboard/publication-analytics',
+    path: '/api/dashboard/publication-analytics',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiDashboardReportRoute = ApiDashboardReportRouteImport.update({
   id: '/api/dashboard/report',
   path: '/api/dashboard/report',
@@ -423,10 +433,22 @@ const ApiResearchSubmissionsRoute = ApiResearchSubmissionsRouteImport.update({
   path: '/api/research/submissions',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardDepartmentAdminPublicationAnalyticsRoute =
+  DashboardDepartmentAdminPublicationAnalyticsRouteImport.update({
+    id: '/publication-analytics',
+    path: '/publication-analytics',
+    getParentRoute: () => DashboardDepartmentAdminRoute,
+  } as any)
 const DashboardFacultyAdminDepartmentsRoute =
   DashboardFacultyAdminDepartmentsRouteImport.update({
     id: '/departments',
     path: '/departments',
+    getParentRoute: () => DashboardFacultyAdminRoute,
+  } as any)
+const DashboardFacultyAdminPublicationAnalyticsRoute =
+  DashboardFacultyAdminPublicationAnalyticsRouteImport.update({
+    id: '/publication-analytics',
+    path: '/publication-analytics',
     getParentRoute: () => DashboardFacultyAdminRoute,
   } as any)
 const DashboardFacultyAdminUsersRoute =
@@ -468,6 +490,12 @@ const DashboardSuperAdminOrganizationRoute =
   DashboardSuperAdminOrganizationRouteImport.update({
     id: '/organization',
     path: '/organization',
+    getParentRoute: () => DashboardSuperAdminRoute,
+  } as any)
+const DashboardSuperAdminPublicationAnalyticsRoute =
+  DashboardSuperAdminPublicationAnalyticsRouteImport.update({
+    id: '/publication-analytics',
+    path: '/publication-analytics',
     getParentRoute: () => DashboardSuperAdminRoute,
   } as any)
 const DashboardSuperAdminUsersRoute =
@@ -590,7 +618,7 @@ export interface FileRoutesByFullPath {
   '/api/public-statistics': typeof ApiPublicStatisticsRoute
   '/api/related-records': typeof ApiRelatedRecordsRoute
   '/api/search': typeof ApiSearchRoute
-  '/dashboard/department-admin': typeof DashboardDepartmentAdminRoute
+  '/dashboard/department-admin': typeof DashboardDepartmentAdminRouteWithChildren
   '/dashboard/faculty-admin': typeof DashboardFacultyAdminRouteWithChildren
   '/dashboard/iptto-officer': typeof DashboardIpttoOfficerRoute
   '/dashboard/lecturer': typeof DashboardLecturerRouteWithChildren
@@ -616,6 +644,7 @@ export interface FileRoutesByFullPath {
   '/api/dashboard/iptto-summary': typeof ApiDashboardIpttoSummaryRoute
   '/api/dashboard/me': typeof ApiDashboardMeRoute
   '/api/dashboard/profile': typeof ApiDashboardProfileRoute
+  '/api/dashboard/publication-analytics': typeof ApiDashboardPublicationAnalyticsRoute
   '/api/dashboard/report': typeof ApiDashboardReportRoute
   '/api/dashboard/research-review': typeof ApiDashboardResearchReviewRoute
   '/api/files/confirm-upload': typeof ApiFilesConfirmUploadRoute
@@ -626,7 +655,9 @@ export interface FileRoutesByFullPath {
   '/api/patents/$patentId': typeof ApiPatentsPatentIdRoute
   '/api/research/approval-transitions': typeof ApiResearchApprovalTransitionsRoute
   '/api/research/submissions': typeof ApiResearchSubmissionsRouteWithChildren
+  '/dashboard/department-admin/publication-analytics': typeof DashboardDepartmentAdminPublicationAnalyticsRoute
   '/dashboard/faculty-admin/departments': typeof DashboardFacultyAdminDepartmentsRouteWithChildren
+  '/dashboard/faculty-admin/publication-analytics': typeof DashboardFacultyAdminPublicationAnalyticsRoute
   '/dashboard/faculty-admin/users': typeof DashboardFacultyAdminUsersRouteWithChildren
   '/dashboard/lecturer/profile': typeof DashboardLecturerProfileRoute
   '/dashboard/lecturer/request-service': typeof DashboardLecturerRequestServiceRoute
@@ -634,6 +665,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/super-admin/departments': typeof DashboardSuperAdminDepartmentsRouteWithChildren
   '/dashboard/super-admin/faculties': typeof DashboardSuperAdminFacultiesRouteWithChildren
   '/dashboard/super-admin/organization': typeof DashboardSuperAdminOrganizationRoute
+  '/dashboard/super-admin/publication-analytics': typeof DashboardSuperAdminPublicationAnalyticsRoute
   '/dashboard/super-admin/users': typeof DashboardSuperAdminUsersRouteWithChildren
   '/api/admin/organization/departments': typeof ApiAdminOrganizationDepartmentsRoute
   '/api/admin/organization/faculties': typeof ApiAdminOrganizationFacultiesRoute
@@ -673,7 +705,7 @@ export interface FileRoutesByTo {
   '/api/public-statistics': typeof ApiPublicStatisticsRoute
   '/api/related-records': typeof ApiRelatedRecordsRoute
   '/api/search': typeof ApiSearchRoute
-  '/dashboard/department-admin': typeof DashboardDepartmentAdminRoute
+  '/dashboard/department-admin': typeof DashboardDepartmentAdminRouteWithChildren
   '/dashboard/faculty-admin': typeof DashboardFacultyAdminRouteWithChildren
   '/dashboard/iptto-officer': typeof DashboardIpttoOfficerRoute
   '/dashboard/lecturer': typeof DashboardLecturerRouteWithChildren
@@ -699,6 +731,7 @@ export interface FileRoutesByTo {
   '/api/dashboard/iptto-summary': typeof ApiDashboardIpttoSummaryRoute
   '/api/dashboard/me': typeof ApiDashboardMeRoute
   '/api/dashboard/profile': typeof ApiDashboardProfileRoute
+  '/api/dashboard/publication-analytics': typeof ApiDashboardPublicationAnalyticsRoute
   '/api/dashboard/report': typeof ApiDashboardReportRoute
   '/api/dashboard/research-review': typeof ApiDashboardResearchReviewRoute
   '/api/files/confirm-upload': typeof ApiFilesConfirmUploadRoute
@@ -709,7 +742,9 @@ export interface FileRoutesByTo {
   '/api/patents/$patentId': typeof ApiPatentsPatentIdRoute
   '/api/research/approval-transitions': typeof ApiResearchApprovalTransitionsRoute
   '/api/research/submissions': typeof ApiResearchSubmissionsRouteWithChildren
+  '/dashboard/department-admin/publication-analytics': typeof DashboardDepartmentAdminPublicationAnalyticsRoute
   '/dashboard/faculty-admin/departments': typeof DashboardFacultyAdminDepartmentsRouteWithChildren
+  '/dashboard/faculty-admin/publication-analytics': typeof DashboardFacultyAdminPublicationAnalyticsRoute
   '/dashboard/faculty-admin/users': typeof DashboardFacultyAdminUsersRouteWithChildren
   '/dashboard/lecturer/profile': typeof DashboardLecturerProfileRoute
   '/dashboard/lecturer/request-service': typeof DashboardLecturerRequestServiceRoute
@@ -717,6 +752,7 @@ export interface FileRoutesByTo {
   '/dashboard/super-admin/departments': typeof DashboardSuperAdminDepartmentsRouteWithChildren
   '/dashboard/super-admin/faculties': typeof DashboardSuperAdminFacultiesRouteWithChildren
   '/dashboard/super-admin/organization': typeof DashboardSuperAdminOrganizationRoute
+  '/dashboard/super-admin/publication-analytics': typeof DashboardSuperAdminPublicationAnalyticsRoute
   '/dashboard/super-admin/users': typeof DashboardSuperAdminUsersRouteWithChildren
   '/api/admin/organization/departments': typeof ApiAdminOrganizationDepartmentsRoute
   '/api/admin/organization/faculties': typeof ApiAdminOrganizationFacultiesRoute
@@ -763,7 +799,7 @@ export interface FileRoutesById {
   '/api/public-statistics': typeof ApiPublicStatisticsRoute
   '/api/related-records': typeof ApiRelatedRecordsRoute
   '/api/search': typeof ApiSearchRoute
-  '/dashboard/department-admin': typeof DashboardDepartmentAdminRoute
+  '/dashboard/department-admin': typeof DashboardDepartmentAdminRouteWithChildren
   '/dashboard/faculty-admin': typeof DashboardFacultyAdminRouteWithChildren
   '/dashboard/iptto-officer': typeof DashboardIpttoOfficerRoute
   '/dashboard/lecturer': typeof DashboardLecturerRouteWithChildren
@@ -789,6 +825,7 @@ export interface FileRoutesById {
   '/api/dashboard/iptto-summary': typeof ApiDashboardIpttoSummaryRoute
   '/api/dashboard/me': typeof ApiDashboardMeRoute
   '/api/dashboard/profile': typeof ApiDashboardProfileRoute
+  '/api/dashboard/publication-analytics': typeof ApiDashboardPublicationAnalyticsRoute
   '/api/dashboard/report': typeof ApiDashboardReportRoute
   '/api/dashboard/research-review': typeof ApiDashboardResearchReviewRoute
   '/api/files/confirm-upload': typeof ApiFilesConfirmUploadRoute
@@ -799,7 +836,9 @@ export interface FileRoutesById {
   '/api/patents/$patentId': typeof ApiPatentsPatentIdRoute
   '/api/research/approval-transitions': typeof ApiResearchApprovalTransitionsRoute
   '/api/research/submissions': typeof ApiResearchSubmissionsRouteWithChildren
+  '/dashboard/department-admin/publication-analytics': typeof DashboardDepartmentAdminPublicationAnalyticsRoute
   '/dashboard/faculty-admin/departments': typeof DashboardFacultyAdminDepartmentsRouteWithChildren
+  '/dashboard/faculty-admin/publication-analytics': typeof DashboardFacultyAdminPublicationAnalyticsRoute
   '/dashboard/faculty-admin/users': typeof DashboardFacultyAdminUsersRouteWithChildren
   '/dashboard/lecturer/profile': typeof DashboardLecturerProfileRoute
   '/dashboard/lecturer/request-service': typeof DashboardLecturerRequestServiceRoute
@@ -807,6 +846,7 @@ export interface FileRoutesById {
   '/dashboard/super-admin/departments': typeof DashboardSuperAdminDepartmentsRouteWithChildren
   '/dashboard/super-admin/faculties': typeof DashboardSuperAdminFacultiesRouteWithChildren
   '/dashboard/super-admin/organization': typeof DashboardSuperAdminOrganizationRoute
+  '/dashboard/super-admin/publication-analytics': typeof DashboardSuperAdminPublicationAnalyticsRoute
   '/dashboard/super-admin/users': typeof DashboardSuperAdminUsersRouteWithChildren
   '/api/admin/organization/departments': typeof ApiAdminOrganizationDepartmentsRoute
   '/api/admin/organization/faculties': typeof ApiAdminOrganizationFacultiesRoute
@@ -880,6 +920,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/iptto-summary'
     | '/api/dashboard/me'
     | '/api/dashboard/profile'
+    | '/api/dashboard/publication-analytics'
     | '/api/dashboard/report'
     | '/api/dashboard/research-review'
     | '/api/files/confirm-upload'
@@ -890,7 +931,9 @@ export interface FileRouteTypes {
     | '/api/patents/$patentId'
     | '/api/research/approval-transitions'
     | '/api/research/submissions'
+    | '/dashboard/department-admin/publication-analytics'
     | '/dashboard/faculty-admin/departments'
+    | '/dashboard/faculty-admin/publication-analytics'
     | '/dashboard/faculty-admin/users'
     | '/dashboard/lecturer/profile'
     | '/dashboard/lecturer/request-service'
@@ -898,6 +941,7 @@ export interface FileRouteTypes {
     | '/dashboard/super-admin/departments'
     | '/dashboard/super-admin/faculties'
     | '/dashboard/super-admin/organization'
+    | '/dashboard/super-admin/publication-analytics'
     | '/dashboard/super-admin/users'
     | '/api/admin/organization/departments'
     | '/api/admin/organization/faculties'
@@ -963,6 +1007,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/iptto-summary'
     | '/api/dashboard/me'
     | '/api/dashboard/profile'
+    | '/api/dashboard/publication-analytics'
     | '/api/dashboard/report'
     | '/api/dashboard/research-review'
     | '/api/files/confirm-upload'
@@ -973,7 +1018,9 @@ export interface FileRouteTypes {
     | '/api/patents/$patentId'
     | '/api/research/approval-transitions'
     | '/api/research/submissions'
+    | '/dashboard/department-admin/publication-analytics'
     | '/dashboard/faculty-admin/departments'
+    | '/dashboard/faculty-admin/publication-analytics'
     | '/dashboard/faculty-admin/users'
     | '/dashboard/lecturer/profile'
     | '/dashboard/lecturer/request-service'
@@ -981,6 +1028,7 @@ export interface FileRouteTypes {
     | '/dashboard/super-admin/departments'
     | '/dashboard/super-admin/faculties'
     | '/dashboard/super-admin/organization'
+    | '/dashboard/super-admin/publication-analytics'
     | '/dashboard/super-admin/users'
     | '/api/admin/organization/departments'
     | '/api/admin/organization/faculties'
@@ -1052,6 +1100,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/iptto-summary'
     | '/api/dashboard/me'
     | '/api/dashboard/profile'
+    | '/api/dashboard/publication-analytics'
     | '/api/dashboard/report'
     | '/api/dashboard/research-review'
     | '/api/files/confirm-upload'
@@ -1062,7 +1111,9 @@ export interface FileRouteTypes {
     | '/api/patents/$patentId'
     | '/api/research/approval-transitions'
     | '/api/research/submissions'
+    | '/dashboard/department-admin/publication-analytics'
     | '/dashboard/faculty-admin/departments'
+    | '/dashboard/faculty-admin/publication-analytics'
     | '/dashboard/faculty-admin/users'
     | '/dashboard/lecturer/profile'
     | '/dashboard/lecturer/request-service'
@@ -1070,6 +1121,7 @@ export interface FileRouteTypes {
     | '/dashboard/super-admin/departments'
     | '/dashboard/super-admin/faculties'
     | '/dashboard/super-admin/organization'
+    | '/dashboard/super-admin/publication-analytics'
     | '/dashboard/super-admin/users'
     | '/api/admin/organization/departments'
     | '/api/admin/organization/faculties'
@@ -1123,6 +1175,7 @@ export interface RootRouteChildren {
   ApiDashboardIpttoSummaryRoute: typeof ApiDashboardIpttoSummaryRoute
   ApiDashboardMeRoute: typeof ApiDashboardMeRoute
   ApiDashboardProfileRoute: typeof ApiDashboardProfileRoute
+  ApiDashboardPublicationAnalyticsRoute: typeof ApiDashboardPublicationAnalyticsRoute
   ApiDashboardReportRoute: typeof ApiDashboardReportRoute
   ApiDashboardResearchReviewRoute: typeof ApiDashboardResearchReviewRoute
   ApiFilesConfirmUploadRoute: typeof ApiFilesConfirmUploadRoute
@@ -1517,6 +1570,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDashboardProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/dashboard/publication-analytics': {
+      id: '/api/dashboard/publication-analytics'
+      path: '/api/dashboard/publication-analytics'
+      fullPath: '/api/dashboard/publication-analytics'
+      preLoaderRoute: typeof ApiDashboardPublicationAnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/dashboard/report': {
       id: '/api/dashboard/report'
       path: '/api/dashboard/report'
@@ -1587,11 +1647,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiResearchSubmissionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/department-admin/publication-analytics': {
+      id: '/dashboard/department-admin/publication-analytics'
+      path: '/publication-analytics'
+      fullPath: '/dashboard/department-admin/publication-analytics'
+      preLoaderRoute: typeof DashboardDepartmentAdminPublicationAnalyticsRouteImport
+      parentRoute: typeof DashboardDepartmentAdminRoute
+    }
     '/dashboard/faculty-admin/departments': {
       id: '/dashboard/faculty-admin/departments'
       path: '/departments'
       fullPath: '/dashboard/faculty-admin/departments'
       preLoaderRoute: typeof DashboardFacultyAdminDepartmentsRouteImport
+      parentRoute: typeof DashboardFacultyAdminRoute
+    }
+    '/dashboard/faculty-admin/publication-analytics': {
+      id: '/dashboard/faculty-admin/publication-analytics'
+      path: '/publication-analytics'
+      fullPath: '/dashboard/faculty-admin/publication-analytics'
+      preLoaderRoute: typeof DashboardFacultyAdminPublicationAnalyticsRouteImport
       parentRoute: typeof DashboardFacultyAdminRoute
     }
     '/dashboard/faculty-admin/users': {
@@ -1641,6 +1715,13 @@ declare module '@tanstack/react-router' {
       path: '/organization'
       fullPath: '/dashboard/super-admin/organization'
       preLoaderRoute: typeof DashboardSuperAdminOrganizationRouteImport
+      parentRoute: typeof DashboardSuperAdminRoute
+    }
+    '/dashboard/super-admin/publication-analytics': {
+      id: '/dashboard/super-admin/publication-analytics'
+      path: '/publication-analytics'
+      fullPath: '/dashboard/super-admin/publication-analytics'
+      preLoaderRoute: typeof DashboardSuperAdminPublicationAnalyticsRouteImport
       parentRoute: typeof DashboardSuperAdminRoute
     }
     '/dashboard/super-admin/users': {
@@ -1751,6 +1832,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface DashboardDepartmentAdminRouteChildren {
+  DashboardDepartmentAdminPublicationAnalyticsRoute: typeof DashboardDepartmentAdminPublicationAnalyticsRoute
+}
+
+const DashboardDepartmentAdminRouteChildren: DashboardDepartmentAdminRouteChildren =
+  {
+    DashboardDepartmentAdminPublicationAnalyticsRoute:
+      DashboardDepartmentAdminPublicationAnalyticsRoute,
+  }
+
+const DashboardDepartmentAdminRouteWithChildren =
+  DashboardDepartmentAdminRoute._addFileChildren(
+    DashboardDepartmentAdminRouteChildren,
+  )
+
 interface DashboardFacultyAdminDepartmentsRouteChildren {
   DashboardFacultyAdminDepartmentsDepartmentIdRoute: typeof DashboardFacultyAdminDepartmentsDepartmentIdRoute
 }
@@ -1783,12 +1879,15 @@ const DashboardFacultyAdminUsersRouteWithChildren =
 
 interface DashboardFacultyAdminRouteChildren {
   DashboardFacultyAdminDepartmentsRoute: typeof DashboardFacultyAdminDepartmentsRouteWithChildren
+  DashboardFacultyAdminPublicationAnalyticsRoute: typeof DashboardFacultyAdminPublicationAnalyticsRoute
   DashboardFacultyAdminUsersRoute: typeof DashboardFacultyAdminUsersRouteWithChildren
 }
 
 const DashboardFacultyAdminRouteChildren: DashboardFacultyAdminRouteChildren = {
   DashboardFacultyAdminDepartmentsRoute:
     DashboardFacultyAdminDepartmentsRouteWithChildren,
+  DashboardFacultyAdminPublicationAnalyticsRoute:
+    DashboardFacultyAdminPublicationAnalyticsRoute,
   DashboardFacultyAdminUsersRoute: DashboardFacultyAdminUsersRouteWithChildren,
 }
 
@@ -1863,6 +1962,7 @@ interface DashboardSuperAdminRouteChildren {
   DashboardSuperAdminDepartmentsRoute: typeof DashboardSuperAdminDepartmentsRouteWithChildren
   DashboardSuperAdminFacultiesRoute: typeof DashboardSuperAdminFacultiesRouteWithChildren
   DashboardSuperAdminOrganizationRoute: typeof DashboardSuperAdminOrganizationRoute
+  DashboardSuperAdminPublicationAnalyticsRoute: typeof DashboardSuperAdminPublicationAnalyticsRoute
   DashboardSuperAdminUsersRoute: typeof DashboardSuperAdminUsersRouteWithChildren
 }
 
@@ -1872,6 +1972,8 @@ const DashboardSuperAdminRouteChildren: DashboardSuperAdminRouteChildren = {
   DashboardSuperAdminFacultiesRoute:
     DashboardSuperAdminFacultiesRouteWithChildren,
   DashboardSuperAdminOrganizationRoute: DashboardSuperAdminOrganizationRoute,
+  DashboardSuperAdminPublicationAnalyticsRoute:
+    DashboardSuperAdminPublicationAnalyticsRoute,
   DashboardSuperAdminUsersRoute: DashboardSuperAdminUsersRouteWithChildren,
 }
 
@@ -1879,7 +1981,7 @@ const DashboardSuperAdminRouteWithChildren =
   DashboardSuperAdminRoute._addFileChildren(DashboardSuperAdminRouteChildren)
 
 interface DashboardRouteChildren {
-  DashboardDepartmentAdminRoute: typeof DashboardDepartmentAdminRoute
+  DashboardDepartmentAdminRoute: typeof DashboardDepartmentAdminRouteWithChildren
   DashboardFacultyAdminRoute: typeof DashboardFacultyAdminRouteWithChildren
   DashboardIpttoOfficerRoute: typeof DashboardIpttoOfficerRoute
   DashboardLecturerRoute: typeof DashboardLecturerRouteWithChildren
@@ -1887,7 +1989,7 @@ interface DashboardRouteChildren {
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
-  DashboardDepartmentAdminRoute: DashboardDepartmentAdminRoute,
+  DashboardDepartmentAdminRoute: DashboardDepartmentAdminRouteWithChildren,
   DashboardFacultyAdminRoute: DashboardFacultyAdminRouteWithChildren,
   DashboardIpttoOfficerRoute: DashboardIpttoOfficerRoute,
   DashboardLecturerRoute: DashboardLecturerRouteWithChildren,
@@ -2090,6 +2192,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDashboardIpttoSummaryRoute: ApiDashboardIpttoSummaryRoute,
   ApiDashboardMeRoute: ApiDashboardMeRoute,
   ApiDashboardProfileRoute: ApiDashboardProfileRoute,
+  ApiDashboardPublicationAnalyticsRoute: ApiDashboardPublicationAnalyticsRoute,
   ApiDashboardReportRoute: ApiDashboardReportRoute,
   ApiDashboardResearchReviewRoute: ApiDashboardResearchReviewRoute,
   ApiFilesConfirmUploadRoute: ApiFilesConfirmUploadRoute,
