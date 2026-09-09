@@ -19,6 +19,8 @@ import {
 	Users,
 } from "lucide-react";
 
+import type { DashboardDestination } from "#/application/dashboard-workspaces.ts";
+
 export type DashboardRole =
 	| "lecturer"
 	| "department-admin"
@@ -75,7 +77,7 @@ export const roleLabels: Record<DashboardRole, string> = {
 
 export const dashboardNav: Array<{
 	label: string;
-	href: string;
+	href: DashboardDestination;
 	icon: LucideIcon;
 	role: DashboardRole;
 }> = [

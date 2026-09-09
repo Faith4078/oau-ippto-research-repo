@@ -23,6 +23,26 @@ const roleDestinations: ReadonlyArray<{
 	{ role: "lecturer", destination: "/dashboard/lecturer" },
 ];
 
+const destinationAccess: ReadonlyArray<{
+	destination: DashboardDestination;
+	roles: readonly RoleKey[];
+}> = [
+	{ destination: "/dashboard/lecturer", roles: ["lecturer"] },
+	{
+		destination: "/dashboard/department-admin",
+		roles: ["department_administrator", "super_administrator"],
+	},
+	{
+		destination: "/dashboard/faculty-admin",
+		roles: ["faculty_administrator", "super_administrator"],
+	},
+	{
+		destination: "/dashboard/iptto-officer",
+		roles: ["iptto_officer", "super_administrator"],
+	},
+	{ destination: "/dashboard/super-admin", roles: ["super_administrator"] },
+];
+
 export function dashboardDestinationForRoles(
 	roles: readonly string[],
 ): DashboardDestination {
@@ -30,6 +50,14 @@ export function dashboardDestinationForRoles(
 		roleDestinations.find(({ role }) => roles.includes(role))?.destination ??
 		"/dashboard/lecturer"
 	);
+}
+
+export function dashboardDestinationsForRoles(
+	roles: readonly string[],
+): readonly DashboardDestination[] {
+	return destinationAccess
+		.filter((access) => access.roles.some((role) => roles.includes(role)))
+		.map((access) => access.destination);
 }
 
 export type ResearchReviewStage = "department" | "iptto";

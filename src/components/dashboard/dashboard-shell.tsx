@@ -1,6 +1,6 @@
 "use client";
 
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import {
 	BadgeCheck,
@@ -29,6 +29,10 @@ import {
 } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
 
+import {
+	type DashboardDestination,
+	dashboardDestinationsForRoles,
+} from "#/application/dashboard-workspaces.ts";
 import { Button } from "#/components/ui/button.tsx";
 import {
 	Card,
@@ -51,6 +55,7 @@ import {
 	type DashboardRole,
 	type DashboardRow,
 	type DashboardWorkspace,
+	dashboardNav,
 	roleLabels,
 	type StatusTone,
 } from "#/presentation/dashboard/data.ts";
@@ -78,9 +83,15 @@ type DashboardUser = {
 	staffId: string;
 	name: string;
 	email: string | null;
-	roles: Array<string>;
+	roles: readonly string[];
 	departmentId: string | null;
 	facultyId: string | null;
+};
+
+type DashboardSwitchOption = {
+	href: DashboardDestination;
+	label: string;
+	role: DashboardRole;
 };
 
 type IpttoDashboardSummary = {
@@ -249,6 +260,20 @@ function buildNavItemActiveStates(
 	};
 }
 
+function dashboardSwitchOptionsForRoles(
+	roles: readonly string[],
+): DashboardSwitchOption[] {
+	const destinations = new Set(dashboardDestinationsForRoles(roles));
+
+	return dashboardNav
+		.filter((item) => destinations.has(item.href))
+		.map((item) => ({
+			href: item.href,
+			label: item.label,
+			role: item.role,
+		}));
+}
+
 const throughputBars = [
 	{ label: "W1", height: 34 },
 	{ label: "W2", height: 58 },
@@ -275,6 +300,9 @@ export function DashboardShell({
 	const [signedInName, setSignedInName] = useState<string | null>(null);
 	const [lecturerIdentity, setLecturerIdentity] =
 		useState<LecturerTopBarIdentity | null>(null);
+	const [dashboardOptions, setDashboardOptions] = useState<
+		DashboardSwitchOption[]
+	>([]);
 	const [activeHash, setActiveHash] = useState<string | null>(null);
 	const displayName = formatDashboardName(signedInName ?? workspace.persona);
 	const pathname = useLocation({
@@ -298,6 +326,7 @@ export function DashboardShell({
 		setIsIdentityLoading(true);
 		setSignedInName(null);
 		setLecturerIdentity(null);
+		setDashboardOptions([]);
 
 		void fetch("/api/dashboard/me", { cache: "no-store" })
 			.then((response) => (response.ok ? response.json() : null))
@@ -311,6 +340,12 @@ export function DashboardShell({
 				if (typeof name === "string" && name.trim()) {
 					setSignedInName(name.trim());
 				}
+
+				setDashboardOptions(
+					dashboardSwitchOptionsForRoles(
+						Array.isArray(data?.roles) ? data.roles : [],
+					),
+				);
 
 				if (workspace.role === "lecturer") {
 					setLecturerIdentity({
@@ -445,6 +480,8 @@ export function DashboardShell({
 
 				<section className="min-w-0 flex-1">
 					<TopBar
+						currentRole={workspace.role}
+						dashboardOptions={dashboardOptions}
 						displayName={displayName}
 						identity={workspace.role === "lecturer" ? lecturerIdentity : null}
 						isIdentityLoading={isIdentityLoading}
@@ -473,12 +510,16 @@ function shouldShowConfirmationPreview(role: DashboardRole) {
 }
 
 function TopBar({
+	currentRole,
+	dashboardOptions,
 	displayName,
 	identity,
 	isIdentityLoading,
 	onMenuClick,
 	showMenu,
 }: {
+	currentRole: DashboardRole;
+	dashboardOptions: readonly DashboardSwitchOption[];
 	displayName: string;
 	identity: LecturerTopBarIdentity | null;
 	isIdentityLoading: boolean;
@@ -517,6 +558,10 @@ function TopBar({
 					) : null}
 				</div>
 				<div className="ml-auto flex items-center gap-2">
+					<DashboardSwitcher
+						currentRole={currentRole}
+						options={dashboardOptions}
+					/>
 					<button
 						aria-label="Sign out"
 						className="flex h-10 w-10 items-center justify-center rounded border border-[#d8d8d8] bg-white text-[#080808]"
@@ -528,6 +573,51 @@ function TopBar({
 				</div>
 			</div>
 		</header>
+	);
+}
+
+function DashboardSwitcher({
+	currentRole,
+	options,
+}: {
+	currentRole: DashboardRole;
+	options: readonly DashboardSwitchOption[];
+}) {
+	const navigate = useNavigate();
+	const currentOption = options.find((option) => option.role === currentRole);
+
+	if (options.length < 2) {
+		return null;
+	}
+
+	return (
+		<label className="flex h-10 items-center gap-2 rounded border border-[#d8d8d8] bg-white px-2 text-sm">
+			<span className="hidden text-[#6b7280] text-xs font-semibold uppercase tracking-wide md:inline">
+				Dashboard
+			</span>
+			<select
+				aria-label="Switch dashboard"
+				className="h-full max-w-38 bg-transparent text-sm font-medium outline-none sm:max-w-none"
+				onChange={(event) => {
+					const destination = event.target.value as DashboardDestination;
+					if (destination !== currentOption?.href) {
+						void navigate({ to: destination });
+					}
+				}}
+				value={currentOption?.href ?? ""}
+			>
+				{currentOption ? null : (
+					<option disabled value="">
+						Current dashboard
+					</option>
+				)}
+				{options.map((option) => (
+					<option key={option.href} value={option.href}>
+						{option.label}
+					</option>
+				))}
+			</select>
+		</label>
 	);
 }
 

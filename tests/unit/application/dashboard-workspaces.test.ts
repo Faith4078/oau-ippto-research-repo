@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
 	buildResearchReviewDecision,
 	dashboardDestinationForRoles,
+	dashboardDestinationsForRoles,
 	loadResearchReviewQueue,
 	researchReviewAccessForUser,
 } from "#/application/dashboard-workspaces.ts";
@@ -16,6 +17,35 @@ describe("role dashboard destinations", () => {
 		[["lecturer"], "/dashboard/lecturer"],
 	])("sends %s to its own workspace", (roles, expected) => {
 		expect(dashboardDestinationForRoles(roles)).toBe(expected);
+	});
+});
+
+describe("role dashboard switching", () => {
+	it("lists every dashboard available to a multi-role user", () => {
+		expect(
+			dashboardDestinationsForRoles([
+				"lecturer",
+				"department_administrator",
+			]),
+		).toEqual(["/dashboard/lecturer", "/dashboard/department-admin"]);
+	});
+
+	it("lists elevated dashboards for super administrators", () => {
+		expect(dashboardDestinationsForRoles(["super_administrator"])).toEqual([
+			"/dashboard/department-admin",
+			"/dashboard/faculty-admin",
+			"/dashboard/iptto-officer",
+			"/dashboard/super-admin",
+		]);
+	});
+
+	it("keeps the existing default dashboard priority", () => {
+		expect(
+			dashboardDestinationForRoles([
+				"lecturer",
+				"super_administrator",
+			]),
+		).toBe("/dashboard/super-admin");
 	});
 });
 
