@@ -37,23 +37,25 @@ const config = defineConfig(({ command }) => {
       prerender: {
         enabled: false,
       },
+      target: 'vercel',
     }),
     viteReact(),
   ];
 
-  if (command === "build") {
-    plugins.push(
-      nitro({
-        prerender: {
-          concurrency: 1,
-          crawlLinks: false,
-          failOnError: true,
-          routes: publicPrerenderPaths,
-        },
-        rollupConfig: { external: [/^@sentry\//] },
-      }),
-    );
-  }
+if (command === "build") {
+  plugins.push(
+    nitro({
+      preset: 'vercel',
+      prerender: {
+        concurrency: 1,
+        crawlLinks: false,
+        failOnError: true,
+        routes: publicPrerenderPaths,
+      },
+      rollupConfig: { external: [/^@sentry\//] },
+    }),
+  );
+}
 
   return {
     plugins,
