@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
@@ -56,6 +57,15 @@ const config = defineConfig(({ command }) => {
 
 	return {
 		plugins,
+		resolve: {
+			alias: {
+				// node-postgres exposes pg-native as an optional lazy-loaded driver.
+				// Vite otherwise replaces the absent peer with a module-level throw.
+				"pg-native": fileURLToPath(
+					new URL("./src/lib/pg-native-shim.ts", import.meta.url),
+				),
+			},
+		},
 	};
 });
 
