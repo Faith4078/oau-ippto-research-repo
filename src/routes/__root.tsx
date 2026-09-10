@@ -27,6 +27,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		],
 		links: [
 			{
+				rel: "icon",
+				href: "data:,",
+			},
+			{
 				rel: "stylesheet",
 				href: appCss,
 			},
