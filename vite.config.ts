@@ -1,11 +1,10 @@
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
-import tsconfigPaths from "vite-tsconfig-paths";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-
 import viteReact from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
 import { defineConfig, type PluginOption } from "vite";
+import tsconfigPaths from "vite-tsconfig-paths";
 import neon from "./neon-vite-plugin.ts";
 
 const publicPrerenderPaths = [
@@ -25,41 +24,39 @@ const publicPrerenderPaths = [
 ];
 
 const config = defineConfig(({ command }) => {
-  const plugins: Array<PluginOption> = [
-    tsconfigPaths(),
-    devtools(),
-    neon,
-    tailwindcss(),
-    tanstackStart({
-      // Nitro owns production prerendering for this deployment. TanStack's
-      // preview-based prerenderer expects its default dist/server output, while
-      // Nitro emits the deployable server under .output/server.
-      prerender: {
-        enabled: false,
-      },
-      target: 'vercel',
-    }),
-    viteReact(),
-  ];
+	const plugins: PluginOption[] = [
+		tsconfigPaths(),
+		devtools(),
+		neon,
+		tailwindcss(),
+		tanstackStart({
+			// Nitro owns production prerendering for this deployment. TanStack's
+			// preview-based prerenderer expects its default dist/server output, while
+			// Nitro emits the deployable server under .output/server.
+			prerender: {
+				enabled: false,
+			},
+		}),
+		viteReact(),
+	];
 
-if (command === "build") {
-  plugins.push(
-    nitro({
-      preset: 'vercel',
-      prerender: {
-        concurrency: 1,
-        crawlLinks: false,
-        failOnError: true,
-        routes: publicPrerenderPaths,
-      },
-      rollupConfig: { external: [/^@sentry\//] },
-    }),
-  );
-}
+	if (command === "build") {
+		plugins.push(
+			nitro({
+				prerender: {
+					concurrency: 1,
+					crawlLinks: false,
+					failOnError: true,
+					routes: publicPrerenderPaths,
+				},
+				rollupConfig: { external: [/^@sentry\//] },
+			}),
+		);
+	}
 
-  return {
-    plugins,
-  };
+	return {
+		plugins,
+	};
 });
 
 export default config;
